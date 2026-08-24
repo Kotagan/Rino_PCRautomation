@@ -1,0 +1,693 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:rino:schema:package:v1",
+  "title": "RinoPackageManifestV1",
+  "description": "Manifest stored as package.rino.json at the root of a reviewed .rino-package archive.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "packageId",
+    "version",
+    "packageType",
+    "metadata",
+    "publisher",
+    "license",
+    "source",
+    "releasedAt",
+    "compatibility",
+    "requiredCapabilities",
+    "payload",
+    "files",
+    "signing"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "packageId": {
+      "$ref": "#/$defs/packageId"
+    },
+    "version": {
+      "$ref": "#/$defs/semanticVersion"
+    },
+    "packageType": {
+      "enum": [
+        "project",
+        "feature",
+        "hybrid"
+      ]
+    },
+    "metadata": {
+      "$ref": "#/$defs/packageMetadata"
+    },
+    "publisher": {
+      "$ref": "#/$defs/publisher"
+    },
+    "license": {
+      "$ref": "#/$defs/license"
+    },
+    "source": {
+      "$ref": "#/$defs/githubReleaseSource"
+    },
+    "releasedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "compatibility": {
+      "$ref": "#/$defs/compatibility"
+    },
+    "requiredCapabilities": {
+      "type": "array",
+      "maxItems": 64,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/capabilityKey"
+      }
+    },
+    "payload": {
+      "$ref": "#/$defs/payload"
+    },
+    "files": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 4094,
+      "items": {
+        "$ref": "#/$defs/fileRecord"
+      }
+    },
+    "signing": {
+      "$ref": "#/$defs/signing"
+    }
+  },
+  "allOf": [
+    {
+      "properties": {
+        "files": {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "const": "projectManifest"
+              }
+            },
+            "required": [
+              "role"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 1
+        }
+      }
+    },
+    {
+      "properties": {
+        "files": {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "const": "graph"
+              }
+            },
+            "required": [
+              "role"
+            ]
+          },
+          "minContains": 1,
+          "maxContains": 64
+        }
+      }
+    },
+    {
+      "properties": {
+        "files": {
+          "contains": {
+            "type": "object",
+            "properties": {
+              "role": {
+                "const": "image"
+              }
+            },
+            "required": [
+              "role"
+            ]
+          },
+          "minContains": 0,
+          "maxContains": 2000
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "packageType": {
+            "enum": [
+              "project",
+              "hybrid"
+            ]
+          }
+        },
+        "required": [
+          "packageType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": [
+              "defaultProjectEntrypointId"
+            ]
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "payload": {
+            "not": {
+              "required": [
+                "defaultProjectEntrypointId"
+              ]
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "packageId": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 128,
+      "pattern": "^[a-z0-9](?:[a-z0-9.-]{1,126}[a-z0-9])$"
+    },
+    "semanticVersion": {
+      "type": "string",
+      "maxLength": 128,
+      "pattern": "^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(?:-[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?(?:\\+[0-9A-Za-z-]+(?:\\.[0-9A-Za-z-]+)*)?$"
+    },
+    "localizedText": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "default"
+      ],
+      "properties": {
+        "default": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2048
+        },
+        "translations": {
+          "type": "object",
+          "maxProperties": 32,
+          "propertyNames": {
+            "pattern": "^[A-Za-z]{2,3}(?:-[A-Za-z0-9]{2,8})*$"
+          },
+          "additionalProperties": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2048
+          }
+        }
+      }
+    },
+    "packageMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "displayName",
+        "summary"
+      ],
+      "properties": {
+        "displayName": {
+          "$ref": "#/$defs/localizedText"
+        },
+        "summary": {
+          "$ref": "#/$defs/localizedText"
+        },
+        "description": {
+          "$ref": "#/$defs/localizedText"
+        },
+        "game": {
+          "$ref": "#/$defs/gameMetadata"
+        },
+        "tags": {
+          "type": "array",
+          "maxItems": 32,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          }
+        }
+      }
+    },
+    "gameMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gameId",
+        "displayName"
+      ],
+      "properties": {
+        "gameId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "displayName": {
+          "$ref": "#/$defs/localizedText"
+        }
+      }
+    },
+    "publisher": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "publisherId",
+        "displayName"
+      ],
+      "properties": {
+        "publisherId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[a-z0-9][a-z0-9._-]*$"
+        },
+        "displayName": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "homepage": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 2048,
+          "pattern": "^https://"
+        }
+      }
+    },
+    "license": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "identifier"
+      ],
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9.+-]+$"
+        },
+        "licenseFile": {
+          "const": "LICENSE.txt"
+        }
+      }
+    },
+    "githubReleaseSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "provider",
+        "owner",
+        "repository",
+        "releaseTag",
+        "assetName",
+        "repositoryUrl"
+      ],
+      "properties": {
+        "provider": {
+          "const": "github"
+        },
+        "owner": {
+          "$ref": "#/$defs/githubName"
+        },
+        "repository": {
+          "$ref": "#/$defs/githubName"
+        },
+        "releaseTag": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "assetName": {
+          "type": "string",
+          "minLength": 14,
+          "maxLength": 255,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*\\.rino-package$"
+        },
+        "repositoryUrl": {
+          "type": "string",
+          "format": "uri",
+          "maxLength": 2048,
+          "pattern": "^https://github\\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+/?$"
+        }
+      }
+    },
+    "githubName": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100,
+      "pattern": "^[A-Za-z0-9_.-]+$"
+    },
+    "compatibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "minimumClientVersion",
+        "sidecarProtocolVersion",
+        "projectSchemaVersions",
+        "operatingSystem",
+        "architectures"
+      ],
+      "properties": {
+        "minimumClientVersion": {
+          "$ref": "#/$defs/semanticVersion"
+        },
+        "maximumClientVersion": {
+          "$ref": "#/$defs/semanticVersion"
+        },
+        "sidecarProtocolVersion": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "projectSchemaVersions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "items": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2147483647
+          }
+        },
+        "operatingSystem": {
+          "const": "windows"
+        },
+        "architectures": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 4,
+          "uniqueItems": true,
+          "contains": {
+            "const": "x86_64"
+          },
+          "items": {
+            "enum": [
+              "x86_64"
+            ]
+          }
+        }
+      }
+    },
+    "capabilityKey": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-zA-Z0-9]*(?:[.-][a-z][a-zA-Z0-9]*)*$"
+    },
+    "payload": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "projectManifestPath",
+        "entrypoints"
+      ],
+      "properties": {
+        "projectManifestPath": {
+          "const": "payload/project.rino.json"
+        },
+        "defaultProjectEntrypointId": {
+          "$ref": "#/$defs/entrypointId"
+        },
+        "suggestedConfigurationName": {
+          "$ref": "#/$defs/localizedText"
+        },
+        "entrypoints": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 64,
+          "items": {
+            "$ref": "#/$defs/entrypoint"
+          }
+        }
+      }
+    },
+    "entrypointId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[a-z][a-z0-9._-]*$"
+    },
+    "entrypoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "entrypointId",
+        "graphId",
+        "displayName"
+      ],
+      "properties": {
+        "entrypointId": {
+          "$ref": "#/$defs/entrypointId"
+        },
+        "graphId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+        },
+        "displayName": {
+          "$ref": "#/$defs/localizedText"
+        },
+        "description": {
+          "$ref": "#/$defs/localizedText"
+        },
+        "requiredCapabilities": {
+          "type": "array",
+          "maxItems": 64,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/capabilityKey"
+          }
+        }
+      }
+    },
+    "fileRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "role",
+        "mediaType",
+        "byteLength",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "pattern": "^(?:payload/project\\.rino\\.json|payload/graphs/[a-z0-9][a-z0-9-]{0,62}\\.rino\\.graph\\.json|payload/assets/images/[a-f0-9]{64}\\.png|README\\.md|LICENSE\\.txt|docs/[A-Za-z0-9][A-Za-z0-9._-]{0,127}\\.md)$"
+        },
+        "role": {
+          "enum": [
+            "projectManifest",
+            "graph",
+            "image",
+            "readme",
+            "license",
+            "documentation"
+          ]
+        },
+        "mediaType": {
+          "enum": [
+            "application/json",
+            "image/png",
+            "text/markdown",
+            "text/plain"
+          ]
+        },
+        "byteLength": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 268435456
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "const": "projectManifest"
+              }
+            },
+            "required": [
+              "role"
+            ]
+          },
+          "then": {
+            "properties": {
+              "path": {
+                "const": "payload/project.rino.json"
+              },
+              "mediaType": {
+                "const": "application/json"
+              },
+              "byteLength": {
+                "maximum": 4194304
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "const": "graph"
+              }
+            },
+            "required": [
+              "role"
+            ]
+          },
+          "then": {
+            "properties": {
+              "path": {
+                "pattern": "^payload/graphs/[a-z0-9][a-z0-9-]{0,62}\\.rino\\.graph\\.json$"
+              },
+              "mediaType": {
+                "const": "application/json"
+              },
+              "byteLength": {
+                "maximum": 16777216
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "const": "image"
+              }
+            },
+            "required": [
+              "role"
+            ]
+          },
+          "then": {
+            "properties": {
+              "path": {
+                "pattern": "^payload/assets/images/[a-f0-9]{64}\\.png$"
+              },
+              "mediaType": {
+                "const": "image/png"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "const": "readme"
+              }
+            },
+            "required": [
+              "role"
+            ]
+          },
+          "then": {
+            "properties": {
+              "path": {
+                "const": "README.md"
+              },
+              "mediaType": {
+                "const": "text/markdown"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "const": "license"
+              }
+            },
+            "required": [
+              "role"
+            ]
+          },
+          "then": {
+            "properties": {
+              "path": {
+                "const": "LICENSE.txt"
+              },
+              "mediaType": {
+                "const": "text/plain"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "const": "documentation"
+              }
+            },
+            "required": [
+              "role"
+            ]
+          },
+          "then": {
+            "properties": {
+              "path": {
+                "pattern": "^docs/[A-Za-z0-9][A-Za-z0-9._-]{0,127}\\.md$"
+              },
+              "mediaType": {
+                "const": "text/markdown"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "signing": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "keyId",
+        "signatureFile"
+      ],
+      "properties": {
+        "algorithm": {
+          "const": "ed25519"
+        },
+        "keyId": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "pattern": "^[A-Za-z0-9._:-]+$"
+        },
+        "signatureFile": {
+          "const": "signature.ed25519"
+        }
+      }
+    }
+  }
+}

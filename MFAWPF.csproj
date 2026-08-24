@@ -1,0 +1,281 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <RuntimeIdentifier Condition="$(Platform)=='x64'">win-x64</RuntimeIdentifier>
+        <RuntimeIdentifier Condition="$(Platform)=='ARM64'">win-arm64</RuntimeIdentifier>
+        <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
+        <Nullable>annotations</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UseWPF>true</UseWPF>
+        <Configurations>Debug;Release;RelWithDebInfo</Configurations>
+        <Platforms>ARM64;x64</Platforms>
+        <EnableWindowsTargeting>true</EnableWindowsTargeting>
+        <XamlDebuggingInformation>True</XamlDebuggingInformation>
+        <Authors>SweetFox</Authors>
+        <WindowsSdkPackageVersion>10.0.17763.53</WindowsSdkPackageVersion>
+        <ApplicationManifest>app.manifest</ApplicationManifest>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BouncyCastle.Cryptography" Version="2.6.2" />
+        <PackageReference Include="CalcBinding" Version="2.5.2" />
+        <PackageReference Include="GraphSharp" Version="1.1.0" />
+        <PackageReference Include="Lierda.WPFHelper" Version="1.0.3" />
+        <PackageReference Include="Maa.Framework" Version="4.4.0-preview.25353.2" />
+        <PackageReference Include="Maa.Framework.Binding" Version="4.4.0-preview.25353.2" />
+        <PackageReference Include="Maa.Framework.Binding.Native" Version="4.4.0-preview.25353.2" />
+        <PackageReference Include="Maa.Framework.Native" Version="4.4.0-preview.25353.2" />
+        <PackageReference Include="Maa.Framework.Runtime.win-x64" Version="4.4.0-beta.2" />
+        <PackageReference Include="Maa.Framework.Runtimes" Version="4.4.0-beta.2" />
+        <PackageReference Include="MailKit" Version="4.16.0" />
+        <PackageReference Include="MdXaml" Version="1.27.0" />
+        <PackageReference Include="MdXaml.Html" Version="1.27.0" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.4.25258.110" />
+        <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.3" />
+        <PackageReference Include="Notification.Wpf" Version="8.0.0" />
+        <PackageReference Include="XstarS.GuidGenerators" Version="2.9.0" />
+        <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+        <PackageReference Include="gong-wpf-dragdrop" Version="4.0.0" />
+        <PackageReference Include="HandyControls" Version="3.6.0" />
+        <PackageReference Include="JsonSchema.Net" Version="9.4.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="Serilog" Version="4.3.0" />
+        <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
+        <PackageReference Include="System.CodeDom" Version="10.0.0-preview.4.25258.110" />
+        <PackageReference Include="System.Drawing.Common" Version="10.0.0-preview.4.25258.110" />
+        <PackageReference Include="System.Management" Version="10.0.0-preview.4.25258.110" />
+        <PackageReference Include="WPFLocalizeExtension" Version="3.10.0" />
+    </ItemGroup>
+
+    <!-- Info -->
+    <PropertyGroup>
+        <ApplicationIcon>logo.ico</ApplicationIcon>
+        <RootNamespace>MFAWPF</RootNamespace>
+        <AssemblyName>Rino</AssemblyName>
+        <AssemblyTitle>Rino</AssemblyTitle>
+        <Product>Rino</Product>
+        <ProductName>Rino</ProductName>
+        <PublisherName>SweetFox</PublisherName>
+        <SuiteName>Rino</SuiteName>
+    </PropertyGroup>
+
+    <!-- Ignore Warnings -->
+    <PropertyGroup>
+        <NoWarn>NU1602;NU1701;NU1900;CS0169;CS0612;CS0618;CS1998;CS4014;CS8618;CS8601;CS8602;CS8603;CS8604;SYSLIB0014;SA1121;SA1404;Uno0001</NoWarn>
+    </PropertyGroup>
+
+    <!-- Version -->
+    <PropertyGroup>
+        <ApplicationRevision>0</ApplicationRevision>
+        <ApplicationVersion>1.1.0</ApplicationVersion>
+        <Version>1.1</Version>
+        <FileVersion>1.3.4</FileVersion>
+        <AssemblyVersion>1.3.4</AssemblyVersion>
+        <InformationalVersion>0.0.1</InformationalVersion>
+    </PropertyGroup>
+
+    <!-- Build and Publish -->
+    <PropertyGroup>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+        <OutputPath>..\bin\$(Platform)\$(Configuration)\</OutputPath>
+        <PublishReadyToRun>false</PublishReadyToRun>
+        <PublishSingleFile>true</PublishSingleFile>
+        <PublishTrimmed>false</PublishTrimmed>
+        <SelfContained>false</SelfContained>
+        <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+        <SatelliteResourceLanguages>zh-Hans;zh-Hant;en-US</SatelliteResourceLanguages>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+        <UseApplicationTrust>false</UseApplicationTrust>
+        <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Page Update="Res\Style\Styles\Brush.xaml">
+            <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Res\Style\Styles\Color.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <XamlRuntime>Wpf</XamlRuntime>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Res\Style\Styles\Geometry.xaml">
+            <Generator>MSBuild:Compile</Generator>
+            <XamlRuntime>Wpf</XamlRuntime>
+            <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Controls\CustomAutoListControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Controls\CustomListControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Controls\Settings\PerformanceUserControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Controls\Settings\TimerSettingsUserControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Controls\Settings\ConfigurationMgrUserControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Controls\Settings\GuiSettingsUserControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Controls\Settings\ConnectSettingsUserControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Controls\Settings\StartSettingsUserControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Controls\Settings\ExternalNotificationSettingsUserControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Controls\Settings\GameSettingsUserControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Controls\Settings\VersionUpdateSettingsUserControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\Controls\Settings\AboutUserControl.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\UI\ErrorView.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\UI\RootView.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\UI\NotifyIcon.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\UI\SettingsView.xaml">
+          <Generator>MSBuild:Compile</Generator>
+          <XamlRuntime>Wpf</XamlRuntime>
+          <SubType>Designer</SubType>
+        </Page>
+        <Page Update="Views\UI\Dialogs\AdbEditorDialog.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\UI\Dialogs\DownloadDialog.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\UI\Dialogs\EditTaskDialog.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\UI\Dialogs\TaskFlowChartDialog.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\UI\Dialogs\SwipeDialog.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\UI\Dialogs\ColorExtractionDialog.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\UI\Dialogs\SelectionRegionDialog.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\UI\Dialogs\RecognitionTextDialog.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\UI\Dialogs\AddTaskDialog.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+        <Page Update="Views\UI\Dialogs\CropImageDialog.xaml">
+          <Generator>MSBuild:Compile</Generator>
+        </Page>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="tests\**\*.cs" />
+        <Compile Remove="tools\**\*.cs" />
+        <None Remove="docs\contracts\rino-catalog-v1.schema.json" />
+        <None Remove="docs\contracts\rino-package-v1.schema.json" />
+        <EmbeddedResource Include="docs\contracts\rino-catalog-v1.schema.json"
+                          LogicalName="MFAWPF.Contracts.rino-catalog-v1.schema.json" />
+        <EmbeddedResource Include="docs\contracts\rino-package-v1.schema.json"
+                          LogicalName="MFAWPF.Contracts.rino-package-v1.schema.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="DLL\" />
+        <Folder Include="Resource\base\" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Res\Localization\Strings.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Update="Res\Localization\Strings.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>Strings.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Resource Include="logo.ico">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Resource>
+        <Resource Include="Assets\Fonts\**\*">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </Resource>
+        <Content Include="DLL\msvcp140.dll">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="DLL\vcruntime140.dll">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <None Remove="App.config" />
+        <Content Include="App.config">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <None Include="interface.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Include="config\**\*">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Include="Resource\**\*">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+</Project>

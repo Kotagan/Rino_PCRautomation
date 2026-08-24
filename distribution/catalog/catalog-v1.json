@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-10T00:00:00Z",
+  "expiresAt": "2027-08-10T00:00:00Z",
+  "publisherKeys": [],
+  "packages": [],
+  "signing": {
+    "algorithm": "ed25519",
+    "keyId": "catalog-root-2026-08",
+    "signatureFile": "catalog-v1.sig"
+  }
+}

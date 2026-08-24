@@ -1,0 +1,3 @@
+namespace MFAWPF.Services.RinoPackages;
+
+internal sealed record RinoPackageCatalogRefreshResult(RinoPackageCatalogCacheEntry Entry, RinoPackageCatalogRefreshSource Source, RinoPackageTransportException? RefreshFailure);

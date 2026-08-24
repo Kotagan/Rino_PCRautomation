@@ -1,0 +1,777 @@
+<UserControl
+    d:DataContext="{d:DesignInstance settings:TimerSettingsUserControl,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="450"
+    mc:Ignorable="d"
+    x:Class="MFAWPF.Views.UserControl.Settings.TimerSettingsUserControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:c="clr-namespace:CalcBinding;assembly=CalcBinding"
+    xmlns:controls="clr-namespace:MFAWPF.Views.UserControl"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:extensions="clr-namespace:MFAWPF.Extensions"
+    xmlns:hc="https://handyorg.github.io/handycontrol"
+    xmlns:helper="clr-namespace:MFAWPF.Helper"
+    xmlns:lex="http://wpflocalizeextension.codeplex.com"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="clr-namespace:MFAWPF.Views.UserControl.Settings"
+    xmlns:ui="clr-namespace:MFAWPF.Views.UI"
+    xmlns:view="clr-namespace:MFAWPF.Views"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <controls:CustomTextBlock
+            FontWeight="Bold"
+            Grid.Row="0"
+            HorizontalAlignment="Center"
+            Margin="0,0,0,8"
+            Text="{lex:Loc GlobalConfigTip}"
+            TextAlignment="Center"
+            Visibility="{c:Binding 'ConfigurationList.Count > 1',
+                                   Source={x:Static helper:Instances.SettingsViewModel}}" />
+
+        <StackPanel
+            Grid.Row="1"
+            HorizontalAlignment="Center"
+            Margin="0,0,0,10"
+            Orientation="Horizontal">
+            <CheckBox
+                Content="{lex:Loc ForceScheduledStart}"
+                Height="30"
+                HorizontalAlignment="Center"
+                IsChecked="{Binding ViewModel.ForceScheduledStart}"
+                Margin="10,0"
+                ToolTip="{lex:Loc ForceScheduledStartTip}"
+                VerticalContentAlignment="Center" />
+            <CheckBox
+                Content="{lex:Loc TimerCustomConfig}"
+                Height="30"
+                HorizontalAlignment="Center"
+                IsChecked="{Binding ViewModel.CustomConfig}"
+                Margin="10,0"
+                ToolTip="{lex:Loc TimerCustomConfigTip}"
+                VerticalContentAlignment="Center" />
+        </StackPanel>
+
+        <Grid Grid.Row="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!--  Timer 1 (Index 0)  -->
+            <Border
+                Background="{DynamicResource ControlSurfaceBrush}"
+                BorderBrush="{DynamicResource ControlStrokeBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Grid.Column="0"
+                Grid.Row="0"
+                Margin="5,4"
+                Padding="12,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox
+                            Content="{Binding ViewModel.TimerModels.Timers[0].TimerName}"
+                            FontWeight="Medium"
+                            HorizontalAlignment="Left"
+                            IsChecked="{Binding ViewModel.TimerModels.Timers[0].IsOn}"
+                            VerticalAlignment="Center" />
+                        <StackPanel
+                            Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[0].IsOn}"
+                                Margin="2,0"
+                                Maximum="23"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[0].Hour}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="0" />
+                            <controls:CustomTextBlock
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource SecondaryTextBrush}"
+                                Margin="2,0"
+                                Text=":"
+                                VerticalAlignment="Center" />
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[0].IsOn}"
+                                Margin="2,0"
+                                Maximum="59"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[0].Min}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="0" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid
+                        Grid.Row="1"
+                        Margin="0,8,0,2"
+                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <controls:CustomTextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextBrush}"
+                            Margin="0,0,8,0"
+                            Text="{lex:Loc ConfigurationName}"
+                            VerticalAlignment="Center" />
+                        <ComboBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
+                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[0].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="Name"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[0].TimerConfig}"
+                            VerticalAlignment="Center"
+                            extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                            Focusable="False" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!--  Timer 2 (Index 1)  -->
+            <Border
+                Background="{DynamicResource ControlSurfaceBrush}"
+                BorderBrush="{DynamicResource ControlStrokeBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Grid.Column="0"
+                Grid.Row="1"
+                Margin="5,4"
+                Padding="12,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox
+                            Content="{Binding ViewModel.TimerModels.Timers[1].TimerName}"
+                            FontWeight="Medium"
+                            HorizontalAlignment="Left"
+                            IsChecked="{Binding ViewModel.TimerModels.Timers[1].IsOn}"
+                            VerticalAlignment="Center" />
+                        <StackPanel
+                            Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[1].IsOn}"
+                                Margin="2,0"
+                                Maximum="23"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[1].Hour}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="3" />
+                            <controls:CustomTextBlock
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource SecondaryTextBrush}"
+                                Margin="2,0"
+                                Text=":"
+                                VerticalAlignment="Center" />
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[1].IsOn}"
+                                Margin="2,0"
+                                Maximum="59"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[1].Min}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="5" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid
+                        Grid.Row="1"
+                        Margin="0,8,0,2"
+                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <controls:CustomTextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextBrush}"
+                            Margin="0,0,8,0"
+                            Text="{lex:Loc ConfigurationName}"
+                            VerticalAlignment="Center" />
+                        <ComboBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
+                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[1].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="Name"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[1].TimerConfig}"
+                            VerticalAlignment="Center"
+                            extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                            Focusable="False" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!--  Timer 3 (Index 2)  -->
+            <Border
+                Background="{DynamicResource ControlSurfaceBrush}"
+                BorderBrush="{DynamicResource ControlStrokeBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Grid.Column="0"
+                Grid.Row="2"
+                Margin="5,4"
+                Padding="12,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox
+                            Content="{Binding ViewModel.TimerModels.Timers[2].TimerName}"
+                            FontWeight="Medium"
+                            HorizontalAlignment="Left"
+                            IsChecked="{Binding ViewModel.TimerModels.Timers[2].IsOn}"
+                            VerticalAlignment="Center" />
+                        <StackPanel
+                            Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[2].IsOn}"
+                                Margin="2,0"
+                                Maximum="23"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[2].Hour}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="6" />
+                            <controls:CustomTextBlock
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource SecondaryTextBrush}"
+                                Margin="2,0"
+                                Text=":"
+                                VerticalAlignment="Center" />
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[2].IsOn}"
+                                Margin="2,0"
+                                Maximum="59"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[2].Min}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="10" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid
+                        Grid.Row="1"
+                        Margin="0,8,0,2"
+                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <controls:CustomTextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextBrush}"
+                            Margin="0,0,8,0"
+                            Text="{lex:Loc ConfigurationName}"
+                            VerticalAlignment="Center" />
+                        <ComboBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
+                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[2].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="Name"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[2].TimerConfig}"
+                            VerticalAlignment="Center"
+                            extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                            Focusable="False" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!--  Timer 4 (Index 3)  -->
+            <Border
+                Background="{DynamicResource ControlSurfaceBrush}"
+                BorderBrush="{DynamicResource ControlStrokeBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Grid.Column="0"
+                Grid.Row="3"
+                Margin="5,4"
+                Padding="12,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox
+                            Content="{Binding ViewModel.TimerModels.Timers[3].TimerName}"
+                            FontWeight="Medium"
+                            HorizontalAlignment="Left"
+                            IsChecked="{Binding ViewModel.TimerModels.Timers[3].IsOn}"
+                            VerticalAlignment="Center" />
+                        <StackPanel
+                            Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[3].IsOn}"
+                                Margin="2,0"
+                                Maximum="23"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[3].Hour}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="9" />
+                            <controls:CustomTextBlock
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource SecondaryTextBrush}"
+                                Margin="2,0"
+                                Text=":"
+                                VerticalAlignment="Center" />
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[3].IsOn}"
+                                Margin="2,0"
+                                Maximum="59"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[3].Min}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="15" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid
+                        Grid.Row="1"
+                        Margin="0,8,0,2"
+                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <controls:CustomTextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextBrush}"
+                            Margin="0,0,8,0"
+                            Text="{lex:Loc ConfigurationName}"
+                            VerticalAlignment="Center" />
+                        <ComboBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
+                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[3].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="Name"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[3].TimerConfig}"
+                            VerticalAlignment="Center"
+                            extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                            Focusable="False" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!--  Timer 5 (Index 4)  -->
+            <Border
+                Background="{DynamicResource ControlSurfaceBrush}"
+                BorderBrush="{DynamicResource ControlStrokeBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Grid.Column="1"
+                Grid.Row="0"
+                Margin="5,4"
+                Padding="12,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox
+                            Content="{Binding ViewModel.TimerModels.Timers[4].TimerName}"
+                            FontWeight="Medium"
+                            HorizontalAlignment="Left"
+                            IsChecked="{Binding ViewModel.TimerModels.Timers[4].IsOn}"
+                            VerticalAlignment="Center" />
+                        <StackPanel
+                            Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[4].IsOn}"
+                                Margin="2,0"
+                                Maximum="23"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[4].Hour}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="12" />
+                            <controls:CustomTextBlock
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource SecondaryTextBrush}"
+                                Margin="2,0"
+                                Text=":"
+                                VerticalAlignment="Center" />
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[4].IsOn}"
+                                Margin="2,0"
+                                Maximum="59"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[4].Min}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="20" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid
+                        Grid.Row="1"
+                        Margin="0,8,0,2"
+                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <controls:CustomTextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextBrush}"
+                            Margin="0,0,8,0"
+                            Text="{lex:Loc ConfigurationName}"
+                            VerticalAlignment="Center" />
+                        <ComboBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
+                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[4].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="Name"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[4].TimerConfig}"
+                            VerticalAlignment="Center"
+                            extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                            Focusable="False" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!--  Timer 6 (Index 5)  -->
+            <Border
+                Background="{DynamicResource ControlSurfaceBrush}"
+                BorderBrush="{DynamicResource ControlStrokeBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Grid.Column="1"
+                Grid.Row="1"
+                Margin="5,4"
+                Padding="12,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox
+                            Content="{Binding ViewModel.TimerModels.Timers[5].TimerName}"
+                            FontWeight="Medium"
+                            HorizontalAlignment="Left"
+                            IsChecked="{Binding ViewModel.TimerModels.Timers[5].IsOn}"
+                            VerticalAlignment="Center" />
+                        <StackPanel
+                            Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[5].IsOn}"
+                                Margin="2,0"
+                                Maximum="23"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[5].Hour}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="15" />
+                            <controls:CustomTextBlock
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource SecondaryTextBrush}"
+                                Margin="2,0"
+                                Text=":"
+                                VerticalAlignment="Center" />
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[5].IsOn}"
+                                Margin="2,0"
+                                Maximum="59"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[5].Min}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="30" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid
+                        Grid.Row="1"
+                        Margin="0,8,0,2"
+                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <controls:CustomTextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextBrush}"
+                            Margin="0,0,8,0"
+                            Text="{lex:Loc ConfigurationName}"
+                            VerticalAlignment="Center" />
+                        <ComboBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
+                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[5].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="Name"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[5].TimerConfig}"
+                            VerticalAlignment="Center"
+                            extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                            Focusable="False" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!--  Timer 7 (Index 6)  -->
+            <Border
+                Background="{DynamicResource ControlSurfaceBrush}"
+                BorderBrush="{DynamicResource ControlStrokeBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Grid.Column="1"
+                Grid.Row="2"
+                Margin="5,4"
+                Padding="12,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox
+                            Content="{Binding ViewModel.TimerModels.Timers[6].TimerName}"
+                            FontWeight="Medium"
+                            HorizontalAlignment="Left"
+                            IsChecked="{Binding ViewModel.TimerModels.Timers[6].IsOn}"
+                            VerticalAlignment="Center" />
+                        <StackPanel
+                            Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[6].IsOn}"
+                                Margin="2,0"
+                                Maximum="23"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[6].Hour}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="18" />
+                            <controls:CustomTextBlock
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource SecondaryTextBrush}"
+                                Margin="2,0"
+                                Text=":"
+                                VerticalAlignment="Center" />
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[6].IsOn}"
+                                Margin="2,0"
+                                Maximum="59"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[6].Min}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="40" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid
+                        Grid.Row="1"
+                        Margin="0,8,0,2"
+                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <controls:CustomTextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextBrush}"
+                            Margin="0,0,8,0"
+                            Text="{lex:Loc ConfigurationName}"
+                            VerticalAlignment="Center" />
+                        <ComboBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
+                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[6].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="Name"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[6].TimerConfig}"
+                            VerticalAlignment="Center"
+                            extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                            Focusable="False" />
+                    </Grid>
+                </Grid>
+            </Border>
+
+            <!--  Timer 8 (Index 7)  -->
+            <Border
+                Background="{DynamicResource ControlSurfaceBrush}"
+                BorderBrush="{DynamicResource ControlStrokeBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Grid.Column="1"
+                Grid.Row="3"
+                Margin="5,4"
+                Padding="12,8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <CheckBox
+                            Content="{Binding ViewModel.TimerModels.Timers[7].TimerName}"
+                            FontWeight="Medium"
+                            HorizontalAlignment="Left"
+                            IsChecked="{Binding ViewModel.TimerModels.Timers[7].IsOn}"
+                            VerticalAlignment="Center" />
+                        <StackPanel
+                            Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[7].IsOn}"
+                                Margin="2,0"
+                                Maximum="23"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[7].Hour}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="21" />
+                            <controls:CustomTextBlock
+                                FontWeight="Bold"
+                                Foreground="{DynamicResource SecondaryTextBrush}"
+                                Margin="2,0"
+                                Text=":"
+                                VerticalAlignment="Center" />
+                            <hc:NumericUpDown
+                                InputMethod.IsInputMethodEnabled="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[7].IsOn}"
+                                Margin="2,0"
+                                Maximum="59"
+                                Minimum="0"
+                                Value="{Binding ViewModel.TimerModels.Timers[7].Min}"
+                                ValueFormat="00"
+                                Width="60"
+                                d:Value="50" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid
+                        Grid.Row="1"
+                        Margin="0,8,0,2"
+                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <controls:CustomTextBlock
+                            FontSize="12"
+                            Foreground="{DynamicResource SecondaryTextBrush}"
+                            Margin="0,0,8,0"
+                            Text="{lex:Loc ConfigurationName}"
+                            VerticalAlignment="Center" />
+                        <ComboBox
+                            Grid.Column="1"
+                            HorizontalAlignment="Stretch"
+                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
+                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[7].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="Name"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[7].TimerConfig}"
+                            VerticalAlignment="Center"
+                            extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                            Focusable="False" />
+                    </Grid>
+                </Grid>
+            </Border>
+        </Grid>
+    </Grid>
+</UserControl>

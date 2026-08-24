@@ -1,0 +1,14 @@
+Rino licensing and upstream notice
+
+This repository contains a modified work derived from MFAWPF:
+https://github.com/SweetSmellFox/MFAWPF
+
+MFAWPF was distributed under the GNU General Public License version 3.
+The original license text is preserved in LICENSE-GPL-3.0, and copyright
+in the upstream portions remains with the MFAWPF contributors.
+
+Modifications and newly added portions in this repository are distributed
+under the GNU Affero General Public License version 3. The AGPL-3.0 text is
+provided in LICENSE. Section 13 of AGPL-3.0 permits combining AGPL-3.0-covered
+work with GPL-3.0-covered work while preserving the terms applicable to each
+part.

@@ -1,0 +1,224 @@
+<UserControl
+    x:Class="MFAWPF.Views.UserControl.Settings.DownloadCenterUserControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="clr-namespace:MFAWPF.Views.UserControl"
+    xmlns:hc="https://handyorg.github.io/handycontrol"
+    xmlns:lex="http://wpflocalizeextension.codeplex.com"
+    xmlns:settings="clr-namespace:MFAWPF.Views.UserControl.Settings">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <Style x:Key="PackagePrimaryButtonStyle" TargetType="{x:Type Button}" BasedOn="{StaticResource DialogActionButtonStyle}">
+            <Setter Property="Background" Value="{DynamicResource BasePrimaryBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource BasePrimaryBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+            <Setter Property="hc:VisualElement.HighlightBackground" Value="{DynamicResource MouseDownBrush}" />
+            <Setter Property="hc:VisualElement.HighlightForeground" Value="{DynamicResource PrimaryTextBrush}" />
+        </Style>
+        <Style x:Key="PackageListItemStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Margin" Value="0,0,0,12" />
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Focusable" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        <ContentPresenter />
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource SecundaryBackgroundColor}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header Card -->
+        <controls:CardControl
+            Background="{DynamicResource WhiteColor}"
+            BorderThickness="0"
+            CornerRadius="5"
+            Margin="20,6,20,6">
+            <controls:CardControl.Icon>
+                <Path
+                    Data="{StaticResource DownloadGeometry}"
+                    Fill="{DynamicResource ControlIconBrush}"
+                    Height="24"
+                    Margin="8"
+                    Stretch="Uniform"
+                    Width="25" />
+            </controls:CardControl.Icon>
+            <controls:CardControl.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock FontSize="17" Grid.Row="0" Text="{lex:Loc PackageDownloadsTitle}" />
+                    <TextBlock
+                        FontSize="14.5"
+                        Foreground="{DynamicResource GrayColor1}"
+                        Grid.Row="1"
+                        Text="{lex:Loc PackageDownloadsDescription}"
+                        TextWrapping="Wrap" />
+                </Grid>
+            </controls:CardControl.Header>
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button
+                    hc:IconElement.Geometry="{StaticResource BetterRefreshGeometry}"
+                    Style="{StaticResource DialogSecondaryButtonStyle}"
+                    Width="132"
+                    Command="{Binding RefreshCatalogCommand}"
+                    Visibility="{Binding IsNotLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Content="{lex:Loc PackageRefresh}" />
+                <Button
+                    Style="{StaticResource DialogSecondaryButtonStyle}"
+                    Width="110"
+                    Command="{Binding CancelRefreshCommand}"
+                    Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    Content="{lex:Loc PackageCancel}" />
+            </StackPanel>
+        </controls:CardControl>
+
+        <!-- Status Message Banner -->
+        <Border
+            Grid.Row="1"
+            Margin="20,4,20,4"
+            Padding="12,8"
+            Background="{DynamicResource WhiteColor}"
+            CornerRadius="5"
+            Visibility="{Binding IsStatusVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <TextBlock
+                Text="{Binding StatusMessage}"
+                Foreground="{DynamicResource PrimaryBrush}"
+                TextWrapping="Wrap" />
+        </Border>
+
+        <!-- Search and Filter Bar -->
+        <Grid Grid.Row="2" Margin="20,4,20,8">
+            <hc:SearchBar
+                Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                hc:InfoElement.Placeholder="{lex:Loc PackageSearchPlaceholder}" />
+        </Grid>
+
+        <!-- Package List -->
+        <hc:ScrollViewer
+            Grid.Row="3"
+            Margin="20,0,20,10"
+            VerticalScrollBarVisibility="Auto">
+            <ListBox
+                ItemsSource="{Binding VisiblePackages}"
+                ItemContainerStyle="{StaticResource PackageListItemStyle}"
+                Background="Transparent"
+                BorderThickness="0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            Background="{DynamicResource WhiteColor}"
+                            CornerRadius="6"
+                            Padding="16,12"
+                            Margin="0,0,0,8">
+                            <StackPanel>
+                                <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                        <TextBlock
+                                            Text="{Binding DisplayName}"
+                                            FontSize="16"
+                                            FontWeight="SemiBold"
+                                            Margin="0,0,8,0" />
+                                        <Border
+                                            Background="{DynamicResource GrayColor5}"
+                                            CornerRadius="3"
+                                            Padding="6,2"
+                                            VerticalAlignment="Center">
+                                            <TextBlock
+                                            Text="{Binding VersionLabel}"
+                                                FontSize="11"
+                                                Foreground="{DynamicResource GrayColor1}" />
+                                        </Border>
+                                    </StackPanel>
+
+                                    <TextBlock
+                                        Text="{Binding Summary}"
+                                        FontSize="14"
+                                        Foreground="{DynamicResource GrayColor1}"
+                                        TextWrapping="Wrap"
+                                        Margin="0,0,0,6" />
+
+                                    <TextBlock
+                                        Text="{Binding PublisherLabel}"
+                                        FontSize="13"
+                                        Foreground="{DynamicResource GrayColor4}" />
+                                </StackPanel>
+
+                                <StackPanel
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    Margin="12,0,0,0">
+                                    <Button
+                                        Content="{Binding ActionText}"
+                                        Command="{Binding InstallCommand}"
+                                        IsEnabled="{Binding CanInstall}"
+                                        Style="{StaticResource PackagePrimaryButtonStyle}"
+                                        Visibility="{Binding IsDownloadActionVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        Width="120" />
+                                    <Button
+                                        Content="{lex:Loc PackageCancel}"
+                                        Command="{Binding CancelCommand}"
+                                        IsEnabled="{Binding IsDownloading}"
+                                        Style="{StaticResource DialogSecondaryButtonStyle}"
+                                        Visibility="{Binding IsDownloading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        Width="120" />
+                                    <ProgressBar
+                                        Height="4"
+                                        Margin="0,8,0,0"
+                                        Maximum="100"
+                                        Value="{Binding ProgressPercent}"
+                                        Visibility="{Binding IsDownloading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                        Width="120" />
+                                </StackPanel>
+                                </Grid>
+                            <WrapPanel Margin="0,10,0,0">
+                                <Button
+                                    Content="{lex:Loc PackageImportAsProject}"
+                                    Command="{Binding ImportProjectCommand}"
+                                    IsEnabled="{Binding CanImportProject}"
+                                    Style="{StaticResource DialogSecondaryButtonStyle}"
+                                    Visibility="{Binding HasProjectImportOption, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                <ComboBox
+                                    DisplayMemberPath="DisplayName"
+                                    ItemsSource="{Binding FeatureEntrypoints}"
+                                    IsEnabled="{Binding IsImportReady}"
+                                    Margin="6,0,0,0"
+                                    MinWidth="160"
+                                    SelectedItem="{Binding SelectedFeatureEntrypoint}"
+                                    Visibility="{Binding HasFeatureImportOption, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                                <Button
+                                    Content="{lex:Loc PackageAddToMyScripts}"
+                                    Command="{Binding ImportFeatureCommand}"
+                                    IsEnabled="{Binding CanImportFeature}"
+                                    Style="{StaticResource DialogSecondaryButtonStyle}"
+                                    Visibility="{Binding HasFeatureImportOption, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                            </WrapPanel>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </hc:ScrollViewer>
+    </Grid>
+</UserControl>

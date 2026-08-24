@@ -1,0 +1,16 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Fluid Cubic Easing Functions for responsive 150ms-250ms transitions -->
+    <CubicEase x:Key="FluentCubicEaseOut" EasingMode="EaseOut" />
+    <CubicEase x:Key="FluentCubicEaseIn" EasingMode="EaseIn" />
+    <CubicEase x:Key="FluentCubicEaseInOut" EasingMode="EaseInOut" />
+    <QuarticEase x:Key="FluentQuarticEaseOut" EasingMode="EaseOut" />
+
+    <!-- Standard Animation Timings -->
+    <Duration x:Key="FastAnimationDuration">0:0:0.15</Duration>
+    <Duration x:Key="NormalAnimationDuration">0:0:0.20</Duration>
+    <Duration x:Key="SlowAnimationDuration">0:0:0.25</Duration>
+
+</ResourceDictionary>

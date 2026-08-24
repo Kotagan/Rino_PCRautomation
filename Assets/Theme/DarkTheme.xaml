@@ -1,0 +1,118 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:system="clr-namespace:System;assembly=mscorlib"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Color x:Key="MainBackgroundColor">#FF1C1C1C</Color>
+    <Color x:Key="MainContentForegroundColor">#FFF0F0F0</Color>
+    <Color x:Key="MainContentBackgroundColor">#FF1C1C1C</Color>
+
+    <Color x:Key="PrimaryTextColor">#FFFFFFFF</Color>
+    <Color x:Key="SecondaryTextColor">#FFB0B0B0</Color>
+    <Color x:Key="ThirdlyTextColor">#FF8E8E93</Color>
+    <Color x:Key="ReverseTextColor">#FF212121</Color>
+    <Color x:Key="TextIconColor">#FFFFFFFF</Color>
+
+    <Color x:Key="BorderColor">#FF3E3E44</Color>
+    <Color x:Key="SecondaryBorderColor">#FF3E3E44</Color>
+    <Color x:Key="BackgroundColor">#FFEEEEEE</Color>
+    <Color x:Key="RegionColor">#FF1C1C1C</Color>
+    <Color x:Key="SecondaryRegionColor">#FF1C1C1C</Color>
+    <Color x:Key="ThirdlyRegionColor">#FF1C1C1C</Color>
+
+    <Color x:Key="DefaultColor">#FF686868</Color>
+    <Color x:Key="DarkDefaultColor">#FF686868</Color>
+
+    <Color x:Key="AccentColor">#FFffb44f</Color>
+    <Color x:Key="DarkAccentColor">#FFffb44f</Color>
+
+    <Color x:Key="DarkMaskColor">#40000000</Color>
+    <Color x:Key="DarkOpacityColor">#40000000</Color>
+    <system:UInt32 x:Key="BlurGradientValue">0x99000000</system:UInt32>
+
+    <LinearGradientBrush EndPoint="1,0" StartPoint="0,0" x:Key="AccentBrush">
+        <GradientStop Color="{DynamicResource AccentColor}" Offset="0" />
+        <GradientStop Color="{DynamicResource DarkAccentColor}" Offset="1" />
+    </LinearGradientBrush>
+    <SolidColorBrush Color="{DynamicResource DarkAccentColor}" x:Key="DarkAccentBrush" />
+
+    <SolidColorBrush Color="{DynamicResource MainBackgroundColor}" x:Key="MainBackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource MainContentForegroundColor}" x:Key="MainContentForegroundBrush" />
+    <SolidColorBrush Color="{DynamicResource MainContentBackgroundColor}" x:Key="MainContentBackgroundBrush" />
+    <SolidColorBrush Color="#FF1C1C1C" x:Key="VersionUpdateViewBackgroundBrush" />
+
+    <SolidColorBrush Color="{DynamicResource PrimaryTextColor}" x:Key="PrimaryTextBrush" />
+    <SolidColorBrush Color="{DynamicResource SecondaryTextColor}" x:Key="SecondaryTextBrush" />
+    <SolidColorBrush Color="{DynamicResource ThirdlyTextColor}" x:Key="ThirdlyTextBrush" />
+    <SolidColorBrush Color="{DynamicResource ReverseTextColor}" x:Key="ReverseTextBrush" />
+    <SolidColorBrush Color="White" x:Key="TipTextBrush" />
+    <SolidColorBrush Color="{DynamicResource TextIconColor}" x:Key="TextIconBrush" />
+
+    <SolidColorBrush Color="{DynamicResource BorderColor}" x:Key="BorderBrush" />
+    <SolidColorBrush Color="{DynamicResource SecondaryBorderColor}" x:Key="SecondaryBorderBrush" />
+    <SolidColorBrush Color="{DynamicResource BackgroundColor}" x:Key="BackgroundBrush" />
+    <SolidColorBrush Color="{DynamicResource RegionColor}" x:Key="RegionBrush" />
+    <SolidColorBrush Color="{DynamicResource SecondaryRegionColor}" x:Key="SecondaryRegionBrush" />
+    <SolidColorBrush Color="{DynamicResource ThirdlyRegionColor}" x:Key="ThirdlyRegionBrush" />
+    <SolidColorBrush Color="{DynamicResource RegionColor}" x:Key="PopUpBackgroundBrush" />
+
+    <SolidColorBrush Color="{DynamicResource DefaultColor}" x:Key="DefaultBrush" />
+    <SolidColorBrush Color="{DynamicResource DarkDefaultColor}" x:Key="DarkDefaultBrush" />
+
+    <SolidColorBrush Color="{DynamicResource DarkMaskColor}" x:Key="DarkMaskBrush" />
+    <SolidColorBrush Color="{DynamicResource DarkOpacityColor}" x:Key="DarkOpacityBrush" />
+
+
+    <!--  Background Colors  -->
+    <SolidColorBrush Color="#FF1C1C1C" x:Key="PrimaryBackgroundColor" />
+    <SolidColorBrush Color="#FF1C1C1C" x:Key="SecundaryBackgroundColor" />
+    <SolidColorBrush Color="#FF1C1C1C" x:Key="ErrorViewBackgroundBrush" />
+
+    <!--  Primary Colors  -->
+    <SolidColorBrush Color="#FFFFB44F" x:Key="PrimaryBlueColor" />
+    <SolidColorBrush Color="#FFFFD08A" x:Key="PrimaryLightBlueColor" />
+    <SolidColorBrush Color="#BFBFC4" x:Key="PrimaryGrayColor" />
+
+    <!--  Secundary Colors  -->
+    <SolidColorBrush Color="#FF5C452E" x:Key="SecundaryBlueColor" />
+    <SolidColorBrush Color="DarkGray" x:Key="SecundaryGrayColor" />
+
+    <!--  Typograhy Colors  -->
+    <SolidColorBrush Color="#FFFFFFFF" x:Key="TextPrimaryColor" />
+
+    <!--  Icons Colors  -->
+    <SolidColorBrush Color="#FFA8A8AD" x:Key="ActionIconColor" />
+
+    <SolidColorBrush Color="#FFEEEEEE" x:Key="BlackColor" />
+
+    <SolidColorBrush Color="#FF1C1C1C" x:Key="WhiteColor" />
+
+    <SolidColorBrush Color="#868686" x:Key="GrayColor1" />
+    <SolidColorBrush Color="#646465" x:Key="GrayColor3" />
+    <SolidColorBrush Color="DarkGray" x:Key="GrayColor4" />
+    <SolidColorBrush Color="LightGray" x:Key="GrayColor5" />
+    <SolidColorBrush Color="#e9e9e9" x:Key="GrayColor9" />
+    <SolidColorBrush Color="#FF212121" x:Key="GrayColor10" />
+    <SolidColorBrush Color="#646465" x:Key="GrayColor11" />
+    <SolidColorBrush Color="#6F59D4" x:Key="PurpleColor1" />
+
+    <SolidColorBrush Color="#F72626" x:Key="RedColor1" />
+    <SolidColorBrush Color="Violet" x:Key="DownloadLogBrush" />
+    <SolidColorBrush Color="#FFFFD08A" x:Key="BlueColor2" />
+    <SolidColorBrush Color="#FFFFB44F" x:Key="BlueColor1" />
+    <SolidColorBrush Color="#FFFFFFFF" x:Key="MdXamlForeground" />
+    <SolidColorBrush Color="#FF1C1C1C" x:Key="MdXamlBackground" />
+    <SolidColorBrush Color="#FF2C2C2E" x:Key="MdXamlCodeBackground" />
+    <SolidColorBrush Color="#FFFFD08A" x:Key="MdXamlHyperlink" />
+    <SolidColorBrush Color="#FFFFB44F" x:Key="MdXamlHyperlinkClicked" />
+    <Color x:Key="ControlSurfaceColor">#FF1C1C1C</Color>
+    <Color x:Key="ControlHoverColor">#18FFFFFF</Color>
+    <Color x:Key="ControlPressedColor">#2AFFFFFF</Color>
+    <Color x:Key="ControlStrokeColor">#FF3E3E44</Color>
+    <Color x:Key="ControlIconColor">#FFF2F2F7</Color>
+    <SolidColorBrush Color="{DynamicResource ControlSurfaceColor}" x:Key="ControlSurfaceBrush" />
+    <SolidColorBrush Color="{DynamicResource ControlHoverColor}" x:Key="ControlHoverBrush" />
+    <SolidColorBrush Color="{DynamicResource ControlPressedColor}" x:Key="ControlPressedBrush" />
+    <SolidColorBrush Color="{DynamicResource ControlStrokeColor}" x:Key="ControlStrokeBrush" />
+    <SolidColorBrush Color="{DynamicResource ControlIconColor}" x:Key="ControlIconBrush" />
+    <SolidColorBrush Color="#1CFFB44F" x:Key="TabHoverBrush" />
+</ResourceDictionary>
