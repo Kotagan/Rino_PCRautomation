@@ -36,6 +36,58 @@
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
         </Style>
+
+        <Style x:Key="SequenceItemCardBorderStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ControlSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="8" />
+            <Setter Property="Margin" Value="0,3,4,3" />
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <TranslateTransform X="0" Y="0" />
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource RegionBrush}" />
+                    <Setter Property="BorderBrush" Value="{DynamicResource BasePrimaryBrush}" />
+                    <Setter Property="BorderThickness" Value="1.5" />
+                    <Trigger.EnterActions>
+                        <BeginStoryboard x:Name="CardHoverEnter">
+                            <Storyboard>
+                                <DoubleAnimation
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                    To="4.0"
+                                    Duration="0:0:0.15">
+                                    <DoubleAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseOut" />
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.EnterActions>
+                    <Trigger.ExitActions>
+                        <StopStoryboard BeginStoryboardName="CardHoverEnter" />
+                        <BeginStoryboard>
+                            <Storyboard>
+                                <DoubleAnimation
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                                    To="0.0"
+                                    Duration="0:0:0.15">
+                                    <DoubleAnimation.EasingFunction>
+                                        <CubicEase EasingMode="EaseOut" />
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </BeginStoryboard>
+                    </Trigger.ExitActions>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </UserControl.Resources>
 
     <Grid Background="{DynamicResource SecundaryBackgroundColor}">
@@ -232,13 +284,7 @@
                 <ItemsControl ItemsSource="{Binding ViewModel.SequenceItems}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border
-                                Background="{DynamicResource ControlSurfaceBrush}"
-                                BorderBrush="{DynamicResource ControlStrokeBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                Margin="0,3,0,3"
-                                Padding="14,8">
+                            <Border Style="{StaticResource SequenceItemCardBorderStyle}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto" />
