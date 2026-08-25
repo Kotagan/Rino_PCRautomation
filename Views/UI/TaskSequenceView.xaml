@@ -101,7 +101,6 @@
                         VerticalAlignment="Center" />
 
                     <hc:ComboBox
-                        DisplayMemberPath="Name"
                         extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                         Focusable="False"
                         ItemsSource="{Binding ViewModel.Presets}"
