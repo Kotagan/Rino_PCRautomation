@@ -1231,4 +1231,7 @@
   <data name="NoTasksAvailable" xml:space="preserve">
     <value>暂无可调整的任务，请先确保已加载任务资源</value>
   </data>
+  <data name="DefaultHomeState" xml:space="preserve">
+    <value>默认（当前主页状态）</value>
+  </data>
 </root>

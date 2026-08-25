@@ -1220,4 +1220,7 @@
   <data name="NoTasksAvailable" xml:space="preserve">
     <value>暫無可調整的任務，請先確保已載入任務資源</value>
   </data>
+  <data name="DefaultHomeState" xml:space="preserve">
+    <value>預設（目前主頁狀態）</value>
+  </data>
 </root>

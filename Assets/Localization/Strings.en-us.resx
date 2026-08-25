@@ -1227,4 +1227,7 @@
   <data name="NoTasksAvailable" xml:space="preserve">
     <value>No tasks available. Please ensure task resources are loaded.</value>
   </data>
+  <data name="DefaultHomeState" xml:space="preserve">
+    <value>Default (Current Home State)</value>
+  </data>
 </root>

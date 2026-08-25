@@ -1,16 +1,17 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using MFAWPF.Configuration;
 using MFAWPF.Extensions;
-using MFAWPF.Extensions.Maa;
 using MFAWPF.Helper;
+using MFAWPF.Services;
+using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Threading;
 
 namespace MFAWPF.ViewModels.UserControl.Settings;
 
 public partial class TimerSettingsUserControlModel : ViewModel
 {
-    [ObservableProperty] private bool _customConfig = Convert.ToBoolean(GlobalConfiguration.GetValue(ConfigurationKeys.CustomConfig, bool.FalseString));
     [ObservableProperty] private bool _forceScheduledStart = Convert.ToBoolean(GlobalConfiguration.GetValue(ConfigurationKeys.ForceScheduledStart, bool.FalseString));
 
     public ObservableCollection<Tool.LocalizationViewModel> Periods { get; } =
@@ -19,11 +20,35 @@ public partial class TimerSettingsUserControlModel : ViewModel
         new("TimePm")
     ];
 
-    public TimerModel TimerModels { get; set; } = new();
+    [ObservableProperty]
+    private ObservableCollection<Tool.LocalizationViewModel> _presetOptions = new();
 
-    partial void OnCustomConfigChanged(bool value)
+    public TimerModel TimerModels { get; set; }
+
+    public TimerSettingsUserControlModel()
     {
-        GlobalConfiguration.SetValue(ConfigurationKeys.CustomConfig, value.ToString());
+        RefreshPresetOptions();
+        TimerModels = new TimerModel();
+    }
+
+    public void RefreshPresetOptions()
+    {
+        var options = new ObservableCollection<Tool.LocalizationViewModel>
+        {
+            new("DefaultHomeState")
+        };
+
+        var storage = new TaskPresetStorageService();
+        var presets = storage.LoadPresets();
+        foreach (var preset in presets)
+        {
+            if (!string.IsNullOrWhiteSpace(preset.Name))
+            {
+                options.Add(new Tool.LocalizationViewModel(preset.Name));
+            }
+        }
+
+        PresetOptions = options;
     }
 
     partial void OnForceScheduledStartChanged(bool value)
@@ -39,7 +64,7 @@ public partial class TimerSettingsUserControlModel : ViewModel
             private int _periodIndex;
             private int _hour12;
 
-            public TimerProperties(int timeId, bool isOn, int hour, int min, string? timerConfig)
+            public TimerProperties(int timeId, bool isOn, int hour, int min, string? timerPreset)
             {
                 TimerId = timeId;
                 _isOn = isOn;
@@ -48,14 +73,7 @@ public partial class TimerSettingsUserControlModel : ViewModel
                 _periodIndex = _hour >= 12 ? 1 : 0;
                 _hour12 = _hour == 0 ? 0 : (_hour > 12 ? _hour - 12 : _hour);
                 TimerName = $"{"Timer".ToLocalization()} {TimerId + 1}";
-                if (timerConfig == null || !ConfigurationHelper.Configs.Any(c => c.Name.Equals(timerConfig)))
-                {
-                    _timerConfig = ConfigurationHelper.GetCurrentConfiguration();
-                }
-                else
-                {
-                    _timerConfig = timerConfig;
-                }
+                _timerPreset = timerPreset ?? string.Empty;
                 LanguageHelper.LanguageChanged += OnLanguageChanged;
             }
 
@@ -197,24 +215,26 @@ public partial class TimerSettingsUserControlModel : ViewModel
                 }
             }
 
-            private string? _timerConfig;
+            private string _timerPreset = string.Empty;
 
             /// <summary>
-            /// Gets or sets the config of the timer.
+            /// Gets or sets the task preset bound to this timer.
             /// </summary>
-            public string? TimerConfig
+            public string TimerPreset
             {
-                get => _timerConfig;
+                get => string.IsNullOrWhiteSpace(_timerPreset) ? "DefaultHomeState" : _timerPreset;
                 set
                 {
-                    SetProperty(ref _timerConfig, value ?? ConfigurationHelper.GetCurrentConfiguration());
-                    GlobalConfiguration.SetTimerConfig(TimerId, _timerConfig);
+                    var val = (value == null || value == "DefaultHomeState") ? string.Empty : value;
+                    SetProperty(ref _timerPreset, val);
+                    GlobalConfiguration.SetTimerPreset(TimerId, _timerPreset);
                 }
             }
         }
 
         public TimerProperties[] Timers { get; set; } = new TimerProperties[8];
         private readonly DispatcherTimer _dispatcherTimer;
+
         public TimerModel()
         {
             for (var i = 0; i < 8; i++)
@@ -223,15 +243,16 @@ public partial class TimerSettingsUserControlModel : ViewModel
                     i,
                     GlobalConfiguration.GetTimer(i, bool.FalseString) == bool.TrueString,
                     int.Parse(GlobalConfiguration.GetTimerHour(i, $"{i * 3}")),
-                    int.Parse(GlobalConfiguration.GetTimerMin(i, "0")), GlobalConfiguration.GetTimerConfig(i, ConfigurationHelper.GetCurrentConfiguration()));
+                    int.Parse(GlobalConfiguration.GetTimerMin(i, "0")),
+                    GlobalConfiguration.GetTimerPreset(i, string.Empty));
             }
-            _dispatcherTimer = new();
+            _dispatcherTimer = new DispatcherTimer();
             _dispatcherTimer.Interval = TimeSpan.FromMinutes(1);
             _dispatcherTimer.Tick += CheckTimerElapsed;
             _dispatcherTimer.Start();
         }
 
-        private void CheckTimerElapsed(object sender, EventArgs e)
+        private void CheckTimerElapsed(object? sender, EventArgs e)
         {
             var currentTime = DateTime.Now;
             foreach (var timer in Timers)
@@ -240,36 +261,39 @@ public partial class TimerSettingsUserControlModel : ViewModel
                 {
                     ExecuteTimerTask(timer.TimerId);
                 }
-                if (timer.IsOn && timer.Hour == currentTime.Hour && timer.Min == currentTime.Minute + 2)
-                {
-                    SwitchConfiguration(timer.TimerId);
-                }
-            }
-        }
-
-        private void SwitchConfiguration(int timerId)
-        {
-            var timer = Timers.FirstOrDefault(t => t.TimerId == timerId, null);
-            if (timer != null)
-            {
-                var config = timer.TimerConfig ?? ConfigurationHelper.GetCurrentConfiguration();
-                if (config != ConfigurationHelper.GetCurrentConfiguration())
-                {
-                    ConfigurationHelper.SetDefaultConfig(config);
-                    MaaProcessor.RestartMFA(true);
-                }
             }
         }
 
         private void ExecuteTimerTask(int timerId)
         {
-            var timer = Timers.FirstOrDefault(t => t.TimerId == timerId, null);
-            if (timer != null)
+            var timer = Timers.FirstOrDefault(t => t.TimerId == timerId);
+            if (timer == null) return;
+
+            if (Convert.ToBoolean(GlobalConfiguration.GetValue(ConfigurationKeys.ForceScheduledStart, bool.FalseString)) && Instances.RootViewModel.IsRunning)
             {
-                if (Convert.ToBoolean(GlobalConfiguration.GetValue(ConfigurationKeys.ForceScheduledStart, bool.FalseString)) && Instances.RootViewModel.IsRunning)
-                    Instances.TaskQueueView.Stop();
-                Instances.TaskQueueView.Start();
+                Instances.TaskQueueView.Stop();
             }
+
+            if (!string.IsNullOrWhiteSpace(timer.TimerPreset) &&
+                !timer.TimerPreset.Equals("DefaultHomeState", StringComparison.OrdinalIgnoreCase) &&
+                !timer.TimerPreset.Equals("Default", StringComparison.OrdinalIgnoreCase))
+            {
+                var storage = new TaskPresetStorageService();
+                var presets = storage.LoadPresets();
+                var targetPreset = presets.FirstOrDefault(p => p.Name.Equals(timer.TimerPreset, StringComparison.OrdinalIgnoreCase));
+                if (targetPreset != null)
+                {
+                    DispatcherHelper.RunOnMainThread(() =>
+                    {
+                        Instances.TaskQueueViewModel.ApplyPresetSequence(targetPreset.Items, targetPreset.Name);
+                    });
+                }
+            }
+
+            DispatcherHelper.RunOnMainThread(() =>
+            {
+                Instances.TaskQueueView.Start();
+            });
         }
     }
 }

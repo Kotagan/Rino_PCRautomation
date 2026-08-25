@@ -20,22 +20,11 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <controls:CustomTextBlock
-            FontWeight="Bold"
-            Grid.Row="0"
-            HorizontalAlignment="Center"
-            Margin="0,0,0,8"
-            Text="{lex:Loc GlobalConfigTip}"
-            TextAlignment="Center"
-            Visibility="{c:Binding 'ConfigurationList.Count > 1',
-                                   Source={x:Static helper:Instances.SettingsViewModel}}" />
-
         <StackPanel
-            Grid.Row="1"
+            Grid.Row="0"
             HorizontalAlignment="Center"
             Margin="0,0,0,10"
             Orientation="Horizontal">
@@ -47,17 +36,9 @@
                 Margin="10,0"
                 ToolTip="{lex:Loc ForceScheduledStartTip}"
                 VerticalContentAlignment="Center" />
-            <CheckBox
-                Content="{lex:Loc TimerCustomConfig}"
-                Height="30"
-                HorizontalAlignment="Center"
-                IsChecked="{Binding ViewModel.CustomConfig}"
-                Margin="10,0"
-                ToolTip="{lex:Loc TimerCustomConfigTip}"
-                VerticalContentAlignment="Center" />
         </StackPanel>
 
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -139,8 +120,7 @@
                     </Grid>
                     <Grid
                         Grid.Row="1"
-                        Margin="0,8,0,2"
-                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        Margin="0,8,0,2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -149,16 +129,17 @@
                             FontSize="12"
                             Foreground="{DynamicResource SecondaryTextBrush}"
                             Margin="0,0,8,0"
-                            Text="{lex:Loc ConfigurationName}"
+                            Text="{lex:Loc Presets}"
                             VerticalAlignment="Center" />
-                        <ComboBox
+                        <hc:ComboBox
+                            DisplayMemberPath="Name"
                             Grid.Column="1"
                             HorizontalAlignment="Stretch"
-                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
-                            SelectedValue="{Binding ViewModel.TimerModels.Timers[0].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                            SelectedValuePath="Name"
-                            ToolTip="{Binding ViewModel.TimerModels.Timers[0].TimerConfig}"
+                            IsEnabled="{c:Binding ViewModel.TimerModels.Timers[0].IsOn}"
+                            ItemsSource="{Binding ViewModel.PresetOptions}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[0].TimerPreset, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="ResourceKey"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[0].TimerPreset}"
                             VerticalAlignment="Center"
                             extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                             Focusable="False" />
@@ -236,8 +217,7 @@
                     </Grid>
                     <Grid
                         Grid.Row="1"
-                        Margin="0,8,0,2"
-                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        Margin="0,8,0,2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -246,16 +226,17 @@
                             FontSize="12"
                             Foreground="{DynamicResource SecondaryTextBrush}"
                             Margin="0,0,8,0"
-                            Text="{lex:Loc ConfigurationName}"
+                            Text="{lex:Loc Presets}"
                             VerticalAlignment="Center" />
-                        <ComboBox
+                        <hc:ComboBox
+                            DisplayMemberPath="Name"
                             Grid.Column="1"
                             HorizontalAlignment="Stretch"
-                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
-                            SelectedValue="{Binding ViewModel.TimerModels.Timers[1].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                            SelectedValuePath="Name"
-                            ToolTip="{Binding ViewModel.TimerModels.Timers[1].TimerConfig}"
+                            IsEnabled="{c:Binding ViewModel.TimerModels.Timers[1].IsOn}"
+                            ItemsSource="{Binding ViewModel.PresetOptions}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[1].TimerPreset, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="ResourceKey"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[1].TimerPreset}"
                             VerticalAlignment="Center"
                             extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                             Focusable="False" />
@@ -333,8 +314,7 @@
                     </Grid>
                     <Grid
                         Grid.Row="1"
-                        Margin="0,8,0,2"
-                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        Margin="0,8,0,2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -343,16 +323,17 @@
                             FontSize="12"
                             Foreground="{DynamicResource SecondaryTextBrush}"
                             Margin="0,0,8,0"
-                            Text="{lex:Loc ConfigurationName}"
+                            Text="{lex:Loc Presets}"
                             VerticalAlignment="Center" />
-                        <ComboBox
+                        <hc:ComboBox
+                            DisplayMemberPath="Name"
                             Grid.Column="1"
                             HorizontalAlignment="Stretch"
-                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
-                            SelectedValue="{Binding ViewModel.TimerModels.Timers[2].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                            SelectedValuePath="Name"
-                            ToolTip="{Binding ViewModel.TimerModels.Timers[2].TimerConfig}"
+                            IsEnabled="{c:Binding ViewModel.TimerModels.Timers[2].IsOn}"
+                            ItemsSource="{Binding ViewModel.PresetOptions}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[2].TimerPreset, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="ResourceKey"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[2].TimerPreset}"
                             VerticalAlignment="Center"
                             extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                             Focusable="False" />
@@ -430,8 +411,7 @@
                     </Grid>
                     <Grid
                         Grid.Row="1"
-                        Margin="0,8,0,2"
-                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        Margin="0,8,0,2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -440,16 +420,17 @@
                             FontSize="12"
                             Foreground="{DynamicResource SecondaryTextBrush}"
                             Margin="0,0,8,0"
-                            Text="{lex:Loc ConfigurationName}"
+                            Text="{lex:Loc Presets}"
                             VerticalAlignment="Center" />
-                        <ComboBox
+                        <hc:ComboBox
+                            DisplayMemberPath="Name"
                             Grid.Column="1"
                             HorizontalAlignment="Stretch"
-                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
-                            SelectedValue="{Binding ViewModel.TimerModels.Timers[3].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                            SelectedValuePath="Name"
-                            ToolTip="{Binding ViewModel.TimerModels.Timers[3].TimerConfig}"
+                            IsEnabled="{c:Binding ViewModel.TimerModels.Timers[3].IsOn}"
+                            ItemsSource="{Binding ViewModel.PresetOptions}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[3].TimerPreset, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="ResourceKey"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[3].TimerPreset}"
                             VerticalAlignment="Center"
                             extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                             Focusable="False" />
@@ -527,8 +508,7 @@
                     </Grid>
                     <Grid
                         Grid.Row="1"
-                        Margin="0,8,0,2"
-                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        Margin="0,8,0,2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -537,16 +517,17 @@
                             FontSize="12"
                             Foreground="{DynamicResource SecondaryTextBrush}"
                             Margin="0,0,8,0"
-                            Text="{lex:Loc ConfigurationName}"
+                            Text="{lex:Loc Presets}"
                             VerticalAlignment="Center" />
-                        <ComboBox
+                        <hc:ComboBox
+                            DisplayMemberPath="Name"
                             Grid.Column="1"
                             HorizontalAlignment="Stretch"
-                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
-                            SelectedValue="{Binding ViewModel.TimerModels.Timers[4].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                            SelectedValuePath="Name"
-                            ToolTip="{Binding ViewModel.TimerModels.Timers[4].TimerConfig}"
+                            IsEnabled="{c:Binding ViewModel.TimerModels.Timers[4].IsOn}"
+                            ItemsSource="{Binding ViewModel.PresetOptions}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[4].TimerPreset, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="ResourceKey"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[4].TimerPreset}"
                             VerticalAlignment="Center"
                             extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                             Focusable="False" />
@@ -624,8 +605,7 @@
                     </Grid>
                     <Grid
                         Grid.Row="1"
-                        Margin="0,8,0,2"
-                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        Margin="0,8,0,2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -634,16 +614,17 @@
                             FontSize="12"
                             Foreground="{DynamicResource SecondaryTextBrush}"
                             Margin="0,0,8,0"
-                            Text="{lex:Loc ConfigurationName}"
+                            Text="{lex:Loc Presets}"
                             VerticalAlignment="Center" />
-                        <ComboBox
+                        <hc:ComboBox
+                            DisplayMemberPath="Name"
                             Grid.Column="1"
                             HorizontalAlignment="Stretch"
-                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
-                            SelectedValue="{Binding ViewModel.TimerModels.Timers[5].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                            SelectedValuePath="Name"
-                            ToolTip="{Binding ViewModel.TimerModels.Timers[5].TimerConfig}"
+                            IsEnabled="{c:Binding ViewModel.TimerModels.Timers[5].IsOn}"
+                            ItemsSource="{Binding ViewModel.PresetOptions}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[5].TimerPreset, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="ResourceKey"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[5].TimerPreset}"
                             VerticalAlignment="Center"
                             extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                             Focusable="False" />
@@ -721,8 +702,7 @@
                     </Grid>
                     <Grid
                         Grid.Row="1"
-                        Margin="0,8,0,2"
-                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        Margin="0,8,0,2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -731,16 +711,17 @@
                             FontSize="12"
                             Foreground="{DynamicResource SecondaryTextBrush}"
                             Margin="0,0,8,0"
-                            Text="{lex:Loc ConfigurationName}"
+                            Text="{lex:Loc Presets}"
                             VerticalAlignment="Center" />
-                        <ComboBox
+                        <hc:ComboBox
+                            DisplayMemberPath="Name"
                             Grid.Column="1"
                             HorizontalAlignment="Stretch"
-                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
-                            SelectedValue="{Binding ViewModel.TimerModels.Timers[6].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                            SelectedValuePath="Name"
-                            ToolTip="{Binding ViewModel.TimerModels.Timers[6].TimerConfig}"
+                            IsEnabled="{c:Binding ViewModel.TimerModels.Timers[6].IsOn}"
+                            ItemsSource="{Binding ViewModel.PresetOptions}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[6].TimerPreset, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="ResourceKey"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[6].TimerPreset}"
                             VerticalAlignment="Center"
                             extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                             Focusable="False" />
@@ -818,8 +799,7 @@
                     </Grid>
                     <Grid
                         Grid.Row="1"
-                        Margin="0,8,0,2"
-                        Visibility="{c:Binding ViewModel.CustomConfig}">
+                        Margin="0,8,0,2">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto" />
                             <ColumnDefinition Width="*" />
@@ -828,16 +808,17 @@
                             FontSize="12"
                             Foreground="{DynamicResource SecondaryTextBrush}"
                             Margin="0,0,8,0"
-                            Text="{lex:Loc ConfigurationName}"
+                            Text="{lex:Loc Presets}"
                             VerticalAlignment="Center" />
-                        <ComboBox
+                        <hc:ComboBox
+                            DisplayMemberPath="Name"
                             Grid.Column="1"
                             HorizontalAlignment="Stretch"
-                            IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                            ItemsSource="{Binding ConfigurationList, Source={x:Static helper:Instances.SettingsViewModel}}"
-                            SelectedValue="{Binding ViewModel.TimerModels.Timers[7].TimerConfig, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                            SelectedValuePath="Name"
-                            ToolTip="{Binding ViewModel.TimerModels.Timers[7].TimerConfig}"
+                            IsEnabled="{c:Binding ViewModel.TimerModels.Timers[7].IsOn}"
+                            ItemsSource="{Binding ViewModel.PresetOptions}"
+                            SelectedValue="{Binding ViewModel.TimerModels.Timers[7].TimerPreset, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                            SelectedValuePath="ResourceKey"
+                            ToolTip="{Binding ViewModel.TimerModels.Timers[7].TimerPreset}"
                             VerticalAlignment="Center"
                             extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                             Focusable="False" />

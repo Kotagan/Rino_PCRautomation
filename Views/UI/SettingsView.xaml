@@ -56,69 +56,62 @@
                     <Border Style="{StaticResource SettingsCardStyle}">
                         <StackPanel>
                             <hc:Divider Content="{Binding ViewModel.ListTitle[0].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
-                            <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:ConfigurationMgrUserControl}}" HorizontalAlignment="Stretch" />
-                        </StackPanel>
-                    </Border>
-
-                    <Border Style="{StaticResource SettingsCardStyle}">
-                        <StackPanel>
-                            <hc:Divider Content="{Binding ViewModel.ListTitle[1].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
                             <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:TimerSettingsUserControl}}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SettingsCardStyle}">
                         <StackPanel>
-                            <hc:Divider Content="{Binding ViewModel.ListTitle[2].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <hc:Divider Content="{Binding ViewModel.ListTitle[1].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
                             <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:PerformanceUserControl}}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SettingsCardStyle}">
                         <StackPanel>
-                            <hc:Divider Content="{Binding ViewModel.ListTitle[3].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <hc:Divider Content="{Binding ViewModel.ListTitle[2].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
                             <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:GameSettingsUserControl}}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SettingsCardStyle}">
                         <StackPanel>
-                            <hc:Divider Content="{Binding ViewModel.ListTitle[4].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <hc:Divider Content="{Binding ViewModel.ListTitle[3].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
                             <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:ConnectSettingsUserControl}}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SettingsCardStyle}">
                         <StackPanel>
-                            <hc:Divider Content="{Binding ViewModel.ListTitle[5].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <hc:Divider Content="{Binding ViewModel.ListTitle[4].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
                             <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:StartSettingsUserControl}}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SettingsCardStyle}">
                         <StackPanel>
-                            <hc:Divider Content="{Binding ViewModel.ListTitle[6].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <hc:Divider Content="{Binding ViewModel.ListTitle[5].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
                             <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:GuiSettingsUserControl}}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SettingsCardStyle}">
                         <StackPanel>
-                            <hc:Divider Content="{Binding ViewModel.ListTitle[7].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <hc:Divider Content="{Binding ViewModel.ListTitle[6].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
                             <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:ExternalNotificationSettingsUserControl}}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SettingsCardStyle}">
                         <StackPanel>
-                            <hc:Divider Content="{Binding ViewModel.ListTitle[8].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <hc:Divider Content="{Binding ViewModel.ListTitle[7].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
                             <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:HotKeySettingsUserControl}}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SettingsCardStyle}">
                         <StackPanel>
-                            <hc:Divider Content="{Binding ViewModel.ListTitle[9].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <hc:Divider Content="{Binding ViewModel.ListTitle[8].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
                             <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:VersionUpdateSettingsUserControl}}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Border>

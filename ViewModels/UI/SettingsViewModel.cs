@@ -29,9 +29,8 @@ public partial class SettingsViewModel : ViewModel
         HotKeyLinkStart = MFAHotKey.Parse(GlobalConfiguration.GetValue(ConfigurationKeys.LinkStart, ""));
     }
 
-    [ObservableProperty] ObservableCollection<Tool.LocalizationViewModel> _listTitle =
+    [ObservableProperty] private ObservableCollection<Tool.LocalizationViewModel> _listTitle =
     [
-        new("SwitchConfiguration"),
         new("ScheduleSettings"),
         new("PerformanceSettings"),
         new("RunningSettings"),

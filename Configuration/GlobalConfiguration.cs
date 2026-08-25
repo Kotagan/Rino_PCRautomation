@@ -80,4 +80,14 @@ public static class GlobalConfiguration
     {
         SetValue($"Timer.Timer{i + 1}.Config", value);
     }
+
+    public static string GetTimerPreset(int i, string defaultValue)
+    {
+        return GetValue($"Timer.Timer{i + 1}.Preset", defaultValue);
+    }
+
+    public static void SetTimerPreset(int i, string value)
+    {
+        SetValue($"Timer.Timer{i + 1}.Preset", value);
+    }
 }

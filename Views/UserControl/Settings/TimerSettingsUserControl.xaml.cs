@@ -12,5 +12,6 @@ public partial class TimerSettingsUserControl
         ViewModel = Instances.TimerSettingsUserControlModel;
         DataContext = this;
         InitializeComponent();
+        Loaded += (s, e) => ViewModel.RefreshPresetOptions();
     }
 }

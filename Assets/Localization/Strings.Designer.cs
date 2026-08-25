@@ -1761,6 +1761,15 @@ namespace MFAWPF.Res.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to 默认（当前主页状态）.
+        /// </summary>
+        internal static string DefaultHomeState {
+            get {
+                return ResourceManager.GetString("DefaultHomeState", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to 任务流程图.
         /// </summary>
         internal static string WorkflowDiagramTitle {
