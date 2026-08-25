@@ -1168,4 +1168,10 @@
   <data name="MyScriptsConfiguration" xml:space="preserve">
     <value>我的脚本</value>
   </data>
+  <data name="TimeAm" xml:space="preserve">
+    <value>上午</value>
+  </data>
+  <data name="TimePm" xml:space="preserve">
+    <value>下午</value>
+  </data>
 </root>

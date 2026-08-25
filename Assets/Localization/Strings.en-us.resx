@@ -1164,4 +1164,10 @@
   <data name="MyScriptsConfiguration" xml:space="preserve">
     <value>My Scripts</value>
   </data>
+  <data name="TimeAm" xml:space="preserve">
+    <value>AM</value>
+  </data>
+  <data name="TimePm" xml:space="preserve">
+    <value>PM</value>
+  </data>
 </root>

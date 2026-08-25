@@ -3,6 +3,7 @@ using MFAWPF.Configuration;
 using MFAWPF.Extensions;
 using MFAWPF.Extensions.Maa;
 using MFAWPF.Helper;
+using System.Collections.ObjectModel;
 using System.Windows.Threading;
 
 namespace MFAWPF.ViewModels.UserControl.Settings;
@@ -11,6 +12,12 @@ public partial class TimerSettingsUserControlModel : ViewModel
 {
     [ObservableProperty] private bool _customConfig = Convert.ToBoolean(GlobalConfiguration.GetValue(ConfigurationKeys.CustomConfig, bool.FalseString));
     [ObservableProperty] private bool _forceScheduledStart = Convert.ToBoolean(GlobalConfiguration.GetValue(ConfigurationKeys.ForceScheduledStart, bool.FalseString));
+
+    public ObservableCollection<Tool.LocalizationViewModel> Periods { get; } =
+    [
+        new("TimeAm"),
+        new("TimePm")
+    ];
 
     public TimerModel TimerModels { get; set; } = new();
 
@@ -28,12 +35,18 @@ public partial class TimerSettingsUserControlModel : ViewModel
     {
         public partial class TimerProperties : ObservableObject
         {
+            private bool _isUpdatingFields;
+            private int _periodIndex;
+            private int _hour12;
+
             public TimerProperties(int timeId, bool isOn, int hour, int min, string? timerConfig)
             {
                 TimerId = timeId;
                 _isOn = isOn;
-                _hour = hour;
-                _min = min;
+                _hour = Math.Clamp(hour, 0, 23);
+                _min = Math.Clamp(min, 0, 59);
+                _periodIndex = _hour >= 12 ? 1 : 0;
+                _hour12 = _hour == 0 ? 0 : (_hour > 12 ? _hour - 12 : _hour);
                 TimerName = $"{"Timer".ToLocalization()} {TimerId + 1}";
                 if (timerConfig == null || !ConfigurationHelper.Configs.Any(c => c.Name.Equals(timerConfig)))
                 {
@@ -81,8 +94,90 @@ public partial class TimerSettingsUserControlModel : ViewModel
                 set
                 {
                     value = Math.Clamp(value, 0, 23);
-                    SetProperty(ref _hour, value);
-                    GlobalConfiguration.SetTimerHour(TimerId, _hour.ToString());
+                    if (SetProperty(ref _hour, value))
+                    {
+                        GlobalConfiguration.SetTimerHour(TimerId, _hour.ToString());
+                        Update12HourFields();
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Gets or sets the period (0 = AM, 1 = PM).
+            /// </summary>
+            public int PeriodIndex
+            {
+                get => _periodIndex;
+                set
+                {
+                    value = Math.Clamp(value, 0, 1);
+                    if (SetProperty(ref _periodIndex, value))
+                    {
+                        Recalculate24Hour();
+                    }
+                }
+            }
+
+            /// <summary>
+            /// Gets or sets the 12-hour value (0-12).
+            /// </summary>
+            public int Hour12
+            {
+                get => _hour12;
+                set
+                {
+                    value = Math.Clamp(value, 0, 12);
+                    if (SetProperty(ref _hour12, value))
+                    {
+                        Recalculate24Hour();
+                    }
+                }
+            }
+
+            private void Update12HourFields()
+            {
+                if (_isUpdatingFields)
+                {
+                    return;
+                }
+
+                _isUpdatingFields = true;
+                try
+                {
+                    PeriodIndex = _hour >= 12 ? 1 : 0;
+                    Hour12 = _hour == 0 ? 0 : (_hour > 12 ? _hour - 12 : _hour);
+                }
+                finally
+                {
+                    _isUpdatingFields = false;
+                }
+            }
+
+            private void Recalculate24Hour()
+            {
+                if (_isUpdatingFields)
+                {
+                    return;
+                }
+
+                _isUpdatingFields = true;
+                try
+                {
+                    int h24;
+                    if (_periodIndex == 0) // AM
+                    {
+                        h24 = (_hour12 == 12 || _hour12 == 0) ? 0 : _hour12;
+                    }
+                    else // PM
+                    {
+                        h24 = (_hour12 == 12 || _hour12 == 0) ? 12 : _hour12 + 12;
+                    }
+
+                    Hour = h24;
+                }
+                finally
+                {
+                    _isUpdatingFields = false;
                 }
             }
 

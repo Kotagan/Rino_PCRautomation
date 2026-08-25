@@ -100,15 +100,24 @@
                             HorizontalAlignment="Right"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
+                            <hc:ComboBox
+                                DisplayMemberPath="Name"
+                                extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                                Focusable="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[0].IsOn}"
+                                ItemsSource="{Binding ViewModel.Periods}"
+                                Margin="2,0"
+                                SelectedIndex="{Binding ViewModel.TimerModels.Timers[0].PeriodIndex, Mode=TwoWay}"
+                                Width="72" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[0].IsOn}"
                                 Margin="2,0"
-                                Maximum="23"
+                                Maximum="12"
                                 Minimum="0"
-                                Value="{Binding ViewModel.TimerModels.Timers[0].Hour}"
+                                Value="{Binding ViewModel.TimerModels.Timers[0].Hour12}"
                                 ValueFormat="00"
-                                Width="60"
+                                Width="54"
                                 d:Value="0" />
                             <controls:CustomTextBlock
                                 FontWeight="Bold"
@@ -124,7 +133,7 @@
                                 Minimum="0"
                                 Value="{Binding ViewModel.TimerModels.Timers[0].Min}"
                                 ValueFormat="00"
-                                Width="60"
+                                Width="54"
                                 d:Value="0" />
                         </StackPanel>
                     </Grid>
@@ -188,15 +197,24 @@
                             HorizontalAlignment="Right"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
+                            <hc:ComboBox
+                                DisplayMemberPath="Name"
+                                extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                                Focusable="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[1].IsOn}"
+                                ItemsSource="{Binding ViewModel.Periods}"
+                                Margin="2,0"
+                                SelectedIndex="{Binding ViewModel.TimerModels.Timers[1].PeriodIndex, Mode=TwoWay}"
+                                Width="72" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[1].IsOn}"
                                 Margin="2,0"
-                                Maximum="23"
+                                Maximum="12"
                                 Minimum="0"
-                                Value="{Binding ViewModel.TimerModels.Timers[1].Hour}"
+                                Value="{Binding ViewModel.TimerModels.Timers[1].Hour12}"
                                 ValueFormat="00"
-                                Width="60"
+                                Width="54"
                                 d:Value="3" />
                             <controls:CustomTextBlock
                                 FontWeight="Bold"
@@ -212,7 +230,7 @@
                                 Minimum="0"
                                 Value="{Binding ViewModel.TimerModels.Timers[1].Min}"
                                 ValueFormat="00"
-                                Width="60"
+                                Width="54"
                                 d:Value="5" />
                         </StackPanel>
                     </Grid>
@@ -276,15 +294,24 @@
                             HorizontalAlignment="Right"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
+                            <hc:ComboBox
+                                DisplayMemberPath="Name"
+                                extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                                Focusable="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[2].IsOn}"
+                                ItemsSource="{Binding ViewModel.Periods}"
+                                Margin="2,0"
+                                SelectedIndex="{Binding ViewModel.TimerModels.Timers[2].PeriodIndex, Mode=TwoWay}"
+                                Width="72" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[2].IsOn}"
                                 Margin="2,0"
-                                Maximum="23"
+                                Maximum="12"
                                 Minimum="0"
-                                Value="{Binding ViewModel.TimerModels.Timers[2].Hour}"
+                                Value="{Binding ViewModel.TimerModels.Timers[2].Hour12}"
                                 ValueFormat="00"
-                                Width="60"
+                                Width="54"
                                 d:Value="6" />
                             <controls:CustomTextBlock
                                 FontWeight="Bold"
@@ -300,7 +327,7 @@
                                 Minimum="0"
                                 Value="{Binding ViewModel.TimerModels.Timers[2].Min}"
                                 ValueFormat="00"
-                                Width="60"
+                                Width="54"
                                 d:Value="10" />
                         </StackPanel>
                     </Grid>
@@ -364,15 +391,24 @@
                             HorizontalAlignment="Right"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
+                            <hc:ComboBox
+                                DisplayMemberPath="Name"
+                                extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                                Focusable="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[3].IsOn}"
+                                ItemsSource="{Binding ViewModel.Periods}"
+                                Margin="2,0"
+                                SelectedIndex="{Binding ViewModel.TimerModels.Timers[3].PeriodIndex, Mode=TwoWay}"
+                                Width="72" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[3].IsOn}"
                                 Margin="2,0"
-                                Maximum="23"
+                                Maximum="12"
                                 Minimum="0"
-                                Value="{Binding ViewModel.TimerModels.Timers[3].Hour}"
+                                Value="{Binding ViewModel.TimerModels.Timers[3].Hour12}"
                                 ValueFormat="00"
-                                Width="60"
+                                Width="54"
                                 d:Value="9" />
                             <controls:CustomTextBlock
                                 FontWeight="Bold"
@@ -388,7 +424,7 @@
                                 Minimum="0"
                                 Value="{Binding ViewModel.TimerModels.Timers[3].Min}"
                                 ValueFormat="00"
-                                Width="60"
+                                Width="54"
                                 d:Value="15" />
                         </StackPanel>
                     </Grid>
@@ -452,15 +488,24 @@
                             HorizontalAlignment="Right"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
+                            <hc:ComboBox
+                                DisplayMemberPath="Name"
+                                extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                                Focusable="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[4].IsOn}"
+                                ItemsSource="{Binding ViewModel.Periods}"
+                                Margin="2,0"
+                                SelectedIndex="{Binding ViewModel.TimerModels.Timers[4].PeriodIndex, Mode=TwoWay}"
+                                Width="72" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[4].IsOn}"
                                 Margin="2,0"
-                                Maximum="23"
+                                Maximum="12"
                                 Minimum="0"
-                                Value="{Binding ViewModel.TimerModels.Timers[4].Hour}"
+                                Value="{Binding ViewModel.TimerModels.Timers[4].Hour12}"
                                 ValueFormat="00"
-                                Width="60"
+                                Width="54"
                                 d:Value="12" />
                             <controls:CustomTextBlock
                                 FontWeight="Bold"
@@ -476,7 +521,7 @@
                                 Minimum="0"
                                 Value="{Binding ViewModel.TimerModels.Timers[4].Min}"
                                 ValueFormat="00"
-                                Width="60"
+                                Width="54"
                                 d:Value="20" />
                         </StackPanel>
                     </Grid>
@@ -540,16 +585,25 @@
                             HorizontalAlignment="Right"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
+                            <hc:ComboBox
+                                DisplayMemberPath="Name"
+                                extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                                Focusable="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[5].IsOn}"
+                                ItemsSource="{Binding ViewModel.Periods}"
+                                Margin="2,0"
+                                SelectedIndex="{Binding ViewModel.TimerModels.Timers[5].PeriodIndex, Mode=TwoWay}"
+                                Width="72" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[5].IsOn}"
                                 Margin="2,0"
-                                Maximum="23"
+                                Maximum="12"
                                 Minimum="0"
-                                Value="{Binding ViewModel.TimerModels.Timers[5].Hour}"
+                                Value="{Binding ViewModel.TimerModels.Timers[5].Hour12}"
                                 ValueFormat="00"
-                                Width="60"
-                                d:Value="15" />
+                                Width="54"
+                                d:Value="3" />
                             <controls:CustomTextBlock
                                 FontWeight="Bold"
                                 Foreground="{DynamicResource SecondaryTextBrush}"
@@ -564,7 +618,7 @@
                                 Minimum="0"
                                 Value="{Binding ViewModel.TimerModels.Timers[5].Min}"
                                 ValueFormat="00"
-                                Width="60"
+                                Width="54"
                                 d:Value="30" />
                         </StackPanel>
                     </Grid>
@@ -628,16 +682,25 @@
                             HorizontalAlignment="Right"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
+                            <hc:ComboBox
+                                DisplayMemberPath="Name"
+                                extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                                Focusable="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[6].IsOn}"
+                                ItemsSource="{Binding ViewModel.Periods}"
+                                Margin="2,0"
+                                SelectedIndex="{Binding ViewModel.TimerModels.Timers[6].PeriodIndex, Mode=TwoWay}"
+                                Width="72" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[6].IsOn}"
                                 Margin="2,0"
-                                Maximum="23"
+                                Maximum="12"
                                 Minimum="0"
-                                Value="{Binding ViewModel.TimerModels.Timers[6].Hour}"
+                                Value="{Binding ViewModel.TimerModels.Timers[6].Hour12}"
                                 ValueFormat="00"
-                                Width="60"
-                                d:Value="18" />
+                                Width="54"
+                                d:Value="6" />
                             <controls:CustomTextBlock
                                 FontWeight="Bold"
                                 Foreground="{DynamicResource SecondaryTextBrush}"
@@ -652,7 +715,7 @@
                                 Minimum="0"
                                 Value="{Binding ViewModel.TimerModels.Timers[6].Min}"
                                 ValueFormat="00"
-                                Width="60"
+                                Width="54"
                                 d:Value="40" />
                         </StackPanel>
                     </Grid>
@@ -716,16 +779,25 @@
                             HorizontalAlignment="Right"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
+                            <hc:ComboBox
+                                DisplayMemberPath="Name"
+                                extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                                Focusable="False"
+                                IsEnabled="{c:Binding ViewModel.TimerModels.Timers[7].IsOn}"
+                                ItemsSource="{Binding ViewModel.Periods}"
+                                Margin="2,0"
+                                SelectedIndex="{Binding ViewModel.TimerModels.Timers[7].PeriodIndex, Mode=TwoWay}"
+                                Width="72" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[7].IsOn}"
                                 Margin="2,0"
-                                Maximum="23"
+                                Maximum="12"
                                 Minimum="0"
-                                Value="{Binding ViewModel.TimerModels.Timers[7].Hour}"
+                                Value="{Binding ViewModel.TimerModels.Timers[7].Hour12}"
                                 ValueFormat="00"
-                                Width="60"
-                                d:Value="21" />
+                                Width="54"
+                                d:Value="9" />
                             <controls:CustomTextBlock
                                 FontWeight="Bold"
                                 Foreground="{DynamicResource SecondaryTextBrush}"
@@ -740,7 +812,7 @@
                                 Minimum="0"
                                 Value="{Binding ViewModel.TimerModels.Timers[7].Min}"
                                 ValueFormat="00"
-                                Width="60"
+                                Width="54"
                                 d:Value="50" />
                         </StackPanel>
                     </Grid>
