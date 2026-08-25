@@ -1163,4 +1163,61 @@
   <data name="TimePm" xml:space="preserve">
     <value>下午</value>
   </data>
+  <data name="Tasks" xml:space="preserve">
+    <value>任務</value>
+  </data>
+  <data name="TaskSequence" xml:space="preserve">
+    <value>任務順序</value>
+  </data>
+  <data name="TaskSequenceDescription" xml:space="preserve">
+    <value>自訂任務執行順序與預設管理</value>
+  </data>
+  <data name="Presets" xml:space="preserve">
+    <value>預設</value>
+  </data>
+  <data name="PresetName" xml:space="preserve">
+    <value>預設名稱</value>
+  </data>
+  <data name="SavePreset" xml:space="preserve">
+    <value>儲存預設</value>
+  </data>
+  <data name="SaveAsPreset" xml:space="preserve">
+    <value>另存預設</value>
+  </data>
+  <data name="DeletePreset" xml:space="preserve">
+    <value>刪除預設</value>
+  </data>
+  <data name="ApplyPreset" xml:space="preserve">
+    <value>套用預設</value>
+  </data>
+  <data name="AssignNext" xml:space="preserve">
+    <value>設為下一個</value>
+  </data>
+  <data name="ClearOrder" xml:space="preserve">
+    <value>清除</value>
+  </data>
+  <data name="NumberAll" xml:space="preserve">
+    <value>全部編號</value>
+  </data>
+  <data name="ClearAllOrders" xml:space="preserve">
+    <value>清空序號</value>
+  </data>
+  <data name="PresetSavedSuccess" xml:space="preserve">
+    <value>預設 &lt;{0}&gt; 已儲存！</value>
+  </data>
+  <data name="PresetAppliedSuccess" xml:space="preserve">
+    <value>預設 &lt;{0}&gt; 已成功套用！</value>
+  </data>
+  <data name="PresetDeletedSuccess" xml:space="preserve">
+    <value>預設 &lt;{0}&gt; 已刪除！</value>
+  </data>
+  <data name="PresetNameCannotBeEmpty" xml:space="preserve">
+    <value>預設名稱不能為空！</value>
+  </data>
+  <data name="DefaultPreset" xml:space="preserve">
+    <value>預設方案</value>
+  </data>
+  <data name="NoTasksAvailable" xml:space="preserve">
+    <value>暫無可調整的任務，請先確保已載入任務資源</value>
+  </data>
 </root>

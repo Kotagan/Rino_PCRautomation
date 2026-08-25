@@ -22,6 +22,115 @@
         <ContextMenu x:Key="TaskMenu">
             <MenuItem Click="Delete" Header="{lex:Loc Delete}" />
         </ContextMenu>
+
+        <Style x:Key="TaskQueueCheckBoxStyle" TargetType="CheckBox" BasedOn="{StaticResource {x:Type CheckBox}}">
+            <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+            <Setter Property="TextOptions.TextFormattingMode" Value="Ideal" />
+            <Setter Property="TextOptions.TextRenderingMode" Value="ClearType" />
+            <Setter Property="TextOptions.TextHintingMode" Value="Fixed" />
+            <Setter Property="RenderOptions.ClearTypeHint" Value="Enabled" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <Grid x:Name="templateRoot" Background="Transparent" SnapsToDevicePixels="True">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Border
+                                x:Name="checkBoxBorder"
+                                Background="Transparent"
+                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="1.5"
+                                CornerRadius="4"
+                                Height="21"
+                                Width="21"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,8,0"
+                                VerticalAlignment="Center">
+                                <Grid>
+                                    <Path
+                                        x:Name="checkMark"
+                                        Data="M1.5,5.5 L4.5,8.5 L10.5,2.5"
+                                        Stroke="#FFFFFF"
+                                        StrokeThickness="2"
+                                        StrokeStartLineCap="Round"
+                                        StrokeEndLineCap="Round"
+                                        StrokeLineJoin="Round"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Width="10"
+                                        Height="8"
+                                        Stretch="Uniform"
+                                        Opacity="0" />
+                                    <TextBlock
+                                        x:Name="sequenceNumberBadge"
+                                        Text="{Binding SequenceOrder}"
+                                        Foreground="#FFFFFF"
+                                        FontSize="11"
+                                        FontWeight="Bold"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Opacity="0" />
+                                    <Rectangle
+                                        x:Name="indeterminateMark"
+                                        Fill="#FFFFFF"
+                                        Height="8"
+                                        Width="8"
+                                        RadiusX="1"
+                                        RadiusY="1"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Opacity="0" />
+                                </Grid>
+                            </Border>
+                            <ContentPresenter
+                                x:Name="contentPresenter"
+                                Grid.Column="1"
+                                Focusable="False"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                Margin="{TemplateBinding Padding}"
+                                RecognizesAccessKey="True"
+                                SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasContent" Value="true">
+                                <Setter Property="Padding" Value="4,0,0,0" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="true">
+                                <Setter Property="BorderBrush" TargetName="checkBoxBorder" Value="{DynamicResource BasePrimaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Opacity" TargetName="templateRoot" Value="0.5" />
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="true">
+                                <Setter Property="Background" TargetName="checkBoxBorder" Value="{DynamicResource BasePrimaryBrush}" />
+                                <Setter Property="BorderBrush" TargetName="checkBoxBorder" Value="{DynamicResource BasePrimaryBrush}" />
+                                <Setter Property="Opacity" TargetName="checkMark" Value="1" />
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsSequenceBadgeVisible}" Value="True">
+                                <Setter Property="Opacity" TargetName="checkMark" Value="0" />
+                                <Setter Property="Opacity" TargetName="sequenceNumberBadge" Value="1" />
+                                <Setter Property="Background" TargetName="checkBoxBorder" Value="{DynamicResource BasePrimaryBrush}" />
+                                <Setter Property="BorderBrush" TargetName="checkBoxBorder" Value="{DynamicResource BasePrimaryBrush}" />
+                            </DataTrigger>
+                            <Trigger Property="IsChecked" Value="{x:Null}">
+                                <Setter Property="Background" TargetName="checkBoxBorder" Value="{DynamicResource BasePrimaryBrush}" />
+                                <Setter Property="BorderBrush" TargetName="checkBoxBorder" Value="{DynamicResource BasePrimaryBrush}" />
+                                <Setter Property="Opacity" TargetName="indeterminateMark" Value="1" />
+                                <Setter Property="Opacity" TargetName="checkMark" Value="0" />
+                                <Setter Property="Opacity" TargetName="sequenceNumberBadge" Value="0" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
     <Grid
         Background="{DynamicResource SecundaryBackgroundColor}"
@@ -142,15 +251,17 @@
                                     <ColumnDefinition Width="45" />
                                 </Grid.ColumnDefinitions>
                                 <CheckBox
+                                    Click="OnTaskCheckBoxClick"
                                     Content="{Binding Name}"
                                     Grid.Column="0"
                                     HorizontalAlignment="Stretch"
-                                    VerticalAlignment="Stretch"
-                                    VerticalContentAlignment="Center"
                                     IsChecked="{Binding IsCheckedWithNull}"
-                                    MouseRightButtonUp="ToggleCheckBoxNullOnRightClick"
                                     IsHitTestVisible="{Binding Path=Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                                    ToolTip="{lex:Loc TooltipDragLabel}">
+                                    MouseRightButtonUp="ToggleCheckBoxNullOnRightClick"
+                                    Style="{StaticResource TaskQueueCheckBoxStyle}"
+                                    ToolTip="{lex:Loc TooltipDragLabel}"
+                                    VerticalAlignment="Stretch"
+                                    VerticalContentAlignment="Center">
                                     <CheckBox.ContentTemplate>
                                         <DataTemplate>
                                             <TextBlock

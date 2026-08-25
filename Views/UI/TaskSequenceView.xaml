@@ -1,0 +1,315 @@
+<UserControl
+    d:DataContext="{d:DesignInstance ui:TaskSequenceView,
+                                     IsDesignTimeCreatable=False}"
+    d:DesignHeight="600"
+    d:DesignWidth="900"
+    mc:Ignorable="d"
+    x:Class="MFAWPF.Views.UI.TaskSequenceView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:calcBinding="clr-namespace:CalcBinding;assembly=CalcBinding"
+    xmlns:controls="clr-namespace:MFAWPF.Views.UserControl"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:extensions="clr-namespace:MFAWPF.Extensions"
+    xmlns:hc="https://handyorg.github.io/handycontrol"
+    xmlns:helper="clr-namespace:MFAWPF.Helper"
+    xmlns:lex="http://wpflocalizeextension.codeplex.com"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="clr-namespace:MFAWPF.Views.UI"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource SecundaryBackgroundColor}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header Card -->
+        <controls:CardControl
+            Background="{DynamicResource WhiteColor}"
+            BorderThickness="0"
+            CornerRadius="5"
+            Grid.Row="0"
+            Margin="20,6,20,6">
+            <controls:CardControl.Icon>
+                <Path
+                    Data="{StaticResource ConfigGeometry}"
+                    Fill="{DynamicResource ControlIconBrush}"
+                    Height="24"
+                    Margin="8"
+                    Stretch="Uniform"
+                    Width="24" />
+            </controls:CardControl.Icon>
+            <controls:CardControl.Header>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        FontSize="17"
+                        FontWeight="SemiBold"
+                        Grid.Row="0"
+                        Text="{lex:Loc TaskSequence}" />
+                    <TextBlock
+                        FontSize="13.5"
+                        Foreground="{DynamicResource SecondaryTextBrush}"
+                        Grid.Row="1"
+                        Margin="0,2,0,0"
+                        Text="{lex:Loc TaskSequenceDescription}"
+                        TextWrapping="Wrap" />
+                </Grid>
+            </controls:CardControl.Header>
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button
+                    Command="{Binding ViewModel.ApplyPresetCommand}"
+                    Content="{lex:Loc ApplyPreset}"
+                    Style="{StaticResource DialogPrimaryButtonStyle}"
+                    Width="110" />
+            </StackPanel>
+        </controls:CardControl>
+
+        <!-- Preset Management & Operations Toolbar -->
+        <Border
+            Background="{DynamicResource WhiteColor}"
+            BorderThickness="0"
+            CornerRadius="5"
+            Grid.Row="1"
+            Margin="20,4,20,6"
+            Padding="14,10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Presets Selection & Save -->
+                <StackPanel
+                    Grid.Column="0"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <TextBlock
+                        FontSize="14"
+                        FontWeight="Medium"
+                        Foreground="{DynamicResource PrimaryTextBrush}"
+                        Margin="0,0,8,0"
+                        Text="{lex:Loc Presets}"
+                        VerticalAlignment="Center" />
+
+                    <hc:ComboBox
+                        DisplayMemberPath="Name"
+                        extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
+                        Focusable="False"
+                        ItemsSource="{Binding ViewModel.Presets}"
+                        Margin="0,0,8,0"
+                        SelectedItem="{Binding ViewModel.SelectedPreset, Mode=TwoWay}"
+                        VerticalAlignment="Center"
+                        Width="160">
+                        <hc:ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        Grid.Column="0"
+                                        HorizontalAlignment="Left"
+                                        Text="{Binding Name}"
+                                        TextTrimming="CharacterEllipsis"
+                                        VerticalAlignment="Center" />
+                                    <Button
+                                        Click="DeletePresetButton_Click"
+                                        CommandParameter="{Binding}"
+                                        Content="×"
+                                        FontWeight="Bold"
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Right"
+                                        Margin="6,0,0,0"
+                                        Padding="4,0"
+                                        Style="{StaticResource DialogSecondaryButtonStyle}"
+                                        VerticalAlignment="Center" />
+                                </Grid>
+                            </DataTemplate>
+                        </hc:ComboBox.ItemTemplate>
+                    </hc:ComboBox>
+
+                    <Button
+                        Command="{Binding ViewModel.SaveCurrentPresetCommand}"
+                        Content="{lex:Loc SavePreset}"
+                        Margin="0,0,12,0"
+                        Style="{StaticResource DialogSecondaryButtonStyle}"
+                        VerticalAlignment="Center"
+                        Width="84" />
+
+                    <!-- Save As New Preset -->
+                    <TextBox
+                        Margin="0,0,6,0"
+                        Text="{Binding ViewModel.NewPresetName, UpdateSourceTrigger=PropertyChanged}"
+                        VerticalAlignment="Center"
+                        Width="130">
+                        <TextBox.InputBindings>
+                            <KeyBinding Command="{Binding ViewModel.SaveAsNewPresetCommand}" Key="Enter" />
+                        </TextBox.InputBindings>
+                    </TextBox>
+
+                    <Button
+                        Command="{Binding ViewModel.SaveAsNewPresetCommand}"
+                        Content="{lex:Loc SaveAsPreset}"
+                        Style="{StaticResource DialogSecondaryButtonStyle}"
+                        VerticalAlignment="Center"
+                        Width="84" />
+                </StackPanel>
+
+                <!-- Right: Quick batch operations -->
+                <StackPanel
+                    Grid.Column="1"
+                    HorizontalAlignment="Right"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center">
+                    <Button
+                        Command="{Binding ViewModel.NumberAllCommand}"
+                        Content="{lex:Loc NumberAll}"
+                        Margin="0,0,8,0"
+                        Style="{StaticResource DialogSecondaryButtonStyle}"
+                        Width="88" />
+                    <Button
+                        Command="{Binding ViewModel.ClearAllCommand}"
+                        Content="{lex:Loc ClearAllOrders}"
+                        Style="{StaticResource DialogSecondaryButtonStyle}"
+                        Width="88" />
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Tasks Sequence List -->
+        <Grid Grid.Row="2" Margin="20,0,20,12">
+            <!-- Empty state -->
+            <Border
+                Background="{DynamicResource WhiteColor}"
+                CornerRadius="5"
+                Padding="24"
+                VerticalAlignment="Center"
+                Visibility="{Binding ViewModel.HasTasks, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
+                <TextBlock
+                    FontSize="14"
+                    Foreground="{DynamicResource SecondaryTextBrush}"
+                    HorizontalAlignment="Center"
+                    Text="{lex:Loc NoTasksAvailable}"
+                    VerticalAlignment="Center" />
+            </Border>
+
+            <ScrollViewer
+                Focusable="False"
+                PanningMode="VerticalOnly"
+                VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding ViewModel.SequenceItems}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border
+                                Background="{DynamicResource ControlSurfaceBrush}"
+                                BorderBrush="{DynamicResource ControlStrokeBrush}"
+                                BorderThickness="1"
+                                CornerRadius="8"
+                                Margin="0,3,0,3"
+                                Padding="14,9">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Order Badge / Indicator -->
+                                    <Border
+                                        Background="{DynamicResource BasePrimaryBrush}"
+                                        CornerRadius="4"
+                                        Grid.Column="0"
+                                        Height="24"
+                                        Margin="0,0,12,0"
+                                        MinWidth="24"
+                                        Padding="6,0"
+                                        VerticalAlignment="Center"
+                                        Visibility="{calcBinding:Binding IsAssigned}">
+                                        <TextBlock
+                                            FontSize="12"
+                                            FontWeight="Bold"
+                                            Foreground="#FFFFFF"
+                                            HorizontalAlignment="Center"
+                                            Text="{Binding OrderIndex}"
+                                            VerticalAlignment="Center" />
+                                    </Border>
+
+                                    <!-- Unassigned placeholder circle -->
+                                    <Border
+                                        BorderBrush="{DynamicResource SecondaryTextBrush}"
+                                        BorderThickness="1.5"
+                                        CornerRadius="4"
+                                        Grid.Column="0"
+                                        Height="22"
+                                        Margin="0,0,12,0"
+                                        VerticalAlignment="Center"
+                                        Visibility="{calcBinding:Binding '!IsAssigned'}"
+                                        Width="22">
+                                        <TextBlock
+                                            FontSize="11"
+                                            Foreground="{DynamicResource SecondaryTextBrush}"
+                                            HorizontalAlignment="Center"
+                                            Text="-"
+                                            VerticalAlignment="Center" />
+                                    </Border>
+
+                                    <!-- Task Name -->
+                                    <TextBlock
+                                        FontSize="14.5"
+                                        FontWeight="Medium"
+                                        Foreground="{DynamicResource PrimaryTextBrush}"
+                                        Grid.Column="1"
+                                        Text="{Binding Name}"
+                                        TextTrimming="CharacterEllipsis"
+                                        ToolTip="{Binding Name}"
+                                        VerticalAlignment="Center" />
+
+                                    <!-- Actions: NumericUpDown, Next, Clear -->
+                                    <StackPanel
+                                        Grid.Column="2"
+                                        HorizontalAlignment="Right"
+                                        Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                        <hc:NumericUpDown
+                                            InputMethod.IsInputMethodEnabled="False"
+                                            Margin="0,0,8,0"
+                                            Maximum="99"
+                                            Minimum="0"
+                                            Value="{Binding OrderIndex, Mode=TwoWay}"
+                                            ValueFormat="00"
+                                            Width="64" />
+
+                                        <Button
+                                            Command="{Binding ViewModel.AssignNextCommand, RelativeSource={RelativeSource AncestorType=ui:TaskSequenceView}}"
+                                            CommandParameter="{Binding}"
+                                            Content="{lex:Loc AssignNext}"
+                                            Margin="0,0,6,0"
+                                            Style="{StaticResource DialogSecondaryButtonStyle}"
+                                            Width="82" />
+
+                                        <Button
+                                            Command="{Binding ViewModel.ClearOrderCommand, RelativeSource={RelativeSource AncestorType=ui:TaskSequenceView}}"
+                                            CommandParameter="{Binding}"
+                                            Content="{lex:Loc ClearOrder}"
+                                            Style="{StaticResource DialogSecondaryButtonStyle}"
+                                            Width="60" />
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</UserControl>

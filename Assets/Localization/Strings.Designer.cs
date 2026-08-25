@@ -1599,6 +1599,168 @@ namespace MFAWPF.Res.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to 任务.
+        /// </summary>
+        internal static string Tasks {
+            get {
+                return ResourceManager.GetString("Tasks", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 任务顺序.
+        /// </summary>
+        internal static string TaskSequence {
+            get {
+                return ResourceManager.GetString("TaskSequence", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 自定义任务执行顺序与预设管理.
+        /// </summary>
+        internal static string TaskSequenceDescription {
+            get {
+                return ResourceManager.GetString("TaskSequenceDescription", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 预设.
+        /// </summary>
+        internal static string Presets {
+            get {
+                return ResourceManager.GetString("Presets", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 预设名称.
+        /// </summary>
+        internal static string PresetName {
+            get {
+                return ResourceManager.GetString("PresetName", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 保存预设.
+        /// </summary>
+        internal static string SavePreset {
+            get {
+                return ResourceManager.GetString("SavePreset", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 另存预设.
+        /// </summary>
+        internal static string SaveAsPreset {
+            get {
+                return ResourceManager.GetString("SaveAsPreset", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 删除预设.
+        /// </summary>
+        internal static string DeletePreset {
+            get {
+                return ResourceManager.GetString("DeletePreset", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 应用预设.
+        /// </summary>
+        internal static string ApplyPreset {
+            get {
+                return ResourceManager.GetString("ApplyPreset", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 设为下一个.
+        /// </summary>
+        internal static string AssignNext {
+            get {
+                return ResourceManager.GetString("AssignNext", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 清除.
+        /// </summary>
+        internal static string ClearOrder {
+            get {
+                return ResourceManager.GetString("ClearOrder", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 全部编号.
+        /// </summary>
+        internal static string NumberAll {
+            get {
+                return ResourceManager.GetString("NumberAll", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 清空序号.
+        /// </summary>
+        internal static string ClearAllOrders {
+            get {
+                return ResourceManager.GetString("ClearAllOrders", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 预设 &lt;{0}&gt; 已保存！.
+        /// </summary>
+        internal static string PresetSavedSuccess {
+            get {
+                return ResourceManager.GetString("PresetSavedSuccess", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 预设 &lt;{0}&gt; 已成功应用！.
+        /// </summary>
+        internal static string PresetAppliedSuccess {
+            get {
+                return ResourceManager.GetString("PresetAppliedSuccess", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 预设 &lt;{0}&gt; 已删除！.
+        /// </summary>
+        internal static string PresetDeletedSuccess {
+            get {
+                return ResourceManager.GetString("PresetDeletedSuccess", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 预设名称不能为空！.
+        /// </summary>
+        internal static string PresetNameCannotBeEmpty {
+            get {
+                return ResourceManager.GetString("PresetNameCannotBeEmpty", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 默认预设.
+        /// </summary>
+        internal static string DefaultPreset {
+            get {
+                return ResourceManager.GetString("DefaultPreset", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to 任务流程图.
         /// </summary>
         internal static string WorkflowDiagramTitle {

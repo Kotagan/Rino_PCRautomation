@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using MFAWPF.Configuration;
 using MFAWPF.Extensions;
 using MFAWPF.Helper;
@@ -18,6 +18,13 @@ public partial class DragItemViewModel : ViewModel
     }
 
     [ObservableProperty] private string _name = string.Empty;
+    [ObservableProperty] private int? _sequenceOrder;
+    [ObservableProperty] private bool _isSequenceBadgeVisible;
+
+    partial void OnSequenceOrderChanged(int? value)
+    {
+        IsSequenceBadgeVisible = value.HasValue && value.Value > 0;
+    }
 
 
     private bool? _isCheckedWithNull = false;
@@ -130,6 +137,8 @@ public partial class DragItemViewModel : ViewModel
         clone.IsCheckedWithNull = this.IsCheckedWithNull;
         clone.EnableSetting = this.EnableSetting;
         clone.SettingVisibility = this.SettingVisibility;
+        clone.SequenceOrder = this.SequenceOrder;
+        clone.IsSequenceBadgeVisible = this.IsSequenceBadgeVisible;
 
         return clone;
     }

@@ -47,8 +47,11 @@ public partial class App
 
 
                 // Views and ViewModels
+                _ = services.AddSingleton<TaskPresetStorageService>();
                 _ = services.AddSingleton<TaskQueueView>();
                 _ = services.AddSingleton<TaskQueueViewModel>();
+                _ = services.AddSingleton<TaskSequenceView>();
+                _ = services.AddSingleton<TaskSequenceViewModel>();
                 _ = services.AddSingleton<TaskQueueSettingsUserControl>();
                 _ = services.AddSingleton<TaskOptionSettingsUserControl>();
 

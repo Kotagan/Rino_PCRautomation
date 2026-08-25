@@ -22,6 +22,54 @@ public partial class TaskQueueViewModel : ViewModel
     }
 
     [ObservableProperty] private bool _connectSettingChecked = true;
+    [ObservableProperty] private bool _isPresetMode;
+    [ObservableProperty] private string? _activePresetName;
+
+    /// <summary>
+    /// Applies a task sequence preset to the home task queue.
+    /// </summary>
+    public void ApplyPresetSequence(IEnumerable<Models.TaskPresetItem> sequence, string? presetName = null)
+    {
+        var orderMap = sequence
+            .Where(s => !string.IsNullOrWhiteSpace(s.TaskName) && s.Order > 0)
+            .ToDictionary(s => s.TaskName, s => s.Order, StringComparer.OrdinalIgnoreCase);
+
+        IsPresetMode = true;
+        ActivePresetName = presetName;
+
+        foreach (var item in TaskItemViewModels)
+        {
+            var taskKey = item.InterfaceItem?.Name ?? item.Name;
+            if (orderMap.TryGetValue(taskKey, out var order) ||
+                (!string.IsNullOrWhiteSpace(item.Name) && orderMap.TryGetValue(item.Name, out order)) ||
+                (item.InterfaceItem?.Entry != null && orderMap.TryGetValue(item.InterfaceItem.Entry, out order)))
+            {
+                item.SequenceOrder = order;
+                item.IsCheckedWithNull = true;
+            }
+            else
+            {
+                item.SequenceOrder = null;
+                item.IsCheckedWithNull = false;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Exits preset mode and clears sequence badges.
+    /// </summary>
+    public void ExitPresetMode()
+    {
+        if (!IsPresetMode) return;
+
+        IsPresetMode = false;
+        ActivePresetName = null;
+
+        foreach (var item in TaskItemViewModels)
+        {
+            item.SequenceOrder = null;
+        }
+    }
 
 
     public ObservableCollection<Tool.DragItemViewModel> TasksSource { get; private set; } =

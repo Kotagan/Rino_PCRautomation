@@ -421,7 +421,21 @@ public partial class TaskQueueView
         if (InitializeData())
         {
             MaaProcessor.Money = 0;
-            var tasks = ViewModel.TaskItemViewModels.ToList().FindAll(task => task.IsChecked || task.IsCheckedWithNull == null);
+            List<DragItemViewModel> tasks;
+            if (ViewModel.IsPresetMode)
+            {
+                tasks = ViewModel.TaskItemViewModels
+                    .Where(task => task.SequenceOrder.HasValue && task.SequenceOrder.Value > 0)
+                    .OrderBy(task => task.SequenceOrder!.Value)
+                    .ToList();
+            }
+            else
+            {
+                tasks = ViewModel.TaskItemViewModels
+                    .Where(task => task.IsChecked || task.IsCheckedWithNull == null)
+                    .ToList();
+            }
+
             ConnectToMAA();
             MaaProcessor.Instance.Start(tasks, onlyStart, checkUpdate);
         }
@@ -453,14 +467,35 @@ public partial class TaskQueueView
         Instances.RootViewModel.Idle = false;
     }
 
+    private void OnTaskCheckBoxClick(object sender, RoutedEventArgs e)
+    {
+        if (sender is CheckBox { DataContext: DragItemViewModel clickedTask })
+        {
+            if (ViewModel.IsPresetMode)
+            {
+                ViewModel.ExitPresetMode();
+                foreach (var task in ViewModel.TaskItemViewModels)
+                {
+                    if (task != clickedTask)
+                    {
+                        task.IsCheckedWithNull = false;
+                    }
+                }
+                clickedTask.IsCheckedWithNull = true;
+            }
+        }
+    }
+
     private void SelectAll(object sender, RoutedEventArgs e)
     {
+        ViewModel.ExitPresetMode();
         foreach (var task in ViewModel.TaskItemViewModels)
             task.IsChecked = true;
     }
 
     private void SelectNone(object sender, RoutedEventArgs e)
     {
+        ViewModel.ExitPresetMode();
         foreach (var task in ViewModel.TaskItemViewModels)
             task.IsChecked = false;
     }
@@ -521,9 +556,9 @@ public partial class TaskQueueView
             return;
         }
 
+        ViewModel.ExitPresetMode();
         CheckBox checkBox = (CheckBox)sender;
         checkBox.IsChecked = checkBox.IsChecked == null ? (bool?)false : null;
-
     }
 
     private void UIElement_OnMouseRightButtonUp(object sender, MouseButtonEventArgs e)
@@ -534,6 +569,7 @@ public partial class TaskQueueView
         }
         if (sender is CheckBox checkBox)
         {
+            ViewModel.ExitPresetMode();
             checkBox.IsChecked = checkBox.IsChecked == null ? (bool?)false : null;
         }
         e.Handled = true;

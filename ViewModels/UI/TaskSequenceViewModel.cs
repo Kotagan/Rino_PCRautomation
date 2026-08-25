@@ -1,0 +1,313 @@
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using MFAWPF.Extensions;
+using MFAWPF.Helper;
+using MFAWPF.Models;
+using MFAWPF.Services;
+using MFAWPF.ViewModels.Tool;
+
+namespace MFAWPF.ViewModels.UI;
+
+/// <summary>
+/// ViewModel for the Task Sequence configuration and preset management page.
+/// </summary>
+public partial class TaskSequenceViewModel : ViewModel
+{
+    private readonly TaskPresetStorageService _presetStorageService;
+
+    [ObservableProperty]
+    private ObservableCollection<TaskSequenceItemViewModel> _sequenceItems = new();
+
+    [ObservableProperty]
+    private ObservableCollection<TaskPreset> _presets = new();
+
+    [ObservableProperty]
+    private TaskPreset? _selectedPreset;
+
+    [ObservableProperty]
+    private string _newPresetName = string.Empty;
+
+    [ObservableProperty]
+    private bool _hasTasks;
+
+    public TaskSequenceViewModel(TaskPresetStorageService presetStorageService)
+    {
+        _presetStorageService = presetStorageService;
+        LoadPresets();
+        RefreshTasksFromQueue();
+    }
+
+    /// <summary>
+    /// Refreshes the sequence items from the current tasks source or task queue.
+    /// </summary>
+    public void RefreshTasksFromQueue()
+    {
+        var taskSource = Instances.TaskQueueViewModel.TasksSource.Any()
+            ? Instances.TaskQueueViewModel.TasksSource
+            : Instances.TaskQueueViewModel.TaskItemViewModels;
+
+        var currentAssignments = SequenceItems
+            .Where(i => i.IsAssigned)
+            .ToDictionary(i => i.RawName, i => i.OrderIndex, StringComparer.OrdinalIgnoreCase);
+
+        var newItems = new ObservableCollection<TaskSequenceItemViewModel>();
+        foreach (var task in taskSource)
+        {
+            var itemVm = new TaskSequenceItemViewModel(task, RequestOrderChange);
+            var taskKey = task.InterfaceItem?.Name ?? task.Name;
+            if (currentAssignments.TryGetValue(taskKey, out var existingOrder))
+            {
+                itemVm.SetOrderInternal(existingOrder);
+            }
+            newItems.Add(itemVm);
+        }
+
+        SequenceItems = newItems;
+        HasTasks = SequenceItems.Count > 0;
+        NormalizeSequence();
+    }
+
+    /// <summary>
+    /// Loads all presets from storage.
+    /// </summary>
+    public void LoadPresets()
+    {
+        var loaded = _presetStorageService.LoadPresets();
+        Presets.Clear();
+        foreach (var preset in loaded)
+        {
+            Presets.Add(preset);
+        }
+
+        if (Presets.Count > 0 && SelectedPreset == null)
+        {
+            SelectedPreset = Presets.First();
+        }
+    }
+
+    partial void OnSelectedPresetChanged(TaskPreset? value)
+    {
+        if (value == null) return;
+        ApplyPresetToItems(value);
+    }
+
+    /// <summary>
+    /// Applies a preset's ordered items to the current sequence item views.
+    /// </summary>
+    public void ApplyPresetToItems(TaskPreset preset)
+    {
+        var orderMap = preset.Items
+            .Where(i => !string.IsNullOrWhiteSpace(i.TaskName) && i.Order > 0)
+            .ToDictionary(i => i.TaskName, i => i.Order, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var item in SequenceItems)
+        {
+            var taskKey = item.RawName;
+            if (orderMap.TryGetValue(taskKey, out var order) ||
+                (!string.IsNullOrWhiteSpace(item.Name) && orderMap.TryGetValue(item.Name, out order)) ||
+                (item.DragItem.InterfaceItem?.Entry != null && orderMap.TryGetValue(item.DragItem.InterfaceItem.Entry, out order)))
+            {
+                item.SetOrderInternal(order);
+            }
+            else
+            {
+                item.SetOrderInternal(null);
+            }
+        }
+
+        NormalizeSequence();
+    }
+
+    /// <summary>
+    /// Handles user request to set an order for a task, implementing gap-filling and continuous sequence enforcement.
+    /// </summary>
+    public void RequestOrderChange(TaskSequenceItemViewModel item, int? requestedOrder)
+    {
+        var others = SequenceItems
+            .Where(i => i != item && i.IsAssigned)
+            .OrderBy(i => i.OrderIndex!.Value)
+            .ToList();
+
+        if (requestedOrder == null || requestedOrder <= 0)
+        {
+            item.SetOrderInternal(null);
+            for (int i = 0; i < others.Count; i++)
+            {
+                others[i].SetOrderInternal(i + 1);
+            }
+            return;
+        }
+
+        // Clamp to next contiguous slot (e.g., if max is 6, input 8 becomes 7)
+        int maxAllowed = others.Count + 1;
+        int targetOrder = Math.Clamp(requestedOrder.Value, 1, maxAllowed);
+
+        others.Insert(targetOrder - 1, item);
+        for (int i = 0; i < others.Count; i++)
+        {
+            others[i].SetOrderInternal(i + 1);
+        }
+    }
+
+    /// <summary>
+    /// Normalizes the entire sequence to guarantee contiguous 1..N order with no gaps.
+    /// </summary>
+    private void NormalizeSequence()
+    {
+        var assigned = SequenceItems
+            .Where(i => i.IsAssigned)
+            .OrderBy(i => i.OrderIndex!.Value)
+            .ToList();
+
+        for (int i = 0; i < assigned.Count; i++)
+        {
+            assigned[i].SetOrderInternal(i + 1);
+        }
+    }
+
+    [RelayCommand]
+    public void AssignNext(TaskSequenceItemViewModel item)
+    {
+        if (item == null) return;
+        if (item.IsAssigned) return;
+
+        int maxOrder = SequenceItems.Where(i => i.IsAssigned).Select(i => i.OrderIndex!.Value).DefaultIfEmpty(0).Max();
+        RequestOrderChange(item, maxOrder + 1);
+    }
+
+    [RelayCommand]
+    public void ClearOrder(TaskSequenceItemViewModel item)
+    {
+        if (item == null) return;
+        RequestOrderChange(item, null);
+    }
+
+    [RelayCommand]
+    public void NumberAll()
+    {
+        for (int i = 0; i < SequenceItems.Count; i++)
+        {
+            SequenceItems[i].SetOrderInternal(i + 1);
+        }
+    }
+
+    [RelayCommand]
+    public void ClearAll()
+    {
+        foreach (var item in SequenceItems)
+        {
+            item.SetOrderInternal(null);
+        }
+    }
+
+    [RelayCommand]
+    public void SaveCurrentPreset()
+    {
+        if (SelectedPreset == null)
+        {
+            SaveAsNewPreset();
+            return;
+        }
+
+        SelectedPreset.Items = SequenceItems
+            .Where(i => i.IsAssigned)
+            .OrderBy(i => i.OrderIndex!.Value)
+            .Select(i => new TaskPresetItem
+            {
+                TaskName = i.RawName,
+                Order = i.OrderIndex!.Value
+            })
+            .ToList();
+
+        _presetStorageService.SavePreset(SelectedPreset);
+        GrowlHelper.Success(string.Format("PresetSavedSuccess".ToLocalization(), SelectedPreset.Name));
+    }
+
+    [RelayCommand]
+    public void SaveAsNewPreset()
+    {
+        var name = NewPresetName?.Trim();
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            GrowlHelper.Warning("PresetNameCannotBeEmpty".ToLocalization());
+            return;
+        }
+
+        var preset = new TaskPreset
+        {
+            Name = name,
+            Items = SequenceItems
+                .Where(i => i.IsAssigned)
+                .OrderBy(i => i.OrderIndex!.Value)
+                .Select(i => new TaskPresetItem
+                {
+                    TaskName = i.RawName,
+                    Order = i.OrderIndex!.Value
+                })
+                .ToList()
+        };
+
+        var existing = Presets.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        if (existing != null)
+        {
+            existing.Items = preset.Items;
+            SelectedPreset = existing;
+            _presetStorageService.SavePreset(existing);
+        }
+        else
+        {
+            Presets.Add(preset);
+            SelectedPreset = preset;
+            _presetStorageService.SavePreset(preset);
+        }
+
+        NewPresetName = string.Empty;
+        GrowlHelper.Success(string.Format("PresetSavedSuccess".ToLocalization(), name));
+    }
+
+    [RelayCommand]
+    public void DeleteCurrentPreset()
+    {
+        if (SelectedPreset == null) return;
+        DeletePreset(SelectedPreset);
+    }
+
+    [RelayCommand]
+    public void DeletePreset(TaskPreset? preset)
+    {
+        if (preset == null) return;
+
+        var name = preset.Name;
+        _presetStorageService.DeletePreset(name);
+        Presets.Remove(preset);
+        if (SelectedPreset == preset)
+        {
+            SelectedPreset = Presets.FirstOrDefault();
+        }
+        GrowlHelper.Success(string.Format("PresetDeletedSuccess".ToLocalization(), name));
+    }
+
+    [RelayCommand]
+    public void ApplyPreset()
+    {
+        NormalizeSequence();
+
+        var sequence = SequenceItems
+            .Where(i => i.IsAssigned)
+            .OrderBy(i => i.OrderIndex!.Value)
+            .Select(i => new TaskPresetItem
+            {
+                TaskName = i.RawName,
+                Order = i.OrderIndex!.Value
+            })
+            .ToList();
+
+        var presetName = SelectedPreset?.Name ?? "Custom";
+        Instances.TaskQueueViewModel.ApplyPresetSequence(sequence, presetName);
+        GrowlHelper.Success(string.Format("PresetAppliedSuccess".ToLocalization(), presetName));
+    }
+}

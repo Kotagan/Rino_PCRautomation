@@ -57,6 +57,8 @@ public static class Instances
     public static RootViewModel RootViewModel => Resolve<RootViewModel>();
     public static TaskQueueView TaskQueueView => Resolve<TaskQueueView>();
     public static TaskQueueViewModel TaskQueueViewModel => Resolve<TaskQueueViewModel>();
+    public static TaskSequenceView TaskSequenceView => Resolve<TaskSequenceView>();
+    public static TaskSequenceViewModel TaskSequenceViewModel => Resolve<TaskSequenceViewModel>();
     public static TaskQueueSettingsUserControl TaskQueueSettingsUserControl => Resolve<TaskQueueSettingsUserControl>();
     public static TaskOptionSettingsUserControl TaskOptionSettingsUserControl => Resolve<TaskOptionSettingsUserControl>();
     public static ConnectingView ConnectingView => Resolve<ConnectingView>();

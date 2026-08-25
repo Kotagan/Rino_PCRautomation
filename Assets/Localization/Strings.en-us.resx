@@ -1170,4 +1170,61 @@
   <data name="TimePm" xml:space="preserve">
     <value>PM</value>
   </data>
+  <data name="Tasks" xml:space="preserve">
+    <value>Tasks</value>
+  </data>
+  <data name="TaskSequence" xml:space="preserve">
+    <value>Task Sequence</value>
+  </data>
+  <data name="TaskSequenceDescription" xml:space="preserve">
+    <value>Customize task execution order and manage presets</value>
+  </data>
+  <data name="Presets" xml:space="preserve">
+    <value>Presets</value>
+  </data>
+  <data name="PresetName" xml:space="preserve">
+    <value>Preset Name</value>
+  </data>
+  <data name="SavePreset" xml:space="preserve">
+    <value>Save Preset</value>
+  </data>
+  <data name="SaveAsPreset" xml:space="preserve">
+    <value>Save As</value>
+  </data>
+  <data name="DeletePreset" xml:space="preserve">
+    <value>Delete Preset</value>
+  </data>
+  <data name="ApplyPreset" xml:space="preserve">
+    <value>Apply Preset</value>
+  </data>
+  <data name="AssignNext" xml:space="preserve">
+    <value>Set as Next</value>
+  </data>
+  <data name="ClearOrder" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="NumberAll" xml:space="preserve">
+    <value>Number All</value>
+  </data>
+  <data name="ClearAllOrders" xml:space="preserve">
+    <value>Clear All</value>
+  </data>
+  <data name="PresetSavedSuccess" xml:space="preserve">
+    <value>Preset &lt;{0}&gt; saved!</value>
+  </data>
+  <data name="PresetAppliedSuccess" xml:space="preserve">
+    <value>Preset &lt;{0}&gt; applied successfully!</value>
+  </data>
+  <data name="PresetDeletedSuccess" xml:space="preserve">
+    <value>Preset &lt;{0}&gt; deleted!</value>
+  </data>
+  <data name="PresetNameCannotBeEmpty" xml:space="preserve">
+    <value>Preset name cannot be empty!</value>
+  </data>
+  <data name="DefaultPreset" xml:space="preserve">
+    <value>Default Preset</value>
+  </data>
+  <data name="NoTasksAvailable" xml:space="preserve">
+    <value>No tasks available. Please ensure task resources are loaded.</value>
+  </data>
 </root>
