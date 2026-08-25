@@ -209,8 +209,16 @@ public partial class TaskSequenceViewModel : ViewModel
     {
         if (SelectedPreset == null)
         {
-            SaveAsNewPreset();
-            return;
+            if (Presets.Count > 0)
+            {
+                SelectedPreset = Presets.First();
+            }
+            else
+            {
+                var defaultPreset = new TaskPreset { Name = "默认预设" };
+                Presets.Add(defaultPreset);
+                SelectedPreset = defaultPreset;
+            }
         }
 
         SelectedPreset.Items = SequenceItems

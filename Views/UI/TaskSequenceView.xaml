@@ -212,28 +212,6 @@
                     <Button
                         Command="{Binding ViewModel.SaveCurrentPresetCommand}"
                         Content="{lex:Loc SavePreset}"
-                        Margin="0,0,10,0"
-                        Style="{StaticResource SequenceActionButtonStyle}"
-                        MinWidth="80" />
-
-                    <!-- Save As New Preset -->
-                    <TextBox
-                        FontSize="13"
-                        Height="28"
-                        Margin="0,0,6,0"
-                        Padding="6,0"
-                        Text="{Binding ViewModel.NewPresetName, UpdateSourceTrigger=PropertyChanged}"
-                        VerticalAlignment="Center"
-                        VerticalContentAlignment="Center"
-                        Width="120">
-                        <TextBox.InputBindings>
-                            <KeyBinding Command="{Binding ViewModel.SaveAsNewPresetCommand}" Key="Enter" />
-                        </TextBox.InputBindings>
-                    </TextBox>
-
-                    <Button
-                        Command="{Binding ViewModel.SaveAsNewPresetCommand}"
-                        Content="{lex:Loc SaveAsPreset}"
                         Style="{StaticResource SequenceActionButtonStyle}"
                         MinWidth="80" />
                 </StackPanel>
