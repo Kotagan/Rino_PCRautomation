@@ -45,17 +45,23 @@ public partial class TaskSequenceItemViewModel : ViewModel
         get => _orderIndex;
         set
         {
-            if (_orderIndex == value) return;
+            if (_orderIndex == value)
+            {
+                OnPropertyChanged(nameof(InputOrderText));
+                return;
+            }
 
             if (_isInternalUpdating)
             {
                 SetProperty(ref _orderIndex, value);
                 OnPropertyChanged(nameof(IsAssigned));
                 OnPropertyChanged(nameof(DisplayOrderText));
+                OnPropertyChanged(nameof(InputOrderText));
                 return;
             }
 
             _onOrderChangeRequested?.Invoke(this, value);
+            OnPropertyChanged(nameof(InputOrderText));
         }
     }
 
@@ -68,7 +74,37 @@ public partial class TaskSequenceItemViewModel : ViewModel
         SetProperty(ref _orderIndex, value, nameof(OrderIndex));
         OnPropertyChanged(nameof(IsAssigned));
         OnPropertyChanged(nameof(DisplayOrderText));
+        OnPropertyChanged(nameof(InputOrderText));
         _isInternalUpdating = false;
+    }
+
+    /// <summary>
+    /// Gets or sets the text representation of the order for direct input binding.
+    /// </summary>
+    public string InputOrderText
+    {
+        get => _orderIndex.HasValue && _orderIndex.Value > 0 ? _orderIndex.Value.ToString() : string.Empty;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                if (_orderIndex != null)
+                {
+                    OrderIndex = null;
+                }
+                OnPropertyChanged(nameof(InputOrderText));
+                return;
+            }
+
+            if (int.TryParse(value.Trim(), out var parsedInt))
+            {
+                OrderIndex = parsedInt;
+            }
+            else
+            {
+                OnPropertyChanged(nameof(InputOrderText));
+            }
+        }
     }
 
     /// <summary>

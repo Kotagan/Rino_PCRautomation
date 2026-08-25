@@ -296,22 +296,25 @@
                                         ToolTip="{Binding Name}"
                                         VerticalAlignment="Center" />
 
-                                    <!-- Actions: NumericUpDown, Next, Clear -->
+                                    <!-- Actions: TextBox, Next, Clear -->
                                     <StackPanel
                                         Grid.Column="2"
                                         HorizontalAlignment="Right"
                                         Orientation="Horizontal"
                                         VerticalAlignment="Center">
-                                        <hc:NumericUpDown
+                                        <TextBox
                                             FontSize="13"
+                                            FontWeight="Medium"
                                             Height="28"
                                             InputMethod.IsInputMethodEnabled="False"
+                                            KeyDown="OnOrderTextBoxKeyDown"
                                             Margin="0,0,8,0"
-                                            Maximum="99"
-                                            Minimum="0"
-                                            Value="{Binding OrderIndex, Mode=TwoWay}"
-                                            ValueFormat="00"
-                                            Width="58" />
+                                            MaxLength="3"
+                                            PreviewTextInput="OnOrderTextBoxPreviewTextInput"
+                                            Text="{Binding InputOrderText, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
+                                            TextAlignment="Center"
+                                            VerticalContentAlignment="Center"
+                                            Width="56" />
 
                                         <Button
                                             Command="{Binding ViewModel.AssignNextCommand, RelativeSource={RelativeSource AncestorType=ui:TaskSequenceView}}"

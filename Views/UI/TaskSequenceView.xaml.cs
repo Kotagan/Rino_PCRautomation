@@ -30,4 +30,19 @@ public partial class TaskSequenceView
             ViewModel.DeletePresetCommand.Execute(preset);
         }
     }
+
+    private void OnOrderTextBoxPreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+    {
+        e.Handled = !int.TryParse(e.Text, out _);
+    }
+
+    private void OnOrderTextBoxKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (e.Key == System.Windows.Input.Key.Enter && sender is TextBox textBox)
+        {
+            var binding = System.Windows.Data.BindingOperations.GetBindingExpression(textBox, TextBox.TextProperty);
+            binding?.UpdateSource();
+            System.Windows.Input.Keyboard.ClearFocus();
+        }
+    }
 }
