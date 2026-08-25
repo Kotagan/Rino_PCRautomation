@@ -21,7 +21,12 @@
         <Style x:Key="TimerNumericUpDownStyle" TargetType="hc:NumericUpDown" BasedOn="{StaticResource {x:Type hc:NumericUpDown}}">
             <Setter Property="FontSize" Value="13.5" />
             <Setter Property="Height" Value="28" />
-            <Setter Property="Width" Value="66" />
+            <Setter Property="Width" Value="68" />
+        </Style>
+        <Style x:Key="TimerPeriodComboBoxStyle" TargetType="hc:ComboBox" BasedOn="{StaticResource {x:Type hc:ComboBox}}">
+            <Setter Property="FontSize" Value="13" />
+            <Setter Property="Height" Value="28" />
+            <Setter Property="Width" Value="78" />
         </Style>
     </UserControl.Resources>
 
@@ -93,13 +98,11 @@
                                 DisplayMemberPath="Name"
                                 extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                                 Focusable="False"
-                                FontSize="13"
-                                Height="28"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[0].IsOn}"
                                 ItemsSource="{Binding ViewModel.Periods}"
                                 Margin="2,0"
                                 SelectedIndex="{Binding ViewModel.TimerModels.Timers[0].PeriodIndex, Mode=TwoWay}"
-                                Width="66" />
+                                Style="{StaticResource TimerPeriodComboBoxStyle}" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[0].IsOn}"
@@ -192,13 +195,11 @@
                                 DisplayMemberPath="Name"
                                 extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                                 Focusable="False"
-                                FontSize="13"
-                                Height="28"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[1].IsOn}"
                                 ItemsSource="{Binding ViewModel.Periods}"
                                 Margin="2,0"
                                 SelectedIndex="{Binding ViewModel.TimerModels.Timers[1].PeriodIndex, Mode=TwoWay}"
-                                Width="66" />
+                                Style="{StaticResource TimerPeriodComboBoxStyle}" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[1].IsOn}"
@@ -291,13 +292,11 @@
                                 DisplayMemberPath="Name"
                                 extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                                 Focusable="False"
-                                FontSize="13"
-                                Height="28"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[2].IsOn}"
                                 ItemsSource="{Binding ViewModel.Periods}"
                                 Margin="2,0"
                                 SelectedIndex="{Binding ViewModel.TimerModels.Timers[2].PeriodIndex, Mode=TwoWay}"
-                                Width="66" />
+                                Style="{StaticResource TimerPeriodComboBoxStyle}" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[2].IsOn}"
@@ -390,13 +389,11 @@
                                 DisplayMemberPath="Name"
                                 extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                                 Focusable="False"
-                                FontSize="13"
-                                Height="28"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[3].IsOn}"
                                 ItemsSource="{Binding ViewModel.Periods}"
                                 Margin="2,0"
                                 SelectedIndex="{Binding ViewModel.TimerModels.Timers[3].PeriodIndex, Mode=TwoWay}"
-                                Width="66" />
+                                Style="{StaticResource TimerPeriodComboBoxStyle}" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[3].IsOn}"
@@ -489,13 +486,11 @@
                                 DisplayMemberPath="Name"
                                 extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                                 Focusable="False"
-                                FontSize="13"
-                                Height="28"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[4].IsOn}"
                                 ItemsSource="{Binding ViewModel.Periods}"
                                 Margin="2,0"
                                 SelectedIndex="{Binding ViewModel.TimerModels.Timers[4].PeriodIndex, Mode=TwoWay}"
-                                Width="66" />
+                                Style="{StaticResource TimerPeriodComboBoxStyle}" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[4].IsOn}"
@@ -588,13 +583,11 @@
                                 DisplayMemberPath="Name"
                                 extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                                 Focusable="False"
-                                FontSize="13"
-                                Height="28"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[5].IsOn}"
                                 ItemsSource="{Binding ViewModel.Periods}"
                                 Margin="2,0"
                                 SelectedIndex="{Binding ViewModel.TimerModels.Timers[5].PeriodIndex, Mode=TwoWay}"
-                                Width="66" />
+                                Style="{StaticResource TimerPeriodComboBoxStyle}" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[5].IsOn}"
@@ -687,13 +680,11 @@
                                 DisplayMemberPath="Name"
                                 extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                                 Focusable="False"
-                                FontSize="13"
-                                Height="28"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[6].IsOn}"
                                 ItemsSource="{Binding ViewModel.Periods}"
                                 Margin="2,0"
                                 SelectedIndex="{Binding ViewModel.TimerModels.Timers[6].PeriodIndex, Mode=TwoWay}"
-                                Width="66" />
+                                Style="{StaticResource TimerPeriodComboBoxStyle}" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[6].IsOn}"
@@ -786,13 +777,11 @@
                                 DisplayMemberPath="Name"
                                 extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
                                 Focusable="False"
-                                FontSize="13"
-                                Height="28"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[7].IsOn}"
                                 ItemsSource="{Binding ViewModel.Periods}"
                                 Margin="2,0"
                                 SelectedIndex="{Binding ViewModel.TimerModels.Timers[7].PeriodIndex, Mode=TwoWay}"
-                                Width="66" />
+                                Style="{StaticResource TimerPeriodComboBoxStyle}" />
                             <hc:NumericUpDown
                                 InputMethod.IsInputMethodEnabled="False"
                                 IsEnabled="{c:Binding ViewModel.TimerModels.Timers[7].IsOn}"
