@@ -1777,5 +1777,32 @@ namespace MFAWPF.Res.Localization {
                 return ResourceManager.GetString("WorkflowDiagramTitle", resourceCulture);
             }
         }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 新建预设.
+        /// </summary>
+        internal static string NewPreset {
+            get {
+                return ResourceManager.GetString("NewPreset", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 重命名.
+        /// </summary>
+        internal static string RenamePreset {
+            get {
+                return ResourceManager.GetString("RenamePreset", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 请输入预设名称.
+        /// </summary>
+        internal static string EnterPresetName {
+            get {
+                return ResourceManager.GetString("EnterPresetName", resourceCulture);
+            }
+        }
     }
 }

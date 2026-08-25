@@ -212,8 +212,22 @@
                     <Button
                         Command="{Binding ViewModel.SaveCurrentPresetCommand}"
                         Content="{lex:Loc SavePreset}"
+                        Margin="0,0,8,0"
                         Style="{StaticResource SequenceActionButtonStyle}"
                         MinWidth="80" />
+
+                    <Button
+                        Click="NewPresetButton_Click"
+                        Content="{lex:Loc NewPreset}"
+                        Margin="0,0,8,0"
+                        Style="{StaticResource SequenceActionButtonStyle}"
+                        MinWidth="80" />
+
+                    <Button
+                        Click="RenamePresetButton_Click"
+                        Content="{lex:Loc RenamePreset}"
+                        Style="{StaticResource SequenceActionButtonStyle}"
+                        MinWidth="72" />
                 </StackPanel>
 
                 <!-- Right: Quick batch operations -->

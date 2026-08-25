@@ -1230,4 +1230,13 @@
   <data name="DefaultHomeState" xml:space="preserve">
     <value>Default (Current Home State)</value>
   </data>
+  <data name="NewPreset" xml:space="preserve">
+    <value>New Preset</value>
+  </data>
+  <data name="RenamePreset" xml:space="preserve">
+    <value>Rename</value>
+  </data>
+  <data name="EnterPresetName" xml:space="preserve">
+    <value>Please enter preset name</value>
+  </data>
 </root>

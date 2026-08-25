@@ -1,8 +1,10 @@
 using System.Windows;
 using System.Windows.Controls;
+using MFAWPF.Extensions;
 using MFAWPF.Helper;
 using MFAWPF.Models;
 using MFAWPF.ViewModels.UI;
+using MFAWPF.Views.UI.Dialog;
 
 namespace MFAWPF.Views.UI;
 
@@ -28,6 +30,37 @@ public partial class TaskSequenceView
         if (sender is Button { CommandParameter: TaskPreset preset })
         {
             ViewModel.DeletePresetCommand.Execute(preset);
+        }
+    }
+
+    private void NewPresetButton_Click(object sender, RoutedEventArgs e)
+    {
+        var dialog = new PresetNameDialog("NewPreset".ToLocalization(), string.Empty)
+        {
+            Owner = Window.GetWindow(this)
+        };
+
+        if (dialog.ShowDialog() == true && !string.IsNullOrWhiteSpace(dialog.PresetName))
+        {
+            ViewModel.CreatePreset(dialog.PresetName);
+        }
+    }
+
+    private void RenamePresetButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (ViewModel.SelectedPreset == null)
+        {
+            return;
+        }
+
+        var dialog = new PresetNameDialog("RenamePreset".ToLocalization(), ViewModel.SelectedPreset.Name)
+        {
+            Owner = Window.GetWindow(this)
+        };
+
+        if (dialog.ShowDialog() == true && !string.IsNullOrWhiteSpace(dialog.PresetName))
+        {
+            ViewModel.RenamePreset(ViewModel.SelectedPreset, dialog.PresetName);
         }
     }
 

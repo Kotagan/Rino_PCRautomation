@@ -1234,4 +1234,13 @@
   <data name="DefaultHomeState" xml:space="preserve">
     <value>默认（当前主页状态）</value>
   </data>
+  <data name="NewPreset" xml:space="preserve">
+    <value>新建预设</value>
+  </data>
+  <data name="RenamePreset" xml:space="preserve">
+    <value>重命名</value>
+  </data>
+  <data name="EnterPresetName" xml:space="preserve">
+    <value>请输入预设名称</value>
+  </data>
 </root>

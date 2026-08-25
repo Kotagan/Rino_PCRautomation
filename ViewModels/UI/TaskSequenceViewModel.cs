@@ -235,19 +235,18 @@ public partial class TaskSequenceViewModel : ViewModel
         GrowlHelper.Success(string.Format("PresetSavedSuccess".ToLocalization(), SelectedPreset.Name));
     }
 
-    [RelayCommand]
-    public void SaveAsNewPreset()
+    public bool CreatePreset(string name)
     {
-        var name = NewPresetName?.Trim();
-        if (string.IsNullOrWhiteSpace(name))
+        var trimmedName = name?.Trim();
+        if (string.IsNullOrWhiteSpace(trimmedName))
         {
             GrowlHelper.Warning("PresetNameCannotBeEmpty".ToLocalization());
-            return;
+            return false;
         }
 
         var preset = new TaskPreset
         {
-            Name = name,
+            Name = trimmedName,
             Items = SequenceItems
                 .Where(i => i.IsAssigned)
                 .OrderBy(i => i.OrderIndex!.Value)
@@ -259,7 +258,7 @@ public partial class TaskSequenceViewModel : ViewModel
                 .ToList()
         };
 
-        var existing = Presets.FirstOrDefault(p => p.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        var existing = Presets.FirstOrDefault(p => p.Name.Equals(trimmedName, StringComparison.OrdinalIgnoreCase));
         if (existing != null)
         {
             existing.Items = preset.Items;
@@ -273,8 +272,39 @@ public partial class TaskSequenceViewModel : ViewModel
             _presetStorageService.SavePreset(preset);
         }
 
-        NewPresetName = string.Empty;
-        GrowlHelper.Success(string.Format("PresetSavedSuccess".ToLocalization(), name));
+        GrowlHelper.Success(string.Format("PresetSavedSuccess".ToLocalization(), trimmedName));
+        return true;
+    }
+
+    public bool RenamePreset(TaskPreset preset, string newName)
+    {
+        var trimmedName = newName?.Trim();
+        if (string.IsNullOrWhiteSpace(trimmedName))
+        {
+            GrowlHelper.Warning("PresetNameCannotBeEmpty".ToLocalization());
+            return false;
+        }
+
+        if (preset.Name.Equals(trimmedName, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        var oldName = preset.Name;
+        _presetStorageService.DeletePreset(oldName);
+
+        preset.Name = trimmedName;
+        _presetStorageService.SavePreset(preset);
+
+        var index = Presets.IndexOf(preset);
+        if (index >= 0)
+        {
+            Presets[index] = preset;
+            SelectedPreset = preset;
+        }
+
+        GrowlHelper.Success(string.Format("PresetSavedSuccess".ToLocalization(), trimmedName));
+        return true;
     }
 
     [RelayCommand]

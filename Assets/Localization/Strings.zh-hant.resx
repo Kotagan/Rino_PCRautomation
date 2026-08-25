@@ -1223,4 +1223,13 @@
   <data name="DefaultHomeState" xml:space="preserve">
     <value>預設（目前主頁狀態）</value>
   </data>
+  <data name="NewPreset" xml:space="preserve">
+    <value>新建預設</value>
+  </data>
+  <data name="RenamePreset" xml:space="preserve">
+    <value>重新命名</value>
+  </data>
+  <data name="EnterPresetName" xml:space="preserve">
+    <value>請輸入預設名稱</value>
+  </data>
 </root>
