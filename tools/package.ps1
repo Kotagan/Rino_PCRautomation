@@ -9,12 +9,15 @@
     Custom output directory. Default is "distribution/output/Rino".
 .PARAMETER CreateZip
     Create a .zip archive of the packaged output.
+.PARAMETER CreateInstaller
+    Create an Inno Setup installer executable.
 #>
 
 param(
     [string]$Configuration = "Release",
     [string]$OutputDir = "",
-    [switch]$CreateZip
+    [switch]$CreateZip,
+    [switch]$CreateInstaller
 )
 
 $ErrorActionPreference = "Stop"
@@ -117,4 +120,61 @@ if ($CreateZip) {
     Write-Host "Creating archive: $zipPath ..." -ForegroundColor Yellow
     Compress-Archive -Path "$OutputDir\*" -DestinationPath $zipPath -Force
     Write-Host "Archive created: $zipPath" -ForegroundColor Green
+}
+
+if ($CreateInstaller) {
+    $issPath = Join-Path $repoRoot "installer\Rino.iss"
+    if (!(Test-Path $issPath)) {
+        throw "Inno Setup script not found at: $issPath"
+    }
+
+    # Extract version from MFAWPF.csproj
+    $csprojContent = Get-Content -Path $projectPath -Raw
+    $versionMatch = [System.Text.RegularExpressions.Regex]::Match($csprojContent, "<Version>([^<]+)</Version>")
+    if ($versionMatch.Success) {
+        $version = $versionMatch.Groups[1].Value.Trim()
+    } else {
+        $version = "0.1.0"
+    }
+
+    Write-Host "`nSyncing version ($version) to $issPath ..." -ForegroundColor Yellow
+    $issContent = Get-Content $issPath -Raw
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "AppVersion=[0-9.]+", "AppVersion=$version")
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "OutputBaseFilename=Rino_[0-9.]+_Setup(_Local)?", "OutputBaseFilename=Rino_${version}_Setup")
+    Set-Content -Path $issPath -Value $issContent -Encoding utf8
+
+    # Find ISCC compiler
+    $isccCandidates = @(
+        (Join-Path $env:LOCALAPPDATA "Programs\Inno Setup 6\ISCC.exe"),
+        "C:\Program Files (x86)\Inno Setup 6\ISCC.exe",
+        "C:\Program Files\Inno Setup 6\ISCC.exe",
+        "C:\Program Files (x86)\Inno Setup 5\ISCC.exe",
+        "C:\Program Files\Inno Setup 5\ISCC.exe"
+    )
+    $isccPath = $null
+    foreach ($cand in $isccCandidates) {
+        if (Test-Path $cand) {
+            $isccPath = $cand
+            break
+        }
+    }
+    if ($null -eq $isccPath) {
+        $whereIscc = Get-Command "iscc" -ErrorAction SilentlyContinue
+        if ($whereIscc) {
+            $isccPath = $whereIscc.Source
+        }
+    }
+
+    if ($null -eq $isccPath) {
+        throw "Inno Setup compiler (ISCC.exe) was not found. Please install Inno Setup 6."
+    }
+
+    Write-Host "Compiling Inno Setup installer via $isccPath ..." -ForegroundColor Yellow
+    & "$isccPath" "$issPath"
+    if ($LASTEXITCODE -ne 0) {
+        throw "Inno Setup compilation failed with exit code $LASTEXITCODE"
+    }
+
+    $setupExe = Join-Path (Split-Path -Parent $OutputDir) "Rino_${version}_Setup.exe"
+    Write-Host "Installer created successfully: $setupExe" -ForegroundColor Green
 }
