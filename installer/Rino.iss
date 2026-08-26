@@ -26,9 +26,17 @@ DisableProgramGroupPage=yes
 DisableDirPage=yes
 DisableReadyPage=yes
 DisableFinishedPage=yes
-DisableWelcomePage=yes
+DisableWelcomePage=no
 PrivilegesRequired=lowest
 SetupIconFile=..\logo.ico
+
+; 版本信息配置（解决资源管理器中显示 0.0.0.0 的问题）
+VersionInfoVersion=0.1.0.0
+VersionInfoCompany=SweetFox
+VersionInfoDescription=Rino Setup
+VersionInfoTextVersion=0.1.0
+VersionInfoProductName=Rino
+VersionInfoProductVersion=0.1.0
 
 [Messages]
 ConfirmUninstall=您确定要完全卸载 Rino 吗？
@@ -97,7 +105,7 @@ end;
 procedure CloseBtnClick(Sender: TObject);
 begin
   // 淡出退出
-  AnimateWindow(WizardForm.Handle, 250, AW_BLEND or AW_HIDE);
+  AnimateWindow(WizardForm.Handle, 200, AW_BLEND or AW_HIDE);
   WizardForm.Close;
 end;
 
@@ -281,7 +289,7 @@ begin
     Sleep(350);
     
     // 播放系统淡出动画并关闭窗体
-    AnimateWindow(WizardForm.Handle, 300, AW_BLEND or AW_HIDE);
+    AnimateWindow(WizardForm.Handle, 250, AW_BLEND or AW_HIDE);
   end;
 end;
 
@@ -293,7 +301,8 @@ begin
   if CurPageID = wpWelcome then
   begin
     // 首次进入欢迎页时，播放硬件加速淡入
-    AnimateWindow(WizardForm.Handle, 400, AW_BLEND or AW_ACTIVATE);
+    AnimateWindow(WizardForm.Handle, 250, AW_BLEND or AW_ACTIVATE);
+    WizardForm.Show;
   end;
 end;
 

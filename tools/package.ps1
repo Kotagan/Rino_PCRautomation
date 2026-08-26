@@ -137,11 +137,19 @@ if ($CreateInstaller) {
         $version = "0.1.0"
     }
 
-    Write-Host "`nSyncing version ($version) to $issPath ..." -ForegroundColor Yellow
+    $fileVersion = if ($version.Split('.').Count -eq 3) { "$version.0" } else { $version }
+
+    Write-Host "`nSyncing version ($version / $fileVersion) to $issPath ..." -ForegroundColor Yellow
     $issContent = Get-Content $issPath -Raw
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "AppVersion=[0-9.]+", "AppVersion=$version")
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoVersion=[0-9.]+", "VersionInfoVersion=$fileVersion")
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoTextVersion=[0-9.]+", "VersionInfoTextVersion=$version")
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoProductVersion=[0-9.]+", "VersionInfoProductVersion=$version")
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "OutputBaseFilename=Rino_[0-9.]+_Setup(_Local)?", "OutputBaseFilename=Rino_${version}_Setup")
     Set-Content -Path $issPath -Value $issContent -Encoding utf8
+
+    # Kill any running setup process before compilation
+    Get-Process | Where-Object { $_.ProcessName -match "Rino.*Setup|Setup\.tmp" } | Stop-Process -Force -ErrorAction SilentlyContinue
 
     # Find ISCC compiler
     $isccCandidates = @(
