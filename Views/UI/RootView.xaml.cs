@@ -65,6 +65,22 @@ public partial class RootView
     public static string Version =>
         $"v{Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "DEBUG"}";
 
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    public void OpenSoftwareUrl()
+    {
+        MFAWPF.ViewModels.UserControl.Settings.VersionUpdateSettingsUserControlModel.OpenUrl(MFAUrls.GitHub);
+    }
+
+    [CommunityToolkit.Mvvm.Input.RelayCommand]
+    public void OpenResourceUrl()
+    {
+        var url = MaaInterface.Instance?.Url;
+        if (!string.IsNullOrWhiteSpace(url))
+        {
+            MFAWPF.ViewModels.UserControl.Settings.VersionUpdateSettingsUserControlModel.OpenUrl(url);
+        }
+    }
+
 
     public RootView(RootViewModel viewModel)
     {

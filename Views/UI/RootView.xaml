@@ -76,30 +76,46 @@
 
                 <!--  版本号  -->
                 <TextBlock
+                    Cursor="Hand"
                     Foreground="{DynamicResource GrayColor1}"
-                    IsHitTestVisible="False"
+                    IsHitTestVisible="True"
                     Margin="2,0,4,0"
                     Text="{Binding Version}"
+                    ToolTip="{x:Static utils:MFAUrls.GitHub}"
                     VerticalAlignment="Center"
-                    Visibility="{c:Binding ViewModel.IsVersionVisible}" />
+                    Visibility="{c:Binding ViewModel.IsVersionVisible}">
+                    <TextBlock.InputBindings>
+                        <MouseBinding Gesture="LeftClick" Command="{Binding OpenSoftwareUrlCommand}" />
+                    </TextBlock.InputBindings>
+                </TextBlock>
 
                 <!--  资源版本前缀  -->
                 <TextBlock
+                    Cursor="Hand"
                     Foreground="{DynamicResource PrimaryTextBrush}"
-                    IsHitTestVisible="False"
+                    IsHitTestVisible="True"
                     Margin="6,0,4,0"
                     Text="{lex:Loc ResourceVersion}"
                     VerticalAlignment="Center"
-                    Visibility="{c:Binding ViewModel.IsResourceVersionVisible}" />
+                    Visibility="{c:Binding ViewModel.IsResourceVersionVisible}">
+                    <TextBlock.InputBindings>
+                        <MouseBinding Gesture="LeftClick" Command="{Binding OpenResourceUrlCommand}" />
+                    </TextBlock.InputBindings>
+                </TextBlock>
 
                 <!--  资源版本  -->
                 <TextBlock
+                    Cursor="Hand"
                     Foreground="{DynamicResource GrayColor1}"
-                    IsHitTestVisible="False"
+                    IsHitTestVisible="True"
                     Margin="2,0,4,0"
                     Text="{Binding ViewModel.ResourceVersion}"
                     VerticalAlignment="Center"
-                    Visibility="{c:Binding ViewModel.IsResourceVersionVisible}" />
+                    Visibility="{c:Binding ViewModel.IsResourceVersionVisible}">
+                    <TextBlock.InputBindings>
+                        <MouseBinding Gesture="LeftClick" Command="{Binding OpenResourceUrlCommand}" />
+                    </TextBlock.InputBindings>
+                </TextBlock>
 
                 <!--  自定义标题  -->
                 <TextBlock

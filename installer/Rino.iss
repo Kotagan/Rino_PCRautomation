@@ -53,8 +53,8 @@ Source: "..\distribution\output\Rino\*"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "btn_border.bmp"; Flags: dontcopy
 
 [Icons]
-Name: "{group}\Rino"; Filename: "{app}\Rino.exe"; WorkingDir: "{app}"
-Name: "{userdesktop}\Rino"; Filename: "{app}\Rino.exe"; WorkingDir: "{app}"
+Name: "{group}\Rino"; Filename: "{app}\Rino.exe"; WorkingDir: "{app}"; IconFilename: "{app}\logo.ico"
+Name: "{userdesktop}\Rino"; Filename: "{app}\Rino.exe"; WorkingDir: "{app}"; IconFilename: "{app}\logo.ico"
 
 [Run]
 Filename: "{app}\Rino.exe"; Description: "运行 Rino"; Flags: nowait postinstall skipifsilent
@@ -86,6 +86,11 @@ procedure SendMessage(hWnd: HWND; Msg: Longint; wParam: Longint; lParam: Longint
 function AnimateWindow(hWnd: HWND; dwTime: Longint; dwFlags: Longint): BOOL; external 'AnimateWindow@user32.dll stdcall';
 function CreateRoundRectRgn(nLeftRect, nTopRect, nRightRect, nBottomRect, nWidthEllipse, nHeightEllipse: Integer): LongWord; external 'CreateRoundRectRgn@gdi32.dll stdcall';
 function SetWindowRgn(hWnd: HWND; hRgn: LongWord; bRedraw: Boolean): Integer; external 'SetWindowRgn@user32.dll stdcall';
+procedure SHChangeNotify(wEventId: LongInt; uFlags: UINT; dwItem1: LongInt; dwItem2: LongInt); external 'SHChangeNotify@shell32.dll stdcall';
+
+const
+  SHCNE_ASSOCCHANGED = $08000000;
+  SHCNF_IDLIST = $0000;
 
 // ==========================================
 // 窗体无边框拖拽支持
@@ -305,6 +310,13 @@ begin
     WizardForm.Show;
   end;
 end;
+
+procedure DeinitializeSetup();
+begin
+  // 通知 Windows 外壳刷新图标缓存，使桌面快捷方式立即呈现高清图标
+  SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, 0, 0);
+end;
+
 
 
 

@@ -89,4 +89,39 @@ public partial class VersionUpdateSettingsUserControlModel : ViewModel
     {
         VersionChecker.UpdateMaaFwAsync();
     }
+
+    [RelayCommand]
+    public void OpenSoftwareUrl()
+    {
+        OpenUrl(MFAUrls.GitHub);
+    }
+
+    [RelayCommand]
+    public void OpenResourceUrl()
+    {
+        var url = Extensions.Maa.MaaInterface.Instance?.Url;
+        if (!string.IsNullOrWhiteSpace(url))
+        {
+            OpenUrl(url);
+        }
+    }
+
+    public static void OpenUrl(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url))
+            return;
+
+        try
+        {
+            System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+            {
+                FileName = url,
+                UseShellExecute = true
+            });
+        }
+        catch (Exception ex)
+        {
+            LoggerService.LogError(ex);
+        }
+    }
 }

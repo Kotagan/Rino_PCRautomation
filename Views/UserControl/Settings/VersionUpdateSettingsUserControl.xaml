@@ -78,12 +78,17 @@
 
                 <hc:Shield
                     Color="#6969AA"
+                    Cursor="Hand"
                     FontSize="12"
                     HorizontalAlignment="Center"
                     Margin="5"
                     Subject="{lex:Loc SoftwareVersion}"
+                    ToolTip="{x:Static helper:MFAUrls.GitHub}"
                     Visibility="{calcBinding:Binding 'ViewModel.ShowSoftwareVersion'}"
                     x:Name="SoftwareShield">
+                    <hc:Shield.InputBindings>
+                        <MouseBinding Gesture="LeftClick" Command="{Binding ViewModel.OpenSoftwareUrlCommand}" />
+                    </hc:Shield.InputBindings>
                     <TextBlock
                         FontSize="12"
                         Foreground="White"
@@ -97,12 +102,16 @@
                 </hc:Shield>
                 <hc:Shield
                     Color="#6969AA"
+                    Cursor="Hand"
                     FontSize="12"
                     HorizontalAlignment="Center"
                     Margin="5"
                     Subject="{lex:Loc ResourceVersion}"
                     Visibility="{calcBinding:Binding 'ViewModel.ShowResourceVersion'}"
                     x:Name="ResourceShield">
+                    <hc:Shield.InputBindings>
+                        <MouseBinding Gesture="LeftClick" Command="{Binding ViewModel.OpenResourceUrlCommand}" />
+                    </hc:Shield.InputBindings>
                     <TextBlock
                         FontSize="12"
                         Foreground="White"

@@ -140,24 +140,8 @@ public class VersionChecker
 
         try
         {
-            string owner = "SweetSmellFox";
-            string repo = "MFAWPF";
-            var projectUrl = MaaInterface.Instance?.Url;
-            if (!string.IsNullOrWhiteSpace(projectUrl))
-            {
-                try
-                {
-                    var strings = GetRepoFromUrl(projectUrl);
-                    if (strings.Length >= 2)
-                    {
-                        owner = strings[0];
-                        repo = strings[1];
-                    }
-                }
-                catch
-                {
-                }
-            }
+            string owner = "miaoyu2233";
+            string repo = "Rino_WFP";
 
             dialog?.UpdateProgress(60);
 
@@ -1304,7 +1288,7 @@ public class VersionChecker
         }
     }
 
-    public string GetLatestVersionFromGithub(string owner = "SweetSmellFox", string repo = "MFAWPF", bool isDownload = false)
+    public string GetLatestVersionFromGithub(string owner = "miaoyu2233", string repo = "Rino_WFP", bool isDownload = false)
     {
         if (string.IsNullOrWhiteSpace(owner) || string.IsNullOrWhiteSpace(repo))
             return string.Empty;

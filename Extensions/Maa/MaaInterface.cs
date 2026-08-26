@@ -267,8 +267,8 @@ public class MaaInterface
             LoggerService.LogInfo("未找到interface文件，生成interface.json...");
             Instance = new MaaInterface
                 {
-                    Version = "1.0",
-                    Name = "Debug",
+                    Version = string.Empty,
+                    Name = string.Empty,
                     Task = [],
                     Resource =
                     [

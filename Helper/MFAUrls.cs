@@ -2,7 +2,7 @@ namespace MFAWPF.Helper;
 
 public static class MFAUrls
 {
-    public const string GitHub = "https://github.com/SweetSmellFox/MFAWPF";
+    public const string GitHub = "https://github.com/miaoyu2233/Rino_WFP";
 
     public const string GitHubIssues = $"{GitHub}/issues";
 
