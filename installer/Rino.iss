@@ -1,10 +1,10 @@
 ; ========================================================
-; Rino Inno Setup 现代定制安装包配置文件 (纯白 极简 路径选择版)
+; Rino Inno Setup 现代定制安装包配置文件 (Rino 暖白品牌主题版)
 ; ========================================================
 ; 1. 采用 Windows 原生 AnimateWindow 硬件加速接口，实现极速无卡顿的窗口淡入淡出动画。
-; 2. 纯白极简卡片：背景设为 极简 标志性的高对比度纯白色 ($FFFFFF)。
-; 3. 黑色细线圈主按钮：采用 TBitmapImage 加载本地 GDI+ 高抗锯齿技术的 1.5px 黑色细线描边 ($1C1C1E)、
-;    纯白底胶囊 Pill 背景图，文字采用深黑色加粗汉字 ($1E1C1C)。
+; 2. Rino 品牌暖白卡片：背景设为 Rino 标志性的暖白底色 ($F0F4FF / #FFF4F0)。
+; 3. Rino 暖杏橙胶囊主按钮：采用 TBitmapImage 加载本地 GDI+ 高抗锯齿技术的 Rino 暖杏橙 ($4FB4FF / #FFB44F)、
+;    纯白加粗汉字 ($FFFFFF)，完美契合 Rino 视觉规范。
 ; 4. 优雅弹窗路径选择：点击“立即安装”时触发系统级 BrowseForFolder 路径选择弹窗，
 ;    既保留了极简无边框设计格调，又赋予了用户 100% 的自定义安装位置权利。
 ; 5. 自动桌面快捷方式优化：配置 WorkingDir 为 {app}，确保快捷方式启动时的工作路径绝对正确。
@@ -62,6 +62,7 @@ var
   // 界面控件
   CloseBtnLabel: TLabel;
   TitleLabel: TLabel;
+  SubtitleLabel: TLabel;
   DragHandle: TLabel;
   
   // 立即安装按钮背景图和文本标签
@@ -149,7 +150,7 @@ begin
   WizardForm.BorderStyle := bsNone;
   WizardForm.Width := 750;
   WizardForm.Height := 500;
-  WizardForm.Color := $FFFFFF; // 设为极简纯白色背景 (BGR: $FFFFFF)
+  WizardForm.Color := $F0F4FF; // 设为 Rino 标志性暖白背景 (RGB: #FFF4F0 -> BGR: $F0F4FF)
   
   // 1.1 裁切 18px 精致圆角
   Rgn := CreateRoundRectRgn(0, 0, 750, 500, 18, 18);
@@ -190,7 +191,7 @@ begin
   CloseBtnLabel.Caption := #10005; // ✕
   CloseBtnLabel.Font.Name := 'Segoe UI';
   CloseBtnLabel.Font.Size := 12;
-  CloseBtnLabel.Font.Color := $8E8E93; // 默认深灰
+  CloseBtnLabel.Font.Color := $938E8E; // Rino 辅助灰色 (#8E8E93)
   CloseBtnLabel.Left := 715;
   CloseBtnLabel.Top := 20;
   CloseBtnLabel.Cursor := crHand;
@@ -203,13 +204,25 @@ begin
   TitleLabel.Font.Name := 'SF Pro';
   TitleLabel.Font.Size := 32;
   TitleLabel.Font.Style := [fsBold];
-  TitleLabel.Font.Color := $1E1C1C; // 深黑色，在白底上高对比度呈现
+  TitleLabel.Font.Color := $383636; // Rino 主文本炭黑深色 (#363638)
   TitleLabel.Left := 80;
-  TitleLabel.Top := 120;
+  TitleLabel.Top := 115;
   TitleLabel.Transparent := True;
   TitleLabel.OnMouseDown := @FormMouseDown;
+
+  // 5.1 写入副标题 / 描述
+  SubtitleLabel := TLabel.Create(WizardForm);
+  SubtitleLabel.Parent := WizardForm;
+  SubtitleLabel.Caption := 'MaaFramework Desktop';
+  SubtitleLabel.Font.Name := 'Segoe UI';
+  SubtitleLabel.Font.Size := 10;
+  SubtitleLabel.Font.Color := $938E8E; // Rino 辅助浅灰 (#8E8E93)
+  SubtitleLabel.Left := 82;
+  SubtitleLabel.Top := 168;
+  SubtitleLabel.Transparent := True;
+  SubtitleLabel.OnMouseDown := @FormMouseDown;
   
-  // 6. 加载自定义黑色细线描边圆角 Pill 背景
+  // 6. 加载自定义暖杏橙圆角 Pill 背景
   ExtractTemporaryFile('btn_border.bmp');
   BtnBorderFileName := ExpandConstant('{tmp}\btn_border.bmp');
   
@@ -236,7 +249,7 @@ begin
   InstallBtnLabel.Font.Name := 'Microsoft YaHei';
   InstallBtnLabel.Font.Size := 11;
   InstallBtnLabel.Font.Style := [fsBold];
-  InstallBtnLabel.Font.Color := $1E1C1C; // 深黑色字体
+  InstallBtnLabel.Font.Color := $FFFFFF; // 纯白色加粗字体，在暖杏橙背景上醒目清晰
   InstallBtnLabel.Transparent := True;  // 100% 透明，完全露出底层描边图
   InstallBtnLabel.Cursor := crHand;
   InstallBtnLabel.OnClick := @StartInstall;
@@ -247,7 +260,7 @@ begin
   StatusLabel.Caption := #20934#22791#20013#46#46#46; // 转义：“准备中...”
   StatusLabel.Font.Name := 'Microsoft YaHei';
   StatusLabel.Font.Size := 9;
-  StatusLabel.Font.Color := $4A4848; // 深灰
+  StatusLabel.Font.Color := $666363; // Rino 次级文本色 (#636366)
   StatusLabel.Left := 80;
   StatusLabel.Top := 285;
   StatusLabel.Transparent := True;
