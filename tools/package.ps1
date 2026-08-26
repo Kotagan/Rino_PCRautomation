@@ -175,6 +175,6 @@ if ($CreateInstaller) {
         throw "Inno Setup compilation failed with exit code $LASTEXITCODE"
     }
 
-    $setupExe = Join-Path (Split-Path -Parent $OutputDir) "Rino_${version}_Setup.exe"
+    $setupExe = Join-Path $repoRoot "Rino_${version}_Setup.exe"
     Write-Host "Installer created successfully: $setupExe" -ForegroundColor Green
 }

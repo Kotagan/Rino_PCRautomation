@@ -97,7 +97,7 @@ if %errorlevel% equ 0 (
     echo.
     echo ========================================================
     echo   [SUCCESS] Custom Inno Setup installer built successfully!
-    echo   Output: distribution\output\Rino_%VERSION%_Setup.exe
+    echo   Output: Rino_%VERSION%_Setup.exe
     echo ========================================================
 ) else (
     echo.

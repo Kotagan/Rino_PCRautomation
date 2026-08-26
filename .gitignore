@@ -180,6 +180,7 @@ auth.txt
 
 # Generated publication and local test output
 /distribution/output/
+/*_Setup.exe
 /test.ps1
 /workflows/
 /.github/workflows/

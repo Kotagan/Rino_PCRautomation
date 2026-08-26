@@ -20,7 +20,7 @@ DefaultGroupName=Rino
 OutputBaseFilename=Rino_0.1.0_Setup
 Compression=lzma2/max
 SolidCompression=yes
-OutputDir=..\distribution\output
+OutputDir=..
 UninstallDisplayIcon={app}\Rino.exe
 DisableProgramGroupPage=yes
 DisableDirPage=yes
@@ -283,3 +283,4 @@ begin
     AnimateWindow(WizardForm.Handle, 400, AW_BLEND or AW_ACTIVATE);
   end;
 end;
+
