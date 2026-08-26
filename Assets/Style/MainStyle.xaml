@@ -1360,7 +1360,7 @@
     </Style>
 
     <!--  Unified Modern Theme-Matched MessageBox Style  -->
-    <Style TargetType="hc:MessageBox">
+    <Style TargetType="hc:MessageBox" BasedOn="{StaticResource {x:Type hc:MessageBox}}">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="FontSize" Value="17" />
         <Setter Property="FontWeight" Value="Medium" />
@@ -1383,7 +1383,7 @@
     </Style>
 
     <!--  Unified Modern Theme-Matched HandyControl Window Style  -->
-    <Style TargetType="hc:Window">
+    <Style TargetType="hc:Window" BasedOn="{StaticResource {x:Type hc:Window}}">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="FontSize" Value="17" />
         <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />

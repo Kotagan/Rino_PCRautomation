@@ -74,7 +74,15 @@ public static class MessageBoxHelper
         iconBrushKey = string.IsNullOrEmpty(iconBrushKey) ? brushKey : iconBrushKey;
     }
 
-    public static MessageBoxResult Show(MessageBoxInfo info) => HandyControl.Controls.MessageBox.Show(info);
+    public static MessageBoxResult Show(MessageBoxInfo info)
+    {
+        if (info.Owner == null)
+        {
+            info.Owner = Application.Current?.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive && w.IsVisible)
+                         ?? Application.Current?.MainWindow;
+        }
+        return HandyControl.Controls.MessageBox.Show(info);
+    }
 
     public static MessageBoxResult Show(
         string messageBoxText,
@@ -106,6 +114,8 @@ public static class MessageBoxHelper
             CancelContent = cancel,
             YesContent = yes,
             NoContent = no,
+            Owner = Application.Current?.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive && w.IsVisible)
+                    ?? Application.Current?.MainWindow
         };
         return HandyControl.Controls.MessageBox.Show(info);
     }
