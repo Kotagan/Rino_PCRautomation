@@ -72,8 +72,8 @@ if (Test-Path -LiteralPath $legacyExecutable) {
 # Remove unwanted leftover files if any (e.g. .pdb)
 Get-ChildItem -Path $OutputDir -Filter "*.pdb" -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force
 
-# Ensure essential runtime asset directories and files are present
-$essentialDirs = @("Default", "config", "Resource", "DLL", "plugins", "runtimes", "MaaAgentBinary", "debug")
+# Ensure essential runtime asset directories are present (excluding user-specific config/debug data)
+$essentialDirs = @("Default", "Resource", "DLL", "plugins", "runtimes", "MaaAgentBinary")
 $fallbackDirs = @(
     (Join-Path $repoRoot "distribution\output\Rino-Release")
 )
@@ -96,6 +96,33 @@ foreach ($dir in $essentialDirs) {
     }
 }
 
+# Create and purge pristine runtime directories
+$distDebugDir = Join-Path $OutputDir "debug"
+if (Test-Path $distDebugDir) {
+    Remove-Item -Path (Join-Path $distDebugDir "*") -Recurse -Force -ErrorAction SilentlyContinue
+} else {
+    New-Item -ItemType Directory -Path $distDebugDir -Force | Out-Null
+}
+
+$distLogsDir = Join-Path $OutputDir "logs"
+if (Test-Path $distLogsDir) {
+    Remove-Item -Path (Join-Path $distLogsDir "*") -Recurse -Force -ErrorAction SilentlyContinue
+} else {
+    New-Item -ItemType Directory -Path $distLogsDir -Force | Out-Null
+}
+
+# Purge any user-specific configuration / tasks / scripts in config directory
+$distConfigDir = Join-Path $OutputDir "config"
+if (Test-Path $distConfigDir) {
+    Remove-Item -Path (Join-Path $distConfigDir "*") -Recurse -Force -ErrorAction SilentlyContinue
+} else {
+    New-Item -ItemType Directory -Path $distConfigDir -Force | Out-Null
+}
+
+# Ensure a pristine, empty default config is written (completely clean, zero preloaded tasks)
+Set-Content -Path (Join-Path $distConfigDir "config.json") -Value "{}`n" -Encoding utf8
+Set-Content -Path (Join-Path $distConfigDir "maa_option.json") -Value "{}`n" -Encoding utf8
+
 $essentialFiles = @("interface.json", "App.config", "logo.ico")
 foreach ($file in $essentialFiles) {
     $src = Join-Path $repoRoot $file
@@ -104,10 +131,17 @@ foreach ($file in $essentialFiles) {
     }
 }
 
-# Runtime logs are machine-specific and must not be carried into a distributable package.
+# Strict sanitization: remove all runtime logs, crash dumps, debug files, and user artifacts
+$sensitiveExtensions = @(".log", ".pdb", ".dmp", ".trace", ".etl", ".tmp", ".bak")
 Get-ChildItem -Path $OutputDir -Recurse -File -ErrorAction SilentlyContinue |
-    Where-Object { $_.Extension -in @(".log", ".pdb") } |
+    Where-Object { $_.Extension -in $sensitiveExtensions } |
     Remove-Item -Force
+
+# Remove any stray user capture / cache directories
+$sensitiveDirNames = @("captures", "screenshots", "on-error", ".rino-package-data")
+Get-ChildItem -Path $OutputDir -Recurse -Directory -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -in $sensitiveDirNames } |
+    Remove-Item -Recurse -Force
 
 Write-Host "`nPackage created successfully in: $OutputDir" -ForegroundColor Green
 Write-Host "Root contents:" -ForegroundColor Green
