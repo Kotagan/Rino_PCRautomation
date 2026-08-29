@@ -19,31 +19,47 @@
 
     <UserControl.Resources>
         <Style x:Key="SequenceActionButtonStyle" TargetType="Button" BasedOn="{StaticResource DialogSecondaryButtonStyle}">
-            <Setter Property="FontSize" Value="13" />
-            <Setter Property="FontWeight" Value="Normal" />
-            <Setter Property="Height" Value="28" />
-            <Setter Property="MinHeight" Value="28" />
-            <Setter Property="Padding" Value="10,0" />
+            <Setter Property="FontSize" Value="13.5" />
+            <Setter Property="FontWeight" Value="Medium" />
+            <Setter Property="Height" Value="34" />
+            <Setter Property="MinHeight" Value="34" />
+            <Setter Property="Padding" Value="12,0" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
         </Style>
         <Style x:Key="SequencePrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource DialogPrimaryButtonStyle}">
-            <Setter Property="FontSize" Value="13.5" />
-            <Setter Property="FontWeight" Value="Medium" />
-            <Setter Property="Height" Value="32" />
-            <Setter Property="MinHeight" Value="32" />
-            <Setter Property="Padding" Value="14,0" />
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Height" Value="36" />
+            <Setter Property="MinHeight" Value="36" />
+            <Setter Property="Padding" Value="18,0" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="SequenceSurfaceCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ControlSurfaceBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="10" />
+            <Setter Property="Padding" Value="18" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+        </Style>
+
+        <Style x:Key="SequenceSectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
 
         <Style x:Key="SequenceItemCardBorderStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource ControlSurfaceBrush}" />
             <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeBrush}" />
             <Setter Property="BorderThickness" Value="1" />
-            <Setter Property="CornerRadius" Value="8" />
-            <Setter Property="Margin" Value="2,3,12,3" />
-            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="CornerRadius" Value="9" />
+            <Setter Property="Margin" Value="0,0,10,8" />
+            <Setter Property="Padding" Value="14,10" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
             <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
             <Setter Property="RenderTransform">
@@ -93,20 +109,18 @@
     <Grid Background="{DynamicResource SecundaryBackgroundColor}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Header Card -->
         <controls:CardControl
-            Background="{DynamicResource WhiteColor}"
+            Background="{DynamicResource ControlSurfaceBrush}"
             BorderThickness="0"
-            CornerRadius="5"
+            CornerRadius="10"
             Grid.Row="0"
-            Margin="20,6,20,6">
+            Margin="20,10,20,10">
             <controls:CardControl.Icon>
                 <Path
-                    Data="{StaticResource ConfigGeometry}"
+                    Data="{StaticResource DocumentGeometry}"
                     Fill="{DynamicResource ControlIconBrush}"
                     Height="24"
                     Margin="8"
@@ -138,47 +152,61 @@
                     Command="{Binding ViewModel.ApplyPresetCommand}"
                     Content="{lex:Loc ApplyPreset}"
                     Style="{StaticResource SequencePrimaryButtonStyle}"
-                    MinWidth="104" />
+                    MinWidth="120" />
             </StackPanel>
         </controls:CardControl>
 
-        <!-- Preset Management & Operations Toolbar -->
-        <Border
-            Background="{DynamicResource WhiteColor}"
-            BorderThickness="0"
-            CornerRadius="5"
-            Grid.Row="1"
-            Margin="20,4,20,6"
-            Padding="14,10">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+        <Grid Grid.Row="1" Margin="20,0,20,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="270" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
 
-                <!-- Left: Presets Selection & Save -->
-                <StackPanel
-                    Grid.Column="0"
-                    Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <TextBlock
-                        FontSize="13.5"
-                        FontWeight="Medium"
-                        Foreground="{DynamicResource PrimaryTextBrush}"
-                        Margin="0,0,8,0"
-                        Text="{lex:Loc Presets}"
-                        VerticalAlignment="Center" />
+            <Border Margin="0,0,10,0" Style="{StaticResource SequenceSurfaceCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Border
+                            Background="{DynamicResource RegionBrush}"
+                            CornerRadius="8"
+                            Height="34"
+                            Margin="0,0,10,0"
+                            Width="34">
+                            <Path
+                                Data="{StaticResource ConfigGeometry}"
+                                Fill="{DynamicResource ControlIconBrush}"
+                                Height="16"
+                                Stretch="Uniform"
+                                VerticalAlignment="Center"
+                                Width="16" />
+                        </Border>
+                        <TextBlock
+                            Grid.Column="1"
+                            Style="{StaticResource SequenceSectionTitleStyle}"
+                            Text="{lex:Loc Presets}" />
+                    </Grid>
 
                     <hc:ComboBox
                         extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
-                        Focusable="False"
-                        FontSize="13"
-                        Height="28"
+                        FontSize="13.5"
+                        Grid.Row="1"
+                        MinHeight="36"
                         ItemsSource="{Binding ViewModel.Presets}"
-                        Margin="0,0,8,0"
+                        Margin="0,16,0,12"
                         SelectedItem="{Binding ViewModel.SelectedPreset, Mode=TwoWay}"
-                        VerticalAlignment="Center"
-                        Width="160">
+                        hc:TitleElement.Title="{lex:Loc PresetName}"
+                        hc:TitleElement.TitlePlacement="Top">
                         <hc:ComboBox.ItemTemplate>
                             <DataTemplate>
                                 <Grid>
@@ -187,9 +215,7 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock
-                                        FontSize="13"
-                                        Grid.Column="0"
-                                        HorizontalAlignment="Left"
+                                        FontSize="13.5"
                                         Text="{Binding Name}"
                                         TextTrimming="CharacterEllipsis"
                                         VerticalAlignment="Center" />
@@ -197,184 +223,221 @@
                                         Click="DeletePresetButton_Click"
                                         CommandParameter="{Binding}"
                                         Content="×"
-                                        FontWeight="Bold"
+                                        FontSize="15"
+                                        FontWeight="SemiBold"
                                         Grid.Column="1"
-                                        HorizontalAlignment="Right"
-                                        Margin="6,0,0,0"
-                                        Padding="4,0"
-                                        Style="{StaticResource SequenceActionButtonStyle}"
-                                        VerticalAlignment="Center" />
+                                        Height="24"
+                                        Margin="8,0,0,0"
+                                        Padding="0"
+                                        Style="{StaticResource textBoxButton}"
+                                        ToolTip="{lex:Loc DeletePreset}"
+                                        Width="24" />
                                 </Grid>
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
                     </hc:ComboBox>
 
-                    <Button
-                        Command="{Binding ViewModel.SaveCurrentPresetCommand}"
-                        Content="{lex:Loc SavePreset}"
-                        Margin="0,0,8,0"
-                        Style="{StaticResource SequenceActionButtonStyle}"
-                        MinWidth="80" />
+                    <StackPanel Grid.Row="2">
+                        <Button
+                            Command="{Binding ViewModel.SaveCurrentPresetCommand}"
+                            Content="{lex:Loc SavePreset}"
+                            HorizontalAlignment="Stretch"
+                            Style="{StaticResource SequenceActionButtonStyle}" />
+                        <Grid Margin="0,8,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <Button
+                                Click="NewPresetButton_Click"
+                                Content="{lex:Loc NewPreset}"
+                                Style="{StaticResource SequenceActionButtonStyle}" />
+                            <Button
+                                Click="RenamePresetButton_Click"
+                                Content="{lex:Loc RenamePreset}"
+                                Grid.Column="2"
+                                Style="{StaticResource SequenceActionButtonStyle}" />
+                        </Grid>
+                    </StackPanel>
 
                     <Button
-                        Click="NewPresetButton_Click"
-                        Content="{lex:Loc NewPreset}"
-                        Margin="0,0,8,0"
-                        Style="{StaticResource SequenceActionButtonStyle}"
-                        MinWidth="80" />
-
-                    <Button
-                        Click="RenamePresetButton_Click"
-                        Content="{lex:Loc RenamePreset}"
-                        Style="{StaticResource SequenceActionButtonStyle}"
-                        MinWidth="72" />
-                </StackPanel>
-
-                <!-- Right: Quick batch operations -->
-                <StackPanel
-                    Grid.Column="1"
-                    HorizontalAlignment="Right"
-                    Orientation="Horizontal"
-                    VerticalAlignment="Center">
-                    <Button
-                        Command="{Binding ViewModel.NumberAllCommand}"
-                        Content="{lex:Loc NumberAll}"
-                        Margin="0,0,8,0"
-                        Style="{StaticResource SequenceActionButtonStyle}"
-                        MinWidth="80" />
-                    <Button
-                        Command="{Binding ViewModel.ClearAllCommand}"
-                        Content="{lex:Loc ClearAllOrders}"
-                        Style="{StaticResource SequenceActionButtonStyle}"
-                        MinWidth="80" />
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- Tasks Sequence List -->
-        <Grid Grid.Row="2" Margin="20,0,20,12">
-            <!-- Empty state -->
-            <Border
-                Background="{DynamicResource WhiteColor}"
-                CornerRadius="5"
-                Padding="24"
-                VerticalAlignment="Center"
-                Visibility="{calcBinding:Binding '!ViewModel.HasTasks'}">
-                <TextBlock
-                    FontSize="14"
-                    Foreground="{DynamicResource SecondaryTextBrush}"
-                    HorizontalAlignment="Center"
-                    Text="{lex:Loc NoTasksAvailable}"
-                    VerticalAlignment="Center" />
+                        Command="{Binding ViewModel.DeleteCurrentPresetCommand}"
+                        Content="{lex:Loc DeletePreset}"
+                        Grid.Row="4"
+                        HorizontalAlignment="Stretch"
+                        Style="{StaticResource SequenceActionButtonStyle}" />
+                </Grid>
             </Border>
 
-            <ScrollViewer
-                Focusable="False"
-                PanningMode="VerticalOnly"
-                VerticalScrollBarVisibility="Auto"
-                Visibility="{calcBinding:Binding 'ViewModel.HasTasks'}">
-                <ItemsControl ItemsSource="{Binding ViewModel.SequenceItems}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Style="{StaticResource SequenceItemCardBorderStyle}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
+            <Border Grid.Column="1" Style="{StaticResource SequenceSurfaceCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
 
-                                    <!-- Order Badge / Indicator -->
-                                    <Border
-                                        Background="{DynamicResource BasePrimaryBrush}"
-                                        CornerRadius="4"
-                                        Grid.Column="0"
-                                        Height="24"
-                                        Margin="0,0,12,0"
-                                        MinWidth="24"
-                                        Padding="6,0"
-                                        VerticalAlignment="Center"
-                                        Visibility="{calcBinding:Binding IsAssigned}">
-                                        <TextBlock
-                                            FontSize="12"
-                                            FontWeight="Bold"
-                                            Foreground="#FFFFFF"
-                                            HorizontalAlignment="Center"
-                                            Text="{Binding OrderIndex}"
-                                            VerticalAlignment="Center" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock
+                                Style="{StaticResource SequenceSectionTitleStyle}"
+                                Text="{lex:Loc TaskListHeader}" />
+                            <TextBlock
+                                FontSize="13"
+                                Foreground="{DynamicResource SecondaryTextBrush}"
+                                Margin="0,3,0,0"
+                                Text="{lex:Loc TaskSequenceDescription}"
+                                TextTrimming="CharacterEllipsis" />
+                        </StackPanel>
+                        <StackPanel
+                            Grid.Column="1"
+                            HorizontalAlignment="Right"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                            <Button
+                                Command="{Binding ViewModel.NumberAllCommand}"
+                                Content="{lex:Loc NumberAll}"
+                                Margin="0,0,8,0"
+                                MinWidth="86"
+                                Style="{StaticResource SequenceActionButtonStyle}" />
+                            <Button
+                                Command="{Binding ViewModel.ClearAllCommand}"
+                                Content="{lex:Loc ClearAllOrders}"
+                                MinWidth="86"
+                                Style="{StaticResource SequenceActionButtonStyle}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <Border
+                        Background="{DynamicResource SecundaryBackgroundColor}"
+                        CornerRadius="8"
+                        Grid.Row="1"
+                        Margin="0,16,0,0"
+                        Padding="24"
+                        VerticalAlignment="Center"
+                        Visibility="{calcBinding:Binding '!ViewModel.HasTasks'}">
+                        <TextBlock
+                            FontSize="14"
+                            Foreground="{DynamicResource SecondaryTextBrush}"
+                            HorizontalAlignment="Center"
+                            Text="{lex:Loc NoTasksAvailable}"
+                            TextAlignment="Center"
+                            TextWrapping="Wrap"
+                            VerticalAlignment="Center" />
+                    </Border>
+
+                    <ScrollViewer
+                        Focusable="False"
+                        Grid.Row="1"
+                        Margin="0,16,0,0"
+                        PanningMode="VerticalOnly"
+                        VerticalScrollBarVisibility="Auto"
+                        Visibility="{calcBinding:Binding 'ViewModel.HasTasks'}">
+                        <ItemsControl ItemsSource="{Binding ViewModel.SequenceItems}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource SequenceItemCardBorderStyle}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                            </Grid.ColumnDefinitions>
+
+                                            <Border
+                                                Background="{DynamicResource BasePrimaryBrush}"
+                                                CornerRadius="8"
+                                                Height="36"
+                                                Margin="0,0,14,0"
+                                                MinWidth="36"
+                                                Padding="8,0"
+                                                VerticalAlignment="Center"
+                                                Visibility="{calcBinding:Binding IsAssigned}">
+                                                <TextBlock
+                                                    FontSize="13"
+                                                    FontWeight="Bold"
+                                                    Foreground="#FFFFFF"
+                                                    HorizontalAlignment="Center"
+                                                    Text="{Binding OrderIndex}"
+                                                    VerticalAlignment="Center" />
+                                            </Border>
+
+                                            <Border
+                                                BorderBrush="{DynamicResource SecondaryTextBrush}"
+                                                BorderThickness="1.5"
+                                                CornerRadius="8"
+                                                Height="36"
+                                                Margin="0,0,14,0"
+                                                VerticalAlignment="Center"
+                                                Visibility="{calcBinding:Binding '!IsAssigned'}"
+                                                Width="36">
+                                                <TextBlock
+                                                    FontSize="13"
+                                                    Foreground="{DynamicResource SecondaryTextBrush}"
+                                                    HorizontalAlignment="Center"
+                                                    Text="—"
+                                                    VerticalAlignment="Center" />
+                                            </Border>
+
+                                            <TextBlock
+                                                FontSize="14.5"
+                                                FontWeight="Medium"
+                                                Foreground="{DynamicResource PrimaryTextBrush}"
+                                                Grid.Column="1"
+                                                Margin="0,0,12,0"
+                                                Text="{Binding Name}"
+                                                TextTrimming="CharacterEllipsis"
+                                                ToolTip="{Binding Name}"
+                                                VerticalAlignment="Center" />
+
+                                            <StackPanel
+                                                Grid.Column="2"
+                                                HorizontalAlignment="Right"
+                                                Orientation="Horizontal"
+                                                VerticalAlignment="Center">
+                                                <TextBox
+                                                    FontSize="13.5"
+                                                    FontWeight="Medium"
+                                                    Height="34"
+                                                    InputMethod.IsInputMethodEnabled="False"
+                                                    KeyDown="OnOrderTextBoxKeyDown"
+                                                    Margin="0,0,8,0"
+                                                    MaxLength="3"
+                                                    PreviewTextInput="OnOrderTextBoxPreviewTextInput"
+                                                    Text="{Binding InputOrderText, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
+                                                    TextAlignment="Center"
+                                                    VerticalContentAlignment="Center"
+                                                    Width="54" />
+                                                <Button
+                                                    Command="{Binding ViewModel.AssignNextCommand, RelativeSource={RelativeSource AncestorType=ui:TaskSequenceView}}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="{lex:Loc AssignNext}"
+                                                    Margin="0,0,8,0"
+                                                    MinWidth="94"
+                                                    Style="{StaticResource SequenceActionButtonStyle}" />
+                                                <Button
+                                                    Command="{Binding ViewModel.ClearOrderCommand, RelativeSource={RelativeSource AncestorType=ui:TaskSequenceView}}"
+                                                    CommandParameter="{Binding}"
+                                                    Content="×"
+                                                    FontSize="16"
+                                                    Height="34"
+                                                    Padding="0"
+                                                    Style="{StaticResource SequenceActionButtonStyle}"
+                                                    ToolTip="{lex:Loc ClearOrder}"
+                                                    Width="34" />
+                                            </StackPanel>
+                                        </Grid>
                                     </Border>
-
-                                    <!-- Unassigned placeholder circle -->
-                                    <Border
-                                        BorderBrush="{DynamicResource SecondaryTextBrush}"
-                                        BorderThickness="1.5"
-                                        CornerRadius="4"
-                                        Grid.Column="0"
-                                        Height="22"
-                                        Margin="0,0,12,0"
-                                        VerticalAlignment="Center"
-                                        Visibility="{calcBinding:Binding '!IsAssigned'}"
-                                        Width="22">
-                                        <TextBlock
-                                            FontSize="11"
-                                            Foreground="{DynamicResource SecondaryTextBrush}"
-                                            HorizontalAlignment="Center"
-                                            Text="-"
-                                            VerticalAlignment="Center" />
-                                    </Border>
-
-                                    <!-- Task Name -->
-                                    <TextBlock
-                                        FontSize="14.5"
-                                        FontWeight="Medium"
-                                        Foreground="{DynamicResource PrimaryTextBrush}"
-                                        Grid.Column="1"
-                                        Text="{Binding Name}"
-                                        TextTrimming="CharacterEllipsis"
-                                        ToolTip="{Binding Name}"
-                                        VerticalAlignment="Center" />
-
-                                    <!-- Actions: TextBox, Next, Clear -->
-                                    <StackPanel
-                                        Grid.Column="2"
-                                        HorizontalAlignment="Right"
-                                        Orientation="Horizontal"
-                                        VerticalAlignment="Center">
-                                        <TextBox
-                                            FontSize="13"
-                                            FontWeight="Medium"
-                                            Height="28"
-                                            InputMethod.IsInputMethodEnabled="False"
-                                            KeyDown="OnOrderTextBoxKeyDown"
-                                            Margin="0,0,8,0"
-                                            MaxLength="3"
-                                            PreviewTextInput="OnOrderTextBoxPreviewTextInput"
-                                            Text="{Binding InputOrderText, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
-                                            TextAlignment="Center"
-                                            VerticalContentAlignment="Center"
-                                            Width="56" />
-
-                                        <Button
-                                            Command="{Binding ViewModel.AssignNextCommand, RelativeSource={RelativeSource AncestorType=ui:TaskSequenceView}}"
-                                            CommandParameter="{Binding}"
-                                            Content="{lex:Loc AssignNext}"
-                                            Margin="0,0,6,0"
-                                            Style="{StaticResource SequenceActionButtonStyle}"
-                                            MinWidth="86" />
-
-                                        <Button
-                                            Command="{Binding ViewModel.ClearOrderCommand, RelativeSource={RelativeSource AncestorType=ui:TaskSequenceView}}"
-                                            CommandParameter="{Binding}"
-                                            Content="{lex:Loc ClearOrder}"
-                                            Style="{StaticResource SequenceActionButtonStyle}"
-                                            MinWidth="56" />
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
         </Grid>
     </Grid>
 </UserControl>
