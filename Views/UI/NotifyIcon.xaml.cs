@@ -90,15 +90,12 @@ public partial class NotifyIcon
 
 
     private static void App_exit(object sender, RoutedEventArgs e)
-    {
-        if (Instances.RootView.ConfirmExit())
-            Application.Current.Shutdown();
-    }
+        => Instances.RootView.ExitApplication();
 
     private void App_hide(object sender, RoutedEventArgs e) =>
         Instances.RootViewModel.IsVisible = false;
 
 
     private void App_show(object sender, RoutedEventArgs e)
-        => Instances.RootViewModel.IsVisible = true;
+        => Instances.RootView.ShowWindow();
 }

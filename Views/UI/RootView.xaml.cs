@@ -31,6 +31,7 @@ public partial class RootView
 
     private bool _isUpdatingWindowSize;
     private bool _windowSizeInitialized;
+    private bool _isExitRequested;
 
     [StructLayout(LayoutKind.Sequential)]
     private struct NativeRect
@@ -101,7 +102,7 @@ public partial class RootView
         {
             if (ConfigurationHelper.GetValue(ConfigurationKeys.ShouldMinimizeToTray, false))
             {
-                ChangeVisibility(WindowState != WindowState.Minimized);
+                ViewModel.IsVisible = WindowState != WindowState.Minimized;
             }
         };
     }
@@ -230,11 +231,6 @@ public partial class RootView
         UpdateLayout();
     }
 
-    private void ChangeVisibility(bool visible)
-    {
-        Visibility = visible ? Visibility.Visible : Visibility.Hidden;
-    }
-
     public void ToggleTaskButtonsVisibility(bool isRunning)
     {
         DispatcherHelper.RunOnMainThread(() =>
@@ -246,7 +242,24 @@ public partial class RootView
 
     protected override void OnClosing(CancelEventArgs e)
     {
+        if (!_isExitRequested &&
+            !Application.Current.Dispatcher.HasShutdownStarted &&
+            ConfigurationHelper.GetValue(ConfigurationKeys.ShouldMinimizeToTray, false))
+        {
+            e.Cancel = true;
+            ViewModel.IsVisible = false;
+            base.OnClosing(e);
+            return;
+        }
+
         e.Cancel = !ConfirmExit();
+        if (e.Cancel)
+        {
+            _isExitRequested = false;
+            base.OnClosing(e);
+            return;
+        }
+
         ConfigurationHelper.SetValue(ConfigurationKeys.TaskItems, Instances.TaskQueueViewModel.TaskItemViewModels.ToList().Select(model => model.InterfaceItem));
         MaaProcessor.Instance.SetCurrentTasker();
         base.OnClosing(e);
@@ -261,9 +274,15 @@ public partial class RootView
 
     public void ShowWindow()
     {
-        Show();
+        ViewModel.IsVisible = true;
         WindowState = WindowState.Normal;
         Activate();
+    }
+
+    internal void ExitApplication()
+    {
+        _isExitRequested = true;
+        Close();
     }
 
     public void Collapse()
