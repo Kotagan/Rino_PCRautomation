@@ -39,8 +39,7 @@
 
         <Style x:Key="SequenceSurfaceCardStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource ControlSurfaceBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="10" />
             <Setter Property="Padding" Value="18" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
