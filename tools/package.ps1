@@ -47,7 +47,11 @@ Write-Host "=========================================" -ForegroundColor Cyan
 
 if (Test-Path -LiteralPath $OutputDir) {
     Write-Host "Cleaning target output directory..." -ForegroundColor Gray
-    Remove-Item -LiteralPath $OutputDir -Recurse -Force
+    try {
+        Remove-Item -LiteralPath $OutputDir -Recurse -Force -ErrorAction Stop
+    } catch {
+        Get-ChildItem -LiteralPath $OutputDir -Force | Remove-Item -Recurse -Force
+    }
 }
 
 $projectPath = Join-Path $repoRoot "MFAWPF.csproj"
@@ -179,8 +183,10 @@ if ($CreateInstaller) {
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoVersion=[0-9.]+", "VersionInfoVersion=$fileVersion")
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoTextVersion=[0-9.]+", "VersionInfoTextVersion=$version")
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoProductVersion=[0-9.]+", "VersionInfoProductVersion=$version")
-    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "OutputBaseFilename=Rino_[0-9.]+_Setup(_Local)?", "OutputBaseFilename=Rino_${version}_Setup")
-    Set-Content -Path $issPath -Value $issContent -Encoding utf8
+    $currentIss = Get-Content $issPath -Raw
+    if ($currentIss -ne $issContent) {
+        Set-Content -Path $issPath -Value $issContent -Encoding utf8 -NoNewline
+    }
 
     # Kill any running setup process before compilation
     Get-Process | Where-Object { $_.ProcessName -match "Rino.*Setup|Setup\.tmp" } | Stop-Process -Force -ErrorAction SilentlyContinue
