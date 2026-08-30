@@ -54,8 +54,7 @@
 
         <Style x:Key="SequenceItemCardBorderStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource ControlSurfaceBrush}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeBrush}" />
-            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="9" />
             <Setter Property="Margin" Value="0,0,10,8" />
             <Setter Property="Padding" Value="14,10" />
@@ -69,8 +68,6 @@
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background" Value="{DynamicResource RegionBrush}" />
-                    <Setter Property="BorderBrush" Value="{DynamicResource BasePrimaryBrush}" />
-                    <Setter Property="BorderThickness" Value="1.5" />
                     <Trigger.EnterActions>
                         <BeginStoryboard x:Name="CardHoverEnter">
                             <Storyboard>
