@@ -183,6 +183,7 @@ if ($CreateInstaller) {
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoVersion=[0-9.]+", "VersionInfoVersion=$fileVersion")
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoTextVersion=[0-9.]+", "VersionInfoTextVersion=$version")
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoProductVersion=[0-9.]+", "VersionInfoProductVersion=$version")
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "OutputBaseFilename=Rino(?:_WFP)?_[0-9.]+_Setup", "OutputBaseFilename=Rino_WFP_${version}_Setup")
     $currentIss = Get-Content $issPath -Raw
     if ($currentIss -ne $issContent) {
         Set-Content -Path $issPath -Value $issContent -Encoding utf8 -NoNewline
@@ -223,6 +224,6 @@ if ($CreateInstaller) {
         throw "Inno Setup compilation failed with exit code $LASTEXITCODE"
     }
 
-    $setupExe = Join-Path $repoRoot "Rino_${version}_Setup.exe"
+    $setupExe = Join-Path $repoRoot "Rino_WFP_${version}_Setup.exe"
     Write-Host "Installer created successfully: $setupExe" -ForegroundColor Green
 }

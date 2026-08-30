@@ -2,7 +2,7 @@
 setlocal enabledelayedexpansion
 
 echo ========================================================
-echo   Rino Inno Setup Installer Build Script
+echo   Rino_WFP Inno Setup Installer Build Script
 echo ========================================================
 
 echo [INFO] Changing directory to project root...
@@ -25,13 +25,13 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-if not exist "Rino_%VERSION%_Setup.exe" (
-    echo [WARNING] Expected installer at Rino_%VERSION%_Setup.exe was not found.
+if not exist "Rino_WFP_%VERSION%_Setup.exe" (
+    echo [WARNING] Expected installer at Rino_WFP_%VERSION%_Setup.exe was not found.
 ) else (
     echo.
     echo ========================================================
     echo   [SUCCESS] Custom Inno Setup installer built successfully!
-    echo   Output: Rino_%VERSION%_Setup.exe
+    echo   Output: Rino_WFP_%VERSION%_Setup.exe
     echo ========================================================
 )
 

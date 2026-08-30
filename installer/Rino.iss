@@ -12,12 +12,12 @@
 ; 7. 屏蔽系统底层所有向导按钮，无边框 18px 窗体圆角裁切全部保留。
 
 [Setup]
-AppName=Rino
+AppName=Rino_WFP
 AppVersion=0.1.0
 AppPublisher=SweetFox
-DefaultDirName={localappdata}\Rino
-DefaultGroupName=Rino
-OutputBaseFilename=Rino_0.1.0_Setup
+DefaultDirName={localappdata}\Rino_WFP
+DefaultGroupName=Rino_WFP
+OutputBaseFilename=Rino_WFP_0.1.0_Setup
 Compression=lzma2/max
 SolidCompression=yes
 OutputDir=..
@@ -33,19 +33,19 @@ SetupIconFile=..\logo.ico
 ; 版本信息配置（解决资源管理器中显示 0.0.0.0 的问题）
 VersionInfoVersion=0.1.0.0
 VersionInfoCompany=SweetFox
-VersionInfoDescription=Rino Setup
+VersionInfoDescription=Rino_WFP Setup
 VersionInfoTextVersion=0.1.0
-VersionInfoProductName=Rino
+VersionInfoProductName=Rino_WFP
 VersionInfoProductVersion=0.1.0
 
 [Messages]
-ConfirmUninstall=您确定要完全卸载 Rino 吗？
-UninstallAppFullTitle=卸载 Rino
-UninstallAppTitle=卸载 Rino
-UninstallStatusLabel=正在从您的电脑中安全移除 Rino，请稍候...
+ConfirmUninstall=您确定要完全卸载 Rino_WFP 吗？
+UninstallAppFullTitle=卸载 Rino_WFP
+UninstallAppTitle=卸载 Rino_WFP
+UninstallStatusLabel=正在从您的电脑中安全移除 Rino_WFP，请稍候...
 ButtonYes=是(&Y)
 ButtonNo=否(&N)
-ExitSetupMessage=安装尚未完成。如果您现在退出，将不会安装 Rino。#13#10#13#10您确定要退出安装程序吗？
+ExitSetupMessage=安装尚未完成。如果您现在退出，将不会安装 Rino_WFP。#13#10#13#10您确定要退出安装程序吗？
 ExitSetupTitle=退出安装
 
 [Files]
@@ -53,11 +53,11 @@ Source: "..\distribution\output\Rino\*"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "btn_border.bmp"; Flags: dontcopy
 
 [Icons]
-Name: "{group}\Rino"; Filename: "{app}\Rino.exe"; WorkingDir: "{app}"; IconFilename: "{app}\logo.ico"
-Name: "{userdesktop}\Rino"; Filename: "{app}\Rino.exe"; WorkingDir: "{app}"; IconFilename: "{app}\logo.ico"
+Name: "{group}\Rino_WFP"; Filename: "{app}\Rino.exe"; WorkingDir: "{app}"; IconFilename: "{app}\logo.ico"
+Name: "{userdesktop}\Rino_WFP"; Filename: "{app}\Rino.exe"; WorkingDir: "{app}"; IconFilename: "{app}\logo.ico"
 
 [Run]
-Filename: "{app}\Rino.exe"; Description: "运行 Rino"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Rino.exe"; Description: "运行 Rino_WFP"; Flags: nowait postinstall skipifsilent
 
 [Code]
 const
@@ -70,7 +70,6 @@ var
   // 界面控件
   CloseBtnLabel: TLabel;
   TitleLabel: TLabel;
-  SubtitleLabel: TLabel;
   DragHandle: TLabel;
   
   // 立即安装按钮背景图和文本标签
@@ -121,11 +120,11 @@ procedure StartInstall(Sender: TObject);
 var
   SelectedDir: string;
 begin
-  SelectedDir := ExpandConstant('{localappdata}\Rino'); // 获取默认推荐路径
+  SelectedDir := ExpandConstant('{localappdata}\Rino_WFP'); // 获取默认推荐路径
 
   // 1. 弹出系统原生文件夹选择弹窗让用户自由选择路径
-  // 转义提示文字：“请选择 Rino 的安装目标文件夹：”
-  if BrowseForFolder(#35831#36873#25321#32#82#105#110#111#32#30340#23433#35013#30446#26631#25991#20214#22841#65306, SelectedDir, True) then
+  // 转义提示文字：“请选择 Rino_WFP 的安装目标文件夹：”
+  if BrowseForFolder(#35831#36873#25321#32#82#105#110#111#95#87#70#80#32#30340#23433#35013#30446#26631#25991#20214#22841#65306, SelectedDir, True) then
   begin
     // 将选择好的路径赋予向导引擎的默认安装路径
     WizardForm.DirEdit.Text := SelectedDir;
@@ -213,27 +212,15 @@ begin
   // 5. 写入软件名称 (大字号，SF Pro / 微软雅黑)
   TitleLabel := TLabel.Create(WizardForm);
   TitleLabel.Parent := WizardForm;
-  TitleLabel.Caption := 'Rino';
+  TitleLabel.Caption := 'Rino_WFP';
   TitleLabel.Font.Name := 'SF Pro';
   TitleLabel.Font.Size := 32;
   TitleLabel.Font.Style := [fsBold];
   TitleLabel.Font.Color := $383636; // Rino 主文本炭黑深色 (#363638)
   TitleLabel.Left := 80;
-  TitleLabel.Top := 115;
+  TitleLabel.Top := 120;
   TitleLabel.Transparent := True;
   TitleLabel.OnMouseDown := @FormMouseDown;
-
-  // 5.1 写入副标题 / 描述
-  SubtitleLabel := TLabel.Create(WizardForm);
-  SubtitleLabel.Parent := WizardForm;
-  SubtitleLabel.Caption := 'MaaFramework Desktop';
-  SubtitleLabel.Font.Name := 'Segoe UI';
-  SubtitleLabel.Font.Size := 10;
-  SubtitleLabel.Font.Color := $938E8E; // Rino 辅助浅灰 (#8E8E93)
-  SubtitleLabel.Left := 82;
-  SubtitleLabel.Top := 168;
-  SubtitleLabel.Transparent := True;
-  SubtitleLabel.OnMouseDown := @FormMouseDown;
   
   // 6. 加载自定义暖杏橙圆角 Pill 背景
   ExtractTemporaryFile('btn_border.bmp');
