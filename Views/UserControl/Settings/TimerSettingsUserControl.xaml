@@ -66,8 +66,7 @@
             <!--  Timer 1 (Index 0)  -->
             <Border
                 Background="{DynamicResource ControlSurfaceBrush}"
-                BorderBrush="{DynamicResource ControlStrokeBrush}"
-                BorderThickness="1"
+                BorderThickness="0"
                 CornerRadius="8"
                 Grid.Column="0"
                 Grid.Row="0"
@@ -163,8 +162,7 @@
             <!--  Timer 2 (Index 1)  -->
             <Border
                 Background="{DynamicResource ControlSurfaceBrush}"
-                BorderBrush="{DynamicResource ControlStrokeBrush}"
-                BorderThickness="1"
+                BorderThickness="0"
                 CornerRadius="8"
                 Grid.Column="0"
                 Grid.Row="1"
@@ -260,8 +258,7 @@
             <!--  Timer 3 (Index 2)  -->
             <Border
                 Background="{DynamicResource ControlSurfaceBrush}"
-                BorderBrush="{DynamicResource ControlStrokeBrush}"
-                BorderThickness="1"
+                BorderThickness="0"
                 CornerRadius="8"
                 Grid.Column="0"
                 Grid.Row="2"
@@ -357,8 +354,7 @@
             <!--  Timer 4 (Index 3)  -->
             <Border
                 Background="{DynamicResource ControlSurfaceBrush}"
-                BorderBrush="{DynamicResource ControlStrokeBrush}"
-                BorderThickness="1"
+                BorderThickness="0"
                 CornerRadius="8"
                 Grid.Column="0"
                 Grid.Row="3"
@@ -454,8 +450,7 @@
             <!--  Timer 5 (Index 4)  -->
             <Border
                 Background="{DynamicResource ControlSurfaceBrush}"
-                BorderBrush="{DynamicResource ControlStrokeBrush}"
-                BorderThickness="1"
+                BorderThickness="0"
                 CornerRadius="8"
                 Grid.Column="1"
                 Grid.Row="0"
@@ -551,8 +546,7 @@
             <!--  Timer 6 (Index 5)  -->
             <Border
                 Background="{DynamicResource ControlSurfaceBrush}"
-                BorderBrush="{DynamicResource ControlStrokeBrush}"
-                BorderThickness="1"
+                BorderThickness="0"
                 CornerRadius="8"
                 Grid.Column="1"
                 Grid.Row="1"
@@ -648,8 +642,7 @@
             <!--  Timer 7 (Index 6)  -->
             <Border
                 Background="{DynamicResource ControlSurfaceBrush}"
-                BorderBrush="{DynamicResource ControlStrokeBrush}"
-                BorderThickness="1"
+                BorderThickness="0"
                 CornerRadius="8"
                 Grid.Column="1"
                 Grid.Row="2"
@@ -745,8 +738,7 @@
             <!--  Timer 8 (Index 7)  -->
             <Border
                 Background="{DynamicResource ControlSurfaceBrush}"
-                BorderBrush="{DynamicResource ControlStrokeBrush}"
-                BorderThickness="1"
+                BorderThickness="0"
                 CornerRadius="8"
                 Grid.Column="1"
                 Grid.Row="3"
