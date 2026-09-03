@@ -18,15 +18,20 @@
     xmlns:view="clr-namespace:MFAWPF.Views"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
+        <Style TargetType="hc:ComboBox" BasedOn="{StaticResource {x:Type hc:ComboBox}}">
+            <Setter Property="Background" Value="{DynamicResource ControlSurfaceBrush}" />
+        </Style>
         <Style x:Key="TimerNumericUpDownStyle" TargetType="hc:NumericUpDown" BasedOn="{StaticResource {x:Type hc:NumericUpDown}}">
             <Setter Property="FontSize" Value="13.5" />
             <Setter Property="Height" Value="28" />
             <Setter Property="Width" Value="68" />
+            <Setter Property="Background" Value="{DynamicResource ControlSurfaceBrush}" />
         </Style>
         <Style x:Key="TimerPeriodComboBoxStyle" TargetType="hc:ComboBox" BasedOn="{StaticResource {x:Type hc:ComboBox}}">
             <Setter Property="FontSize" Value="13" />
             <Setter Property="Height" Value="28" />
             <Setter Property="Width" Value="78" />
+            <Setter Property="Background" Value="{DynamicResource ControlSurfaceBrush}" />
         </Style>
     </UserControl.Resources>
 
