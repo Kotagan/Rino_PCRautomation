@@ -1563,7 +1563,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="hc:Growl">
-                    <Grid Opacity="0">
+                    <Grid x:Name="PART_GridMain" Opacity="0">
                         <Grid.Triggers>
                             <EventTrigger RoutedEvent="FrameworkElement.Loaded">
                                 <BeginStoryboard>
