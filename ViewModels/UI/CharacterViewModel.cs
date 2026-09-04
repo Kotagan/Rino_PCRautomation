@@ -8,6 +8,7 @@ using MFAWPF.Services.Characters;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Security;
 using System.Windows.Media;
 
 namespace MFAWPF.ViewModels.UI;
@@ -116,6 +117,17 @@ internal partial class CharacterViewModel : ViewModel
     {
         var profile = CharacterProfile.CreateDefault();
         profile.Name = $"{"Character".ToLocalization()} {Profiles.Count + 1}";
+        try
+        {
+            _storagePaths.CreateProfileDirectory(profile.Name);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException or ArgumentException or NotSupportedException)
+        {
+            LoggerService.LogError(ex);
+            GrowlHelper.Error("CharacterProfileDirectoryCreateFailed".ToLocalization());
+            return;
+        }
+
         Profiles.Add(profile);
         SelectedProfile = profile;
     }

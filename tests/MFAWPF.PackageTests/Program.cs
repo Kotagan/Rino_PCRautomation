@@ -44,6 +44,16 @@ internal static class Program
                 var assetRoot = Path.Combine(characterRoot, "Pets");
                 var configurationPath = Path.Combine(characterRoot, "config", "character.json");
                 var paths = CharacterStoragePaths.CreateForTesting(assetRoot, configurationPath);
+                var firstProfileDirectory = paths.CreateProfileDirectory("Character");
+                var secondProfileDirectory = paths.CreateProfileDirectory("Character");
+                Assert(Directory.Exists(firstProfileDirectory), "Expected a character asset directory.");
+                Assert(Directory.Exists(secondProfileDirectory), "Expected a second character asset directory.");
+                Assert(
+                    Path.GetFileName(firstProfileDirectory) == "Character",
+                    "Expected the profile name as the asset directory name.");
+                Assert(
+                    Path.GetFileName(secondProfileDirectory) == "Character (2)",
+                    "Expected a unique suffix for duplicate profile directory names.");
                 var profile = CharacterProfile.CreateDefault();
                 profile.Size = 4096;
                 profile.MovementSpeed = 999;

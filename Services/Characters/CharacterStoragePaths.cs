@@ -6,6 +6,7 @@ namespace MFAWPF.Services.Characters;
 internal sealed class CharacterStoragePaths
 {
     private const string AssetsDirectoryName = "Pets";
+    private const int MaximumProfileDirectoryNameLength = 80;
     private readonly StringComparison _pathComparison = OperatingSystem.IsWindows()
         ? StringComparison.OrdinalIgnoreCase
         : StringComparison.Ordinal;
@@ -45,6 +46,39 @@ internal sealed class CharacterStoragePaths
     {
         Directory.CreateDirectory(assetRoot);
         return new CharacterStoragePaths(assetRoot, configurationPath);
+    }
+
+    /// <summary>
+    /// Creates a uniquely named asset directory for a newly created character profile.
+    /// </summary>
+    /// <param name="profileName">The display name used as the directory name.</param>
+    /// <returns>The full path of the created directory.</returns>
+    public string CreateProfileDirectory(string profileName)
+    {
+        var baseName = CreateSafeDirectoryName(profileName);
+        for (var suffixNumber = 1; suffixNumber < int.MaxValue; suffixNumber++)
+        {
+            var suffix = suffixNumber == 1 ? string.Empty : $" ({suffixNumber})";
+            var allowedBaseNameLength = MaximumProfileDirectoryNameLength - suffix.Length;
+            var boundedBaseName = baseName[..Math.Min(baseName.Length, allowedBaseNameLength)].TrimEnd();
+            var directoryPath = Path.Combine(AssetRoot, boundedBaseName + suffix);
+            if (Directory.Exists(directoryPath) || File.Exists(directoryPath))
+            {
+                continue;
+            }
+
+            try
+            {
+                Directory.CreateDirectory(directoryPath);
+                return directoryPath;
+            }
+            catch (IOException) when (Directory.Exists(directoryPath) || File.Exists(directoryPath))
+            {
+                // Another process claimed this name between the existence check and creation.
+            }
+        }
+
+        throw new IOException($"Unable to create a unique character directory under '{AssetRoot}'.");
     }
 
     public bool TryCreateRelativePath(string path, out string relativePath)
@@ -109,6 +143,18 @@ internal sealed class CharacterStoragePaths
         }
 
         return true;
+    }
+
+    private static string CreateSafeDirectoryName(string profileName)
+    {
+        var invalidCharacters = Path.GetInvalidFileNameChars();
+        var sanitizedName = new string((profileName ?? string.Empty)
+            .Trim()
+            .Select(character => invalidCharacters.Contains(character) ? '_' : character)
+            .ToArray())
+            .Trim()
+            .TrimEnd('.');
+        return string.IsNullOrWhiteSpace(sanitizedName) ? "Character" : sanitizedName;
     }
 
     private static bool CanWriteTo(string directory)

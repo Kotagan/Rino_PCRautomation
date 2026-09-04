@@ -1294,6 +1294,7 @@
   <data name="CharacterRightClick" xml:space="preserve"><value>Right-click</value></data>
   <data name="CharacterAtLeastOneProfile" xml:space="preserve"><value>At least one character profile is required.</value></data>
   <data name="CharacterSettingsSaved" xml:space="preserve"><value>Character configuration saved.</value></data>
+  <data name="CharacterProfileDirectoryCreateFailed" xml:space="preserve"><value>Unable to create the character asset folder. Check the asset folder permissions.</value></data>
   <data name="CharacterPositionReset" xml:space="preserve"><value>The position will reset after the configuration is saved.</value></data>
   <data name="CharacterTaskListRefreshed" xml:space="preserve"><value>The home task list was refreshed.</value></data>
   <data name="CharacterDuplicateTaskRule" xml:space="preserve"><value>This task already has a character rule.</value></data>

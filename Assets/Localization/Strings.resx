@@ -1298,6 +1298,7 @@
   <data name="CharacterRightClick" xml:space="preserve"><value>右键</value></data>
   <data name="CharacterAtLeastOneProfile" xml:space="preserve"><value>至少需要保留一个角色配置。</value></data>
   <data name="CharacterSettingsSaved" xml:space="preserve"><value>角色配置已保存。</value></data>
+  <data name="CharacterProfileDirectoryCreateFailed" xml:space="preserve"><value>无法创建角色素材文件夹，请检查素材目录权限。</value></data>
   <data name="CharacterPositionReset" xml:space="preserve"><value>角色位置将在保存配置后重置。</value></data>
   <data name="CharacterTaskListRefreshed" xml:space="preserve"><value>主页任务列表已刷新。</value></data>
   <data name="CharacterDuplicateTaskRule" xml:space="preserve"><value>该任务已经存在角色规则。</value></data>
