@@ -2,6 +2,7 @@
     d:DesignHeight="720"
     d:DesignWidth="1100"
     Loaded="OnLoaded"
+    Unloaded="OnUnloaded"
     mc:Ignorable="d"
     x:Class="MFAWPF.Views.UI.CharacterView"
     x:ClassModifier="internal"
@@ -54,6 +55,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <ListBox
                 BorderThickness="0"
@@ -69,10 +71,55 @@
                 <ListBoxItem Content="{lex:Loc CharacterAnimations}" />
                 <ListBoxItem Content="{lex:Loc CharacterTaskRules}" />
             </ListBox>
+            <Border
+                Background="{DynamicResource ControlSurfaceBrush}"
+                CornerRadius="8"
+                Grid.Row="1"
+                Height="170"
+                Margin="10,0,10,10"
+                Padding="8">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBlock
+                        FontSize="12"
+                        Foreground="{DynamicResource SecondaryTextBrush}"
+                        Margin="2,0,2,6"
+                        Text="{Binding SelectedPreviewSlot.Title, FallbackValue={lex:Loc CharacterAnimationPreview}}"
+                        TextTrimming="CharacterEllipsis"
+                        ToolTip="{Binding SelectedPreviewSlot.Title}" />
+                    <Grid Grid.Row="1">
+                        <TextBlock
+                            FontSize="34"
+                            Foreground="{DynamicResource SecondaryTextBrush}"
+                            HorizontalAlignment="Center"
+                            IsHitTestVisible="False"
+                            Text="🐾"
+                            VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding PreviewFrame}" Value="{x:Null}">
+                                            <Setter Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                        <Image
+                            RenderOptions.BitmapScalingMode="HighQuality"
+                            Source="{Binding PreviewFrame}"
+                            Stretch="Uniform" />
+                    </Grid>
+                </Grid>
+            </Border>
             <Button
                 Command="{Binding SaveConfigurationCommand}"
                 Content="{lex:Loc CharacterSaveConfiguration}"
-                Grid.Row="1"
+                Grid.Row="2"
                 hc:IconElement.Geometry="{StaticResource SaveGeometry}"
                 Margin="10,0,10,10"
                 Style="{StaticResource CharacterPrimaryButtonStyle}" />
@@ -414,56 +461,68 @@
                                        Text="{lex:Loc CharacterAnimationsDescription}"
                                        TextWrapping="Wrap" />
                             <ItemsControl ItemsSource="{Binding AnimationSlots}">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <UniformGrid Columns="3" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Style="{StaticResource CharacterItemCardStyle}">
+                                        <Border Margin="4" Style="{StaticResource CharacterItemCardStyle}">
                                             <Grid>
                                                 <Grid.RowDefinitions>
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
                                                 <TextBlock FontSize="14" FontWeight="Medium"
-                                                           Text="{Binding Title}" VerticalAlignment="Center" />
-                                                <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                                            VerticalAlignment="Center">
+                                                           Text="{Binding Title}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           ToolTip="{Binding Title}"
+                                                           VerticalAlignment="Center" />
+                                                <Grid Grid.Row="1" Margin="0,8,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*" />
+                                                        <ColumnDefinition Width="Auto" />
+                                                    </Grid.ColumnDefinitions>
                                                     <TextBlock FontSize="12"
                                                                Foreground="{DynamicResource SecondaryTextBrush}"
-                                                               Margin="0,0,8,0"
                                                                Text="{lex:Loc CharacterPlaybackRateShort}"
                                                                VerticalAlignment="Center" />
                                                     <TextBox Height="32"
-                                                             Text="{Binding PlaybackRate, StringFormat={}{0:F2}, UpdateSourceTrigger=LostFocus}"
-                                                             TextAlignment="Center"
-                                                             ToolTip="{lex:Loc CharacterPlaybackRate}"
-                                                             Width="62" />
-                                                </StackPanel>
-                                                <TextBox Grid.ColumnSpan="2" Grid.Row="1"
+                                                              Grid.Column="1"
+                                                              Text="{Binding PlaybackRate, StringFormat={}{0:F2}, UpdateSourceTrigger=LostFocus}"
+                                                              TextAlignment="Center"
+                                                              ToolTip="{lex:Loc CharacterPlaybackRate}"
+                                                              Width="62" />
+                                                </Grid>
+                                                <TextBox Grid.Row="2"
                                                          Margin="0,9,0,0" MinHeight="34"
                                                          Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}"
                                                          ToolTip="{Binding SourcePath}" />
-                                                <WrapPanel Grid.ColumnSpan="2" Grid.Row="2"
-                                                           HorizontalAlignment="Right"
-                                                           Margin="0,8,0,0" Orientation="Horizontal">
+                                                <UniformGrid Columns="2" Grid.Row="3" Margin="0,8,0,0" Rows="2">
                                                     <Button Command="{Binding DataContext.BrowseAnimationFileCommand, ElementName=CharacterPage}"
                                                             CommandParameter="{Binding}"
                                                             Content="{lex:Loc CharacterChooseFile}"
-                                                            Margin="0,0,8,0"
+                                                            Margin="0,0,4,4"
                                                             Style="{StaticResource CharacterActionButtonStyle}" />
                                                     <Button Command="{Binding DataContext.BrowseAnimationFolderCommand, ElementName=CharacterPage}"
                                                             CommandParameter="{Binding}"
                                                             Content="{lex:Loc CharacterChooseFrameFolder}"
-                                                            Margin="0,0,8,0"
+                                                            Margin="4,0,0,4"
+                                                            Style="{StaticResource CharacterActionButtonStyle}" />
+                                                    <Button Command="{Binding DataContext.PreviewAnimationCommand, ElementName=CharacterPage}"
+                                                            CommandParameter="{Binding}"
+                                                            Content="{lex:Loc CharacterAnimationPreview}"
+                                                            Margin="0,0,4,0"
                                                             Style="{StaticResource CharacterActionButtonStyle}" />
                                                     <Button Command="{Binding DataContext.ClearAnimationCommand, ElementName=CharacterPage}"
                                                             CommandParameter="{Binding}"
                                                             Content="{lex:Loc CharacterClearAnimation}"
+                                                            Margin="4,0,0,0"
                                                             Style="{StaticResource CharacterActionButtonStyle}" />
-                                                </WrapPanel>
+                                                </UniformGrid>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>

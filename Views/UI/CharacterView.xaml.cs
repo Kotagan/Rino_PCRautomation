@@ -31,6 +31,7 @@ internal partial class CharacterView
         }
 
         viewModel.RefreshTaskOptions();
+        viewModel.SetPreviewActive(true);
         Canvas.SetLeft(
             FootAnchorMarker,
             viewModel.SelectedProfile.FootAnchorX * PreviewSurface.Width -
@@ -42,6 +43,14 @@ internal partial class CharacterView
 
         EnsureSections();
         Dispatcher.BeginInvoke(DispatcherPriority.Loaded, SynchronizeSectionSelection);
+    }
+
+    private void OnUnloaded(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is CharacterViewModel viewModel)
+        {
+            viewModel.SetPreviewActive(false);
+        }
     }
 
     private void OnSectionSelectionChanged(object sender, SelectionChangedEventArgs e)

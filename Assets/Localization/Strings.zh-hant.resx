@@ -1246,6 +1246,7 @@
   <data name="CharacterAssetLocation" xml:space="preserve"><value>素材目錄</value></data>
   <data name="CharacterOpenFolder" xml:space="preserve"><value>開啟素材目錄</value></data>
   <data name="CharacterPreview" xml:space="preserve"><value>預覽與顯示</value></data>
+  <data name="CharacterAnimationPreview" xml:space="preserve"><value>預覽</value></data>
   <data name="CharacterFootAnchorHint" xml:space="preserve"><value>點擊預覽設定腳部位置；自由移動時腳點會貼合螢幕工作區域底部。</value></data>
   <data name="CharacterSize" xml:space="preserve"><value>角色大小</value></data>
   <data name="CharacterShowStatus" xml:space="preserve"><value>顯示任務狀態列</value></data>

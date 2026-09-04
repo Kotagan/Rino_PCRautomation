@@ -7,9 +7,11 @@ using MFAWPF.Models.Characters;
 using MFAWPF.Services.Characters;
 using Microsoft.Win32;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Security;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace MFAWPF.ViewModels.UI;
 
@@ -51,7 +53,16 @@ internal partial class CharacterViewModel : ViewModel
     private readonly CharacterStoragePaths _storagePaths;
     private readonly CharacterAnimationLoader _animationLoader;
     private readonly CharacterRuntimeService _runtimeService;
+    private readonly DispatcherTimer _previewTimer = new()
+    {
+        Interval = TimeSpan.FromMilliseconds(16),
+    };
+    private readonly Stopwatch _previewClock = new();
     private CharacterSettings _settings;
+    private CharacterAnimationClip _previewClip = CharacterAnimationClip.Empty;
+    private TimeSpan _previewFrameElapsed;
+    private int _previewFrameIndex;
+    private bool _isPreviewActive;
 
     public CharacterViewModel(
         CharacterSettingsStore settingsStore,
@@ -73,6 +84,7 @@ internal partial class CharacterViewModel : ViewModel
         SelectedProfile = Profiles.First(profile => profile.Id == _settings.ActiveProfileId);
         _isEnabled = _settings.IsEnabled;
         AssetRoot = storagePaths.AssetRoot;
+        _previewTimer.Tick += OnPreviewTimerTick;
         RefreshTasks();
         RebuildProfileEditors();
         _runtimeService.SettingsChanged += OnRuntimeSettingsChanged;
@@ -110,7 +122,7 @@ internal partial class CharacterViewModel : ViewModel
     }
 
     partial void OnSelectedPreviewSlotChanged(CharacterAnimationSlotViewModel? value) =>
-        PreviewFrame = _animationLoader.LoadFirstFrame(value?.Definition);
+        StartPreview(value?.Definition);
 
     [RelayCommand]
     private void AddProfile()
@@ -223,9 +235,10 @@ internal partial class CharacterViewModel : ViewModel
         };
         if (dialog.ShowDialog() == true)
         {
-            AssignAssetPath(dialog.FileName, path => slot.SourcePath = path);
-            SelectedPreviewSlot = slot;
-            PreviewFrame = _animationLoader.LoadFirstFrame(slot.Definition);
+            if (AssignAssetPath(dialog.FileName, path => slot.SourcePath = path))
+            {
+                PreviewAnimation(slot);
+            }
         }
     }
 
@@ -244,9 +257,10 @@ internal partial class CharacterViewModel : ViewModel
         };
         if (dialog.ShowDialog() == true)
         {
-            AssignAssetPath(dialog.FolderName, path => slot.SourcePath = path);
-            SelectedPreviewSlot = slot;
-            PreviewFrame = _animationLoader.LoadFirstFrame(slot.Definition);
+            if (AssignAssetPath(dialog.FolderName, path => slot.SourcePath = path))
+            {
+                PreviewAnimation(slot);
+            }
         }
     }
 
@@ -261,8 +275,25 @@ internal partial class CharacterViewModel : ViewModel
         slot.SourcePath = string.Empty;
         if (ReferenceEquals(SelectedPreviewSlot, slot))
         {
-            PreviewFrame = null;
+            StartPreview(null);
         }
+    }
+
+    [RelayCommand]
+    private void PreviewAnimation(CharacterAnimationSlotViewModel? slot)
+    {
+        if (slot is null)
+        {
+            return;
+        }
+
+        if (ReferenceEquals(SelectedPreviewSlot, slot))
+        {
+            StartPreview(slot.Definition);
+            return;
+        }
+
+        SelectedPreviewSlot = slot;
     }
 
     [RelayCommand]
@@ -294,6 +325,19 @@ internal partial class CharacterViewModel : ViewModel
         SelectedProfile.FootAnchorX = Math.Clamp(x, 0d, 1d);
         SelectedProfile.FootAnchorY = Math.Clamp(y, 0d, 1d);
         OnPropertyChanged(nameof(SelectedProfile));
+    }
+
+    internal void SetPreviewActive(bool isActive)
+    {
+        _isPreviewActive = isActive;
+        if (isActive)
+        {
+            StartPreview(SelectedPreviewSlot?.Definition);
+            return;
+        }
+
+        _previewTimer.Stop();
+        _previewClock.Stop();
     }
 
     private bool AssignAssetPath(string fullPath, Action<string> assignment)
@@ -340,6 +384,61 @@ internal partial class CharacterViewModel : ViewModel
 
     private void AddSlot(string titleKey, CharacterAnimationDefinition definition) =>
         AnimationSlots.Add(new CharacterAnimationSlotViewModel(titleKey.ToLocalization(), definition));
+
+    private void StartPreview(CharacterAnimationDefinition? definition)
+    {
+        _previewTimer.Stop();
+        _previewClock.Reset();
+        _previewClip = _animationLoader.Load(definition);
+        _previewFrameElapsed = TimeSpan.Zero;
+        _previewFrameIndex = 0;
+        PreviewFrame = _previewClip.Frames.FirstOrDefault();
+        if (!_isPreviewActive || _previewClip.Frames.Count <= 1)
+        {
+            return;
+        }
+
+        _previewClock.Start();
+        _previewTimer.Start();
+    }
+
+    private void OnPreviewTimerTick(object? sender, EventArgs e)
+    {
+        var elapsed = _previewClock.Elapsed;
+        _previewClock.Restart();
+        if (_previewClip.IsEmpty || SelectedPreviewSlot is null)
+        {
+            _previewTimer.Stop();
+            _previewClock.Stop();
+            return;
+        }
+
+        var playbackRate = Math.Clamp(SelectedPreviewSlot.PlaybackRate, 0.25d, 3d);
+        _previewFrameElapsed += TimeSpan.FromTicks((long)(elapsed.Ticks * playbackRate));
+        var frameDuration = _previewClip.FrameDurations[
+            Math.Min(_previewFrameIndex, _previewClip.FrameDurations.Count - 1)];
+        if (_previewFrameElapsed < frameDuration)
+        {
+            return;
+        }
+
+        _previewFrameElapsed -= frameDuration;
+        if (_previewFrameIndex < _previewClip.Frames.Count - 1)
+        {
+            _previewFrameIndex++;
+        }
+        else if (SelectedPreviewSlot.Loop)
+        {
+            _previewFrameIndex = 0;
+        }
+        else
+        {
+            _previewTimer.Stop();
+            _previewClock.Stop();
+        }
+
+        PreviewFrame = _previewClip.Frames[_previewFrameIndex];
+    }
 
     private void RefreshTasks()
     {

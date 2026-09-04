@@ -1253,6 +1253,7 @@
   <data name="CharacterAssetLocation" xml:space="preserve"><value>Asset folder</value></data>
   <data name="CharacterOpenFolder" xml:space="preserve"><value>Open asset folder</value></data>
   <data name="CharacterPreview" xml:space="preserve"><value>Preview and display</value></data>
+  <data name="CharacterAnimationPreview" xml:space="preserve"><value>Preview</value></data>
   <data name="CharacterFootAnchorHint" xml:space="preserve"><value>Click the preview to set the foot anchor. Roaming aligns it with the bottom of the screen work area.</value></data>
   <data name="CharacterSize" xml:space="preserve"><value>Character size</value></data>
   <data name="CharacterShowStatus" xml:space="preserve"><value>Show task status bar</value></data>
