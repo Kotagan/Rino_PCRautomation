@@ -8,6 +8,7 @@ using MFAWPF.Views.UserControl.Settings;
 using Microsoft.Extensions.DependencyInjection;
 using RootViewModel = MFAWPF.ViewModels.UI.RootViewModel;
 using SettingsViewModel = MFAWPF.ViewModels.UI.SettingsViewModel;
+using MFAWPF.Services.Characters;
 
 namespace MFAWPF.Helper;
 
@@ -59,6 +60,8 @@ public static class Instances
     public static TaskQueueViewModel TaskQueueViewModel => Resolve<TaskQueueViewModel>();
     public static TaskSequenceView TaskSequenceView => Resolve<TaskSequenceView>();
     public static TaskSequenceViewModel TaskSequenceViewModel => Resolve<TaskSequenceViewModel>();
+    internal static CharacterTaskStateService CharacterTaskStateService => Resolve<CharacterTaskStateService>();
+    internal static CharacterRuntimeService CharacterRuntimeService => Resolve<CharacterRuntimeService>();
     public static TaskQueueSettingsUserControl TaskQueueSettingsUserControl => Resolve<TaskQueueSettingsUserControl>();
     public static TaskOptionSettingsUserControl TaskOptionSettingsUserControl => Resolve<TaskOptionSettingsUserControl>();
     public static ConnectingView ConnectingView => Resolve<ConnectingView>();

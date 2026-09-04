@@ -1,9 +1,12 @@
 using MFAWPF.Configuration;
 using MFAWPF.Services.RinoPackages;
+using MFAWPF.Models.Characters;
+using MFAWPF.Services.Characters;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Security;
 using System.IO.Compression;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Security.Cryptography;
@@ -35,6 +38,91 @@ internal static class Program
         var failures = new List<string>();
         try
         {
+            await RunAsync("desktop character configuration is bounded and portable", failures, () =>
+            {
+                var characterRoot = Path.Combine(testRoot, "character");
+                var assetRoot = Path.Combine(characterRoot, "Pets");
+                var configurationPath = Path.Combine(characterRoot, "config", "character.json");
+                var paths = CharacterStoragePaths.CreateForTesting(assetRoot, configurationPath);
+                var profile = CharacterProfile.CreateDefault();
+                profile.Size = 4096;
+                profile.MovementSpeed = 999;
+                profile.FootAnchorY = -1;
+                profile.IdleAnimations[0].PlaybackRate = 99;
+                profile.IdleAnimations.Add(new CharacterAnimationDefinition());
+                profile.Normalize();
+
+                Assert(profile.Size == 512, "Expected bounded character size.");
+                Assert(profile.MovementSpeed == 300, "Expected bounded movement speed.");
+                Assert(profile.FootAnchorY == 0, "Expected bounded foot anchor.");
+                Assert(profile.IdleAnimations.Count == 6, "Expected exactly six idle slots.");
+                Assert(profile.IdleAnimations[0].PlaybackRate == 3, "Expected bounded playback rate.");
+
+                var insidePath = Path.Combine(assetRoot, "Cats", "idle.gif");
+                Directory.CreateDirectory(Path.GetDirectoryName(insidePath)!);
+                File.WriteAllBytes(
+                    insidePath,
+                    Convert.FromBase64String("R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw=="));
+                Assert(
+                    paths.TryCreateRelativePath(insidePath, out var relativePath),
+                    "Expected an asset-root relative path.");
+                Assert(
+                    relativePath == Path.Combine("Cats", "idle.gif"),
+                    "Expected portable relative asset path.");
+                Assert(
+                    !paths.TryCreateRelativePath(
+                        Path.Combine(characterRoot, "outside.gif"),
+                        out _),
+                    "Expected outside asset path rejection.");
+                Assert(
+                    paths.ResolveAssetPath(Path.Combine("..", "outside.gif")) is null,
+                    "Expected traversal path rejection.");
+
+                var settings = CharacterSettings.CreateDefault();
+                settings.IsEnabled = true;
+                settings.GetActiveProfile().IdleAnimations[0].SourcePath = relativePath;
+                var store = new CharacterSettingsStore(paths);
+                store.Save(settings);
+                var loaded = store.Load();
+                Assert(loaded.IsEnabled, "Expected persisted character enable state.");
+                Assert(
+                    loaded.GetActiveProfile().IdleAnimations[0].SourcePath == relativePath,
+                    "Expected persisted portable animation path.");
+
+                var clip = new CharacterAnimationLoader(paths).Load(
+                    loaded.GetActiveProfile().IdleAnimations[0]);
+                Assert(!clip.IsEmpty, "Expected GIF animation decoding.");
+                Assert(clip.Frames.Count == 1, "Expected one GIF frame.");
+
+                var frameDirectory = Path.Combine(assetRoot, "Cats", "idle-frames");
+                Directory.CreateDirectory(frameDirectory);
+                File.WriteAllBytes(
+                    Path.Combine(frameDirectory, "001.png"),
+                    Convert.FromBase64String(
+                        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="));
+                var frameClip = new CharacterAnimationLoader(paths).Load(
+                    new CharacterAnimationDefinition
+                    {
+                        SourcePath = Path.GetRelativePath(assetRoot, frameDirectory),
+                    });
+                Assert(!frameClip.IsEmpty, "Expected PNG frame-directory decoding.");
+                Assert(frameClip.Frames.Count == 1, "Expected one PNG sequence frame.");
+                return Task.CompletedTask;
+            });
+
+            await RunAsync("desktop character task state is typed", failures, () =>
+            {
+                var service = new CharacterTaskStateService();
+                CharacterTaskStateChangedEventArgs? received = null;
+                service.StateChanged += (_, args) => received = args;
+                service.Notify(CharacterTaskState.TaskStarted, "entry.main", "Main");
+
+                Assert(service.CurrentState == CharacterTaskState.TaskStarted, "Expected current task state.");
+                Assert(received?.TaskKey == "entry.main", "Expected stable top-level task key.");
+                Assert(received?.TaskName == "Main", "Expected top-level task display name.");
+                return Task.CompletedTask;
+            });
+
             await RunAsync("valid signed project package", failures, async () =>
             {
                 var package = await CreatePackageAsync(testRoot, "valid");

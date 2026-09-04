@@ -2,6 +2,7 @@ using MFAWPF.Views;
 using MFAWPF.Views.UI;
 using Microsoft.Extensions.Hosting;
 using System.Windows;
+using MFAWPF.Services.Characters;
 
 namespace MFAWPF.Services;
 
@@ -38,7 +39,10 @@ public class ApplicationHostService(IServiceProvider serviceProvider) : IHostedS
         {
             _window = (serviceProvider.GetService(typeof(RootView)) as Window)!;
             _window!.Show();
-
+            var characterViewModel =
+                (ViewModels.UI.CharacterViewModel)serviceProvider.GetService(typeof(ViewModels.UI.CharacterViewModel))!;
+            ((CharacterRuntimeService)serviceProvider.GetService(typeof(CharacterRuntimeService))!)
+                .Initialize(characterViewModel.Settings);
         }
 
         await Task.CompletedTask;

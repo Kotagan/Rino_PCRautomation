@@ -279,6 +279,15 @@ public partial class RootView
         Activate();
     }
 
+    /// <summary>
+    /// Opens the desktop-character configuration page.
+    /// </summary>
+    public void ShowCharacterPage()
+    {
+        ShowWindow();
+        CharacterTabItem.IsSelected = true;
+    }
+
     internal void ExitApplication()
     {
         _isExitRequested = true;

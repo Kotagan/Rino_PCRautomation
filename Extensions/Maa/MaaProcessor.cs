@@ -12,6 +12,7 @@ using MFAWPF.Helper.Converters;
 using MFAWPF.Helper.ValueType;
 using MFAWPF.ViewModels.UserControl.Settings;
 using MFAWPF.Views.UI;
+using MFAWPF.Services.Characters;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using MimeKit;
@@ -50,6 +51,7 @@ public class MaaProcessor
     private MaaTasker? _currentTasker;
     private MaaAgentClient? _agentClient;
     private bool _agentStarted;
+    private bool _characterTaskRunActive;
     private Process? _agentProcess;
     public static string Resource => AppContext.BaseDirectory + "Resource";
     public static string ResourceBase => $"{Resource}/base";
@@ -94,6 +96,11 @@ public class MaaProcessor
 
         _startTime = DateTime.Now;
         tasks ??= new List<DragItemViewModel>();
+        _characterTaskRunActive = !onlyStart && tasks.Count > 0;
+        if (_characterTaskRunActive)
+        {
+            Instances.CharacterTaskStateService.Notify(CharacterTaskState.QueueStarted);
+        }
 
         var token = CancellationTokenSource.Token;
         if (!onlyStart)
@@ -110,6 +117,10 @@ public class MaaProcessor
             if (runSuccess)
             {
                 Stop(true, onlyStart);
+            }
+            else if (!token.IsCancellationRequested)
+            {
+                Stop();
             }
         }, token, name: "启动任务");
 
@@ -207,7 +218,7 @@ public class MaaProcessor
     {
         foreach (var task in taskAndParams)
         {
-            TaskQueue.Enqueue(CreateMaaFWTask(task.Name,
+            TaskQueue.Enqueue(CreateMaaFWTask(task.Name, task.Entry,
                 async () =>
                 {
                     token.ThrowIfCancellationRequested();
@@ -232,13 +243,15 @@ public class MaaProcessor
             }));
         }
     }
-    private MFATask CreateMaaFWTask(string? name, Func<Task> action, int count = 1)
+    private MFATask CreateMaaFWTask(string? name, string? key, Func<Task> action, int count = 1)
     {
         return new MFATask
         {
             Name = name,
+            Key = key ?? name,
             Count = count,
             Type = MFATask.MFATaskType.MAAFW,
+            ReportsCharacterState = true,
             Action = action
         };
     }
@@ -272,7 +285,11 @@ public class MaaProcessor
         if (maa == null || task == null) return;
 
         var job = maa.AppendTask(task, param ?? "{}");
-        await TaskManager.RunTaskAsync(() => job.Wait().ThrowIfNot(MaaJobStatus.Succeeded), token, catchException: true, shouldLog: false);
+        await TaskManager.RunTaskAsync(
+            () => job.Wait().ThrowIfNot(MaaJobStatus.Succeeded),
+            token,
+            catchException: false,
+            shouldLog: false);
     }
 
     public void Stop(bool finished = false, bool onlyStart = false)
@@ -292,6 +309,20 @@ public class MaaProcessor
             ClearTaskQueue();
 
             Instances.RootViewModel.IsRunning = false;
+
+            if (_characterTaskRunActive)
+            {
+                if (finished)
+                {
+                    Instances.CharacterTaskStateService.Notify(CharacterTaskState.QueueSucceeded);
+                }
+                else if (Instances.CharacterTaskStateService.CurrentState != CharacterTaskState.TaskFailed)
+                {
+                    Instances.CharacterTaskStateService.Notify(CharacterTaskState.QueueStopped);
+                }
+
+                _characterTaskRunActive = false;
+            }
 
             ExecuteStopCore(finished, () =>
             {
@@ -732,9 +763,33 @@ public class MaaProcessor
         while (TaskQueue.Count > 0 && !token.IsCancellationRequested)
         {
             var task = TaskQueue.Dequeue();
+            if (task.ReportsCharacterState)
+            {
+                Instances.CharacterTaskStateService.Notify(
+                    CharacterTaskState.TaskStarted,
+                    task.Key ?? task.Name ?? string.Empty,
+                    task.Name ?? string.Empty);
+            }
+
             if (!await task.Run(token))
             {
+                if (task.ReportsCharacterState && !token.IsCancellationRequested)
+                {
+                    Instances.CharacterTaskStateService.Notify(
+                        CharacterTaskState.TaskFailed,
+                        task.Key ?? task.Name ?? string.Empty,
+                        task.Name ?? string.Empty);
+                }
+
                 return false;
+            }
+
+            if (task.ReportsCharacterState)
+            {
+                Instances.CharacterTaskStateService.Notify(
+                    CharacterTaskState.TaskSucceeded,
+                    task.Key ?? task.Name ?? string.Empty,
+                    task.Name ?? string.Empty);
             }
         }
         return !token.IsCancellationRequested; // 根据取消状态返回正确结果

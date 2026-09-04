@@ -1243,4 +1243,52 @@
   <data name="EnterPresetName" xml:space="preserve">
     <value>请输入预设名称</value>
   </data>
+  <data name="Character" xml:space="preserve"><value>角色</value></data>
+  <data name="CharacterTitle" xml:space="preserve"><value>桌面角色</value></data>
+  <data name="CharacterDescription" xml:space="preserve"><value>配置桌面宠物、状态动画、自由移动和任务提示</value></data>
+  <data name="CharacterEnabled" xml:space="preserve"><value>启用桌面角色</value></data>
+  <data name="CharacterApply" xml:space="preserve"><value>保存并应用</value></data>
+  <data name="CharacterProfile" xml:space="preserve"><value>宠物配置</value></data>
+  <data name="CharacterOpenFolder" xml:space="preserve"><value>打开素材目录</value></data>
+  <data name="CharacterPreview" xml:space="preserve"><value>预览与显示</value></data>
+  <data name="CharacterFootAnchorHint" xml:space="preserve"><value>点击预览设置脚部位置；自由移动时脚点会贴合屏幕工作区域底部。</value></data>
+  <data name="CharacterSize" xml:space="preserve"><value>角色大小</value></data>
+  <data name="CharacterShowStatus" xml:space="preserve"><value>显示任务状态栏</value></data>
+  <data name="CharacterLockPosition" xml:space="preserve"><value>锁定角色位置</value></data>
+  <data name="CharacterResetPosition" xml:space="preserve"><value>重置屏幕位置</value></data>
+  <data name="CharacterFreeMovement" xml:space="preserve"><value>自由移动</value></data>
+  <data name="CharacterFreeMovementEnabled" xml:space="preserve"><value>启用随机待机与左右移动</value></data>
+  <data name="CharacterMovementSpeed" xml:space="preserve"><value>移动速度</value></data>
+  <data name="CharacterAutomaticMirror" xml:space="preserve"><value>自动镜像移动动画</value></data>
+  <data name="CharacterMinimumIdle" xml:space="preserve"><value>最短待机时间（秒）</value></data>
+  <data name="CharacterMaximumIdle" xml:space="preserve"><value>最长待机时间（秒）</value></data>
+  <data name="CharacterFootAnchorX" xml:space="preserve"><value>脚点横向位置</value></data>
+  <data name="CharacterFootAnchorY" xml:space="preserve"><value>脚点纵向位置</value></data>
+  <data name="CharacterAnimations" xml:space="preserve"><value>动画绑定</value></data>
+  <data name="CharacterAnimationsDescription" xml:space="preserve"><value>支持 PNG、GIF 和包含 PNG 帧的目录。播放倍率范围为 0.25–3.00。</value></data>
+  <data name="CharacterPlaybackRate" xml:space="preserve"><value>GIF/帧动画播放倍率</value></data>
+  <data name="CharacterFile" xml:space="preserve"><value>文件</value></data>
+  <data name="CharacterFrames" xml:space="preserve"><value>帧目录</value></data>
+  <data name="CharacterTaskRules" xml:space="preserve"><value>顶层任务规则</value></data>
+  <data name="CharacterStatusText" xml:space="preserve"><value>状态文字，最多 24 个字符</value></data>
+  <data name="CharacterIdle" xml:space="preserve"><value>待机</value></data>
+  <data name="CharacterMoveLeft" xml:space="preserve"><value>向左移动</value></data>
+  <data name="CharacterMoveRight" xml:space="preserve"><value>向右移动</value></data>
+  <data name="CharacterTaskRunning" xml:space="preserve"><value>任务运行</value></data>
+  <data name="CharacterTaskSucceeded" xml:space="preserve"><value>任务成功</value></data>
+  <data name="CharacterTaskFailed" xml:space="preserve"><value>任务失败</value></data>
+  <data name="CharacterDragging" xml:space="preserve"><value>拖拽中</value></data>
+  <data name="CharacterReleased" xml:space="preserve"><value>松手</value></data>
+  <data name="CharacterRightClick" xml:space="preserve"><value>右键</value></data>
+  <data name="CharacterAtLeastOneProfile" xml:space="preserve"><value>至少需要保留一个宠物配置。</value></data>
+  <data name="CharacterSettingsApplied" xml:space="preserve"><value>角色设置已保存并应用。</value></data>
+  <data name="CharacterPositionReset" xml:space="preserve"><value>角色位置将在应用设置后重置。</value></data>
+  <data name="CharacterTaskListRefreshed" xml:space="preserve"><value>主页任务列表已刷新。</value></data>
+  <data name="CharacterDuplicateTaskRule" xml:space="preserve"><value>该任务已经存在角色规则。</value></data>
+  <data name="CharacterAssetOutsideRoot" xml:space="preserve"><value>请选择宠物素材目录内的文件或文件夹。</value></data>
+  <data name="CharacterOpenMainWindow" xml:space="preserve"><value>打开主窗口</value></data>
+  <data name="CharacterOpenPage" xml:space="preserve"><value>打开角色页面</value></data>
+  <data name="CharacterOpenAssetFolder" xml:space="preserve"><value>打开宠物目录</value></data>
+  <data name="CharacterTogglePositionLock" xml:space="preserve"><value>锁定/解锁位置</value></data>
+  <data name="CharacterHide" xml:space="preserve"><value>隐藏角色</value></data>
 </root>

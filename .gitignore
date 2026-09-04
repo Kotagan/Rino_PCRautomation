@@ -167,6 +167,7 @@ auth.txt
 
 # Runtime configuration and user data
 /config/
+/Pets/
 /.rino-package-data/
 *.rino-package
 *.rino-package.part

@@ -19,6 +19,16 @@ public partial class MFATask : ObservableObject
     [ObservableProperty] private Func<Task> _action;
     [ObservableProperty] private Dictionary<string, TaskModel> _tasks = new();
 
+    /// <summary>
+    /// Gets or sets the stable identifier used for top-level task integrations.
+    /// </summary>
+    public string? Key { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether this task reports desktop-character state.
+    /// </summary>
+    public bool ReportsCharacterState { get; set; }
+
 
     public async Task<bool> Run(CancellationToken token)
     {

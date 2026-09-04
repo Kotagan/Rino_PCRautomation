@@ -16,6 +16,7 @@ using Microsoft.Extensions.Hosting;
 using System.IO;
 using System.Runtime.InteropServices;
 using MFAWPF.Services.RinoPackages;
+using MFAWPF.Services.Characters;
 
 namespace MFAWPF;
 
@@ -54,6 +55,14 @@ public partial class App
                 _ = services.AddSingleton<TaskSequenceViewModel>();
                 _ = services.AddSingleton<TaskQueueSettingsUserControl>();
                 _ = services.AddSingleton<TaskOptionSettingsUserControl>();
+
+                _ = services.AddSingleton(CharacterStoragePaths.CreateDefault());
+                _ = services.AddSingleton<CharacterSettingsStore>();
+                _ = services.AddSingleton<CharacterAnimationLoader>();
+                _ = services.AddSingleton<CharacterTaskStateService>();
+                _ = services.AddSingleton<CharacterRuntimeService>();
+                _ = services.AddSingleton<CharacterViewModel>();
+                _ = services.AddSingleton<CharacterView>();
 
                 _ = services.AddSingleton<ConnectingView>();
                 _ = services.AddSingleton<ConnectingViewModel>();

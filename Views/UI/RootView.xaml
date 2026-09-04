@@ -201,6 +201,12 @@
                     <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type settings:DownloadCenterUserControl}}" />
                 </Border>
             </TabItem>
+            <TabItem
+                Header="{lex:Loc Character}"
+                Style="{StaticResource CustomTabItemStyle}"
+                x:Name="CharacterTabItem">
+                <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type ui:CharacterView}}" />
+            </TabItem>
             <TabItem Header="{lex:Loc Settings}" Style="{StaticResource CustomTabItemStyle}">
                 <Border Background="{DynamicResource SecundaryBackgroundColor}" x:Name="SettingViewBorder">
                     <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type ui:SettingsView}}" />

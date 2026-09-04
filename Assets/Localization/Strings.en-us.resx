@@ -1239,4 +1239,52 @@
   <data name="EnterPresetName" xml:space="preserve">
     <value>Please enter preset name</value>
   </data>
+  <data name="Character" xml:space="preserve"><value>Character</value></data>
+  <data name="CharacterTitle" xml:space="preserve"><value>Desktop Character</value></data>
+  <data name="CharacterDescription" xml:space="preserve"><value>Configure the desktop pet, state animations, roaming, and task status</value></data>
+  <data name="CharacterEnabled" xml:space="preserve"><value>Enable desktop character</value></data>
+  <data name="CharacterApply" xml:space="preserve"><value>Save and apply</value></data>
+  <data name="CharacterProfile" xml:space="preserve"><value>Pet profile</value></data>
+  <data name="CharacterOpenFolder" xml:space="preserve"><value>Open asset folder</value></data>
+  <data name="CharacterPreview" xml:space="preserve"><value>Preview and display</value></data>
+  <data name="CharacterFootAnchorHint" xml:space="preserve"><value>Click the preview to set the foot anchor. Roaming aligns it with the bottom of the screen work area.</value></data>
+  <data name="CharacterSize" xml:space="preserve"><value>Character size</value></data>
+  <data name="CharacterShowStatus" xml:space="preserve"><value>Show task status bar</value></data>
+  <data name="CharacterLockPosition" xml:space="preserve"><value>Lock character position</value></data>
+  <data name="CharacterResetPosition" xml:space="preserve"><value>Reset screen position</value></data>
+  <data name="CharacterFreeMovement" xml:space="preserve"><value>Free movement</value></data>
+  <data name="CharacterFreeMovementEnabled" xml:space="preserve"><value>Enable random idle and horizontal movement</value></data>
+  <data name="CharacterMovementSpeed" xml:space="preserve"><value>Movement speed</value></data>
+  <data name="CharacterAutomaticMirror" xml:space="preserve"><value>Automatically mirror movement animation</value></data>
+  <data name="CharacterMinimumIdle" xml:space="preserve"><value>Minimum idle time (seconds)</value></data>
+  <data name="CharacterMaximumIdle" xml:space="preserve"><value>Maximum idle time (seconds)</value></data>
+  <data name="CharacterFootAnchorX" xml:space="preserve"><value>Horizontal foot anchor</value></data>
+  <data name="CharacterFootAnchorY" xml:space="preserve"><value>Vertical foot anchor</value></data>
+  <data name="CharacterAnimations" xml:space="preserve"><value>Animation bindings</value></data>
+  <data name="CharacterAnimationsDescription" xml:space="preserve"><value>Supports PNG, GIF, and folders containing PNG frames. Playback range: 0.25–3.00.</value></data>
+  <data name="CharacterPlaybackRate" xml:space="preserve"><value>GIF/frame playback rate</value></data>
+  <data name="CharacterFile" xml:space="preserve"><value>File</value></data>
+  <data name="CharacterFrames" xml:space="preserve"><value>Frame folder</value></data>
+  <data name="CharacterTaskRules" xml:space="preserve"><value>Top-level task rules</value></data>
+  <data name="CharacterStatusText" xml:space="preserve"><value>Status text, up to 24 characters</value></data>
+  <data name="CharacterIdle" xml:space="preserve"><value>Idle</value></data>
+  <data name="CharacterMoveLeft" xml:space="preserve"><value>Move left</value></data>
+  <data name="CharacterMoveRight" xml:space="preserve"><value>Move right</value></data>
+  <data name="CharacterTaskRunning" xml:space="preserve"><value>Task running</value></data>
+  <data name="CharacterTaskSucceeded" xml:space="preserve"><value>Task succeeded</value></data>
+  <data name="CharacterTaskFailed" xml:space="preserve"><value>Task failed</value></data>
+  <data name="CharacterDragging" xml:space="preserve"><value>Dragging</value></data>
+  <data name="CharacterReleased" xml:space="preserve"><value>Released</value></data>
+  <data name="CharacterRightClick" xml:space="preserve"><value>Right-click</value></data>
+  <data name="CharacterAtLeastOneProfile" xml:space="preserve"><value>At least one pet profile is required.</value></data>
+  <data name="CharacterSettingsApplied" xml:space="preserve"><value>Character settings were saved and applied.</value></data>
+  <data name="CharacterPositionReset" xml:space="preserve"><value>The position will reset when settings are applied.</value></data>
+  <data name="CharacterTaskListRefreshed" xml:space="preserve"><value>The home task list was refreshed.</value></data>
+  <data name="CharacterDuplicateTaskRule" xml:space="preserve"><value>This task already has a character rule.</value></data>
+  <data name="CharacterAssetOutsideRoot" xml:space="preserve"><value>Select a file or folder inside the pet asset folder.</value></data>
+  <data name="CharacterOpenMainWindow" xml:space="preserve"><value>Open main window</value></data>
+  <data name="CharacterOpenPage" xml:space="preserve"><value>Open character page</value></data>
+  <data name="CharacterOpenAssetFolder" xml:space="preserve"><value>Open pet folder</value></data>
+  <data name="CharacterTogglePositionLock" xml:space="preserve"><value>Lock/unlock position</value></data>
+  <data name="CharacterHide" xml:space="preserve"><value>Hide character</value></data>
 </root>

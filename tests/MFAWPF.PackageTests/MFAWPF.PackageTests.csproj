@@ -6,6 +6,7 @@
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
     <AssemblyName>MFAWPF.PackageTests</AssemblyName>
     <RootNamespace>MFAWPF.PackageTests</RootNamespace>
   </PropertyGroup>
