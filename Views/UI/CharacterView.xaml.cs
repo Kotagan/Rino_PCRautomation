@@ -2,6 +2,7 @@ using MFAWPF.ViewModels.UI;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace MFAWPF.Views.UI;
 
@@ -10,6 +11,9 @@ namespace MFAWPF.Views.UI;
 /// </summary>
 internal partial class CharacterView
 {
+    private FrameworkElement[]? _sections;
+    private bool _isSynchronizingNavigation;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="CharacterView"/> class.
     /// </summary>
@@ -35,6 +39,92 @@ internal partial class CharacterView
             FootAnchorMarker,
             viewModel.SelectedProfile.FootAnchorY * PreviewSurface.Height -
             FootAnchorMarker.Height / 2d);
+
+        EnsureSections();
+        Dispatcher.BeginInvoke(DispatcherPriority.Loaded, SynchronizeSectionSelection);
+    }
+
+    private void OnSectionSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!IsLoaded)
+        {
+            return;
+        }
+
+        EnsureSections();
+        if (_isSynchronizingNavigation ||
+            _sections is null ||
+            SectionList.SelectedIndex < 0 ||
+            SectionList.SelectedIndex >= _sections.Length)
+        {
+            return;
+        }
+
+        var section = _sections[SectionList.SelectedIndex];
+        var position = section.TranslatePoint(new Point(), SettingsSectionsPanel);
+        SettingsViewer.ScrollToVerticalOffset(position.Y);
+    }
+
+    private void OnSettingsViewerScrollChanged(object sender, ScrollChangedEventArgs e)
+    {
+        if (!IsLoaded)
+        {
+            return;
+        }
+
+        if (e.VerticalChange != 0d || e.HorizontalChange != 0d)
+        {
+            Helper.Animations.ApplePopupAnimationBehavior.CloseAllOpenPopups(SettingsViewer);
+        }
+
+        SynchronizeSectionSelection();
+    }
+
+    private void EnsureSections() =>
+        _sections ??=
+        [
+            ProfileSection,
+            PreviewSection,
+            MovementSection,
+            AnimationSection,
+            TaskRulesSection,
+        ];
+
+    private void SynchronizeSectionSelection()
+    {
+        EnsureSections();
+        if (_sections is null || _sections.Length == 0 || _isSynchronizingNavigation)
+        {
+            return;
+        }
+
+        var selectedIndex = 0;
+        var viewportTop = SettingsViewer.VerticalOffset + 12d;
+        for (var index = 0; index < _sections.Length; index++)
+        {
+            var position = _sections[index].TranslatePoint(new Point(), SettingsSectionsPanel);
+            if (position.Y > viewportTop)
+            {
+                break;
+            }
+
+            selectedIndex = index;
+        }
+
+        if (SettingsViewer.VerticalOffset + SettingsViewer.ViewportHeight >=
+            SettingsViewer.ExtentHeight - 2d)
+        {
+            selectedIndex = _sections.Length - 1;
+        }
+
+        if (SectionList.SelectedIndex == selectedIndex)
+        {
+            return;
+        }
+
+        _isSynchronizingNavigation = true;
+        SectionList.SelectedIndex = selectedIndex;
+        _isSynchronizingNavigation = false;
     }
 
     private void OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)

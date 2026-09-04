@@ -1242,6 +1242,7 @@
   <data name="CharacterProfileName" xml:space="preserve"><value>角色名稱</value></data>
   <data name="CharacterCreateProfile" xml:space="preserve"><value>新增角色</value></data>
   <data name="CharacterDeleteProfile" xml:space="preserve"><value>刪除角色</value></data>
+  <data name="CharacterProfileActions" xml:space="preserve"><value>角色管理</value></data>
   <data name="CharacterAssetLocation" xml:space="preserve"><value>素材目錄</value></data>
   <data name="CharacterOpenFolder" xml:space="preserve"><value>開啟素材目錄</value></data>
   <data name="CharacterPreview" xml:space="preserve"><value>預覽與顯示</value></data>
@@ -1249,6 +1250,7 @@
   <data name="CharacterSize" xml:space="preserve"><value>角色大小</value></data>
   <data name="CharacterShowStatus" xml:space="preserve"><value>顯示任務狀態列</value></data>
   <data name="CharacterLockPosition" xml:space="preserve"><value>鎖定角色位置</value></data>
+  <data name="CharacterScreenPosition" xml:space="preserve"><value>螢幕位置</value></data>
   <data name="CharacterResetPosition" xml:space="preserve"><value>重設螢幕位置</value></data>
   <data name="CharacterFreeMovement" xml:space="preserve"><value>自由移動</value></data>
   <data name="CharacterFreeMovementEnabled" xml:space="preserve"><value>啟用隨機待機與左右移動</value></data>

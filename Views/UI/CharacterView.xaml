@@ -7,7 +7,6 @@
     x:ClassModifier="internal"
     x:Name="CharacterPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:controls="clr-namespace:MFAWPF.Views.UserControl"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:hc="https://handyorg.github.io/handycontrol"
     xmlns:lex="http://wpflocalizeextension.codeplex.com"
@@ -30,21 +29,6 @@
             <Setter Property="Height" Value="36" />
             <Setter Property="MinHeight" Value="36" />
             <Setter Property="Padding" Value="18,0" />
-            <Setter Property="VerticalContentAlignment" Value="Center" />
-            <Setter Property="HorizontalContentAlignment" Value="Center" />
-        </Style>
-        <Style TargetType="Border" x:Key="CharacterSurfaceCardStyle">
-            <Setter Property="Background" Value="{DynamicResource ControlSurfaceBrush}" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="CornerRadius" Value="10" />
-            <Setter Property="Padding" Value="18" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-        </Style>
-        <Style TargetType="TextBlock" x:Key="CharacterSectionTitleStyle">
-            <Setter Property="FontSize" Value="16" />
-            <Setter Property="FontWeight" Value="SemiBold" />
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
-            <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
         <Style TargetType="TextBlock" x:Key="CharacterFieldLabelStyle">
             <Setter Property="FontSize" Value="12.5" />
@@ -52,7 +36,7 @@
             <Setter Property="Margin" Value="0,0,0,5" />
         </Style>
         <Style TargetType="Border" x:Key="CharacterItemCardStyle">
-            <Setter Property="Background" Value="{DynamicResource RegionBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ControlSurfaceBrush}" />
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="CornerRadius" Value="8" />
             <Setter Property="Margin" Value="0,0,0,8" />
@@ -60,225 +44,374 @@
         </Style>
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource SecundaryBackgroundColor}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <Grid Margin="20,5,20,20">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="210" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <controls:CardControl
-            Background="{DynamicResource ControlSurfaceBrush}"
-            BorderThickness="0"
-            CornerRadius="10"
-            Margin="20,10,20,10">
-            <controls:CardControl.Icon>
-                <Path Data="{StaticResource ImageGeometry}" Fill="{DynamicResource ControlIconBrush}"
-                      Height="24" Margin="8" Stretch="Uniform" Width="24" />
-            </controls:CardControl.Icon>
-            <controls:CardControl.Header>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto" />
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-                    <TextBlock FontSize="17" FontWeight="SemiBold" Text="{lex:Loc CharacterTitle}" />
-                    <TextBlock FontSize="13.5" Foreground="{DynamicResource SecondaryTextBrush}"
-                               Grid.Row="1" Margin="0,2,0,0" Text="{lex:Loc CharacterDescription}"
-                               TextWrapping="Wrap" />
-                </Grid>
-            </controls:CardControl.Header>
-            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center">
-                <Button Command="{Binding SaveConfigurationCommand}" Content="{lex:Loc CharacterSaveConfiguration}"
-                        hc:IconElement.Geometry="{StaticResource SaveGeometry}" MinWidth="132"
-                        Style="{StaticResource CharacterPrimaryButtonStyle}" />
-            </StackPanel>
-        </controls:CardControl>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <ListBox
+                BorderThickness="0"
+                ItemContainerStyle="{StaticResource MasterListBoxItemStyle}"
+                Margin="10"
+                SelectedIndex="0"
+                SelectionChanged="OnSectionSelectionChanged"
+                Style="{StaticResource MasterListBoxStyle}"
+                x:Name="SectionList">
+                <ListBoxItem Content="{lex:Loc CharacterProfile}" />
+                <ListBoxItem Content="{lex:Loc CharacterPreview}" />
+                <ListBoxItem Content="{lex:Loc CharacterFreeMovement}" />
+                <ListBoxItem Content="{lex:Loc CharacterAnimations}" />
+                <ListBoxItem Content="{lex:Loc CharacterTaskRules}" />
+            </ListBox>
+            <Button
+                Command="{Binding SaveConfigurationCommand}"
+                Content="{lex:Loc CharacterSaveConfiguration}"
+                Grid.Row="1"
+                hc:IconElement.Geometry="{StaticResource SaveGeometry}"
+                Margin="10,0,10,10"
+                Style="{StaticResource CharacterPrimaryButtonStyle}" />
+        </Grid>
 
-        <hc:ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Disabled" Margin="20,0,20,16"
-                         PanningMode="VerticalOnly" VerticalScrollBarVisibility="Auto">
+        <hc:ScrollViewer
+            Grid.Column="1"
+            HorizontalAlignment="Stretch"
+            IsInertiaEnabled="False"
+            Margin="20,5,20,10"
+            PanningMode="VerticalOnly"
+            ScrollChanged="OnSettingsViewerScrollChanged"
+            VerticalScrollBarVisibility="Auto"
+            x:Name="SettingsViewer">
             <Grid Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=ScrollViewer}}">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="280" />
-                    <ColumnDefinition Width="12" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <StackPanel>
-                    <Border Margin="0,0,0,10" Style="{StaticResource CharacterSurfaceCardStyle}">
+                <StackPanel x:Name="SettingsSectionsPanel">
+                    <Border Style="{StaticResource SettingsCardStyle}" x:Name="ProfileSection">
                         <StackPanel>
-                            <Grid Margin="0,0,0,16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Border Background="{DynamicResource RegionBrush}" CornerRadius="8"
-                                        Height="34" Margin="0,0,10,0" Width="34">
-                                    <Path Data="{StaticResource ConfigGeometry}" Fill="{DynamicResource ControlIconBrush}"
-                                          Height="16" Stretch="Uniform" VerticalAlignment="Center" Width="16" />
-                                </Border>
-                                <TextBlock Grid.Column="1" Style="{StaticResource CharacterSectionTitleStyle}"
-                                           Text="{lex:Loc CharacterProfile}" />
-                            </Grid>
-
-                            <CheckBox Content="{lex:Loc CharacterEnabled}" IsChecked="{Binding IsEnabled}"
-                                      Margin="0,0,0,14" />
-
-                            <TextBlock Style="{StaticResource CharacterFieldLabelStyle}"
-                                       Text="{lex:Loc CharacterCurrentProfile}" />
-                            <hc:ComboBox DisplayMemberPath="Name" ItemsSource="{Binding Profiles}"
-                                         MinHeight="36" SelectedItem="{Binding SelectedProfile}" />
-
-                            <TextBlock Margin="0,14,0,5" Style="{StaticResource CharacterFieldLabelStyle}"
-                                       Text="{lex:Loc CharacterProfileName}" />
-                            <TextBox MinHeight="34"
-                                     Text="{Binding SelectedProfile.Name, UpdateSourceTrigger=PropertyChanged}" />
-
-                            <Grid Margin="0,10,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="8" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Button Command="{Binding AddProfileCommand}" Content="{lex:Loc CharacterCreateProfile}"
-                                        hc:IconElement.Geometry="{StaticResource AddRegularGeometry}"
-                                        Style="{StaticResource CharacterActionButtonStyle}" />
-                                <Button Command="{Binding DeleteProfileCommand}" Content="{lex:Loc CharacterDeleteProfile}"
-                                        Grid.Column="2" hc:IconElement.Geometry="{StaticResource DeleteGeometry}"
-                                        Style="{StaticResource CharacterActionButtonStyle}" />
-                            </Grid>
-
-                            <TextBlock Margin="0,16,0,5" Style="{StaticResource CharacterFieldLabelStyle}"
-                                       Text="{lex:Loc CharacterAssetLocation}" />
-                            <Border Background="{DynamicResource SecundaryBackgroundColor}" CornerRadius="6" Padding="10,7">
-                                <TextBlock FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}"
-                                           Text="{Binding AssetRoot}" TextTrimming="CharacterEllipsis"
-                                           ToolTip="{Binding AssetRoot}" />
-                            </Border>
-                            <Button Command="{Binding OpenAssetRootCommand}" Content="{lex:Loc CharacterOpenFolder}"
-                                    HorizontalAlignment="Stretch" Margin="0,8,0,0"
-                                    Style="{StaticResource CharacterActionButtonStyle}" />
-                        </StackPanel>
-                    </Border>
-
-                    <Border Margin="0,0,0,10" Style="{StaticResource CharacterSurfaceCardStyle}">
-                        <StackPanel>
-                            <TextBlock Margin="0,0,0,12" Style="{StaticResource CharacterSectionTitleStyle}"
-                                       Text="{lex:Loc CharacterPreview}" />
-                            <Border Background="{DynamicResource SecundaryBackgroundColor}" CornerRadius="8"
-                                    Height="260" HorizontalAlignment="Center"
-                                    MouseLeftButtonDown="OnPreviewMouseLeftButtonDown"
-                                    Width="240" x:Name="PreviewSurface">
-                                <Grid>
-                                    <TextBlock FontSize="42" Foreground="{DynamicResource SecondaryTextBrush}"
-                                               HorizontalAlignment="Center" IsHitTestVisible="False"
-                                               Text="🐾" VerticalAlignment="Center">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Visibility" Value="Collapsed" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding PreviewFrame}" Value="{x:Null}">
-                                                        <Setter Property="Visibility" Value="Visible" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-                                    <Image Source="{Binding PreviewFrame}" Stretch="Uniform" />
-                                    <Canvas IsHitTestVisible="False">
-                                        <Line Stroke="{DynamicResource DangerBrush}" StrokeThickness="1"
-                                              X1="0" X2="240" Y1="240" Y2="240" />
-                                        <Ellipse Canvas.Left="115" Canvas.Top="235"
-                                                 Fill="{DynamicResource DangerBrush}" Height="10" Width="10"
-                                                 x:Name="FootAnchorMarker" />
-                                    </Canvas>
+                            <hc:Divider Content="{lex:Loc CharacterProfile}"
+                                        HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <StackPanel HorizontalAlignment="Stretch" MaxWidth="520">
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterEnabled}" VerticalAlignment="Center" />
+                                    <CheckBox Grid.Column="1" HorizontalAlignment="Right"
+                                              IsChecked="{Binding IsEnabled}" />
                                 </Grid>
-                            </Border>
-                            <TextBlock FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}"
-                                       Margin="0,10,0,0" Text="{lex:Loc CharacterFootAnchorHint}"
-                                       TextWrapping="Wrap" />
 
-                            <Grid Margin="0,16,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{lex:Loc CharacterSize}" />
-                                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Grid.Column="1"
-                                           Text="{Binding ElementName=CharacterSizeSlider, Path=Value, StringFormat={}{0:F0}px}" />
-                            </Grid>
-                            <Slider Maximum="512" Minimum="64" TickFrequency="16"
-                                    Value="{Binding SelectedProfile.Size}" x:Name="CharacterSizeSlider" />
-                            <CheckBox Content="{lex:Loc CharacterShowStatus}"
-                                      IsChecked="{Binding SelectedProfile.ShowStatusBar}" Margin="0,10,0,0" />
-                            <CheckBox Content="{lex:Loc CharacterLockPosition}"
-                                      IsChecked="{Binding SelectedProfile.IsPositionLocked}" Margin="0,8,0,0" />
-                            <Button Command="{Binding ResetPositionCommand}" Content="{lex:Loc CharacterResetPosition}"
-                                    HorizontalAlignment="Stretch" Margin="0,12,0,0"
-                                    Style="{StaticResource CharacterActionButtonStyle}" />
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterCurrentProfile}" VerticalAlignment="Center" />
+                                    <hc:ComboBox DisplayMemberPath="Name" Grid.Column="1"
+                                                 ItemsSource="{Binding Profiles}" MinHeight="34"
+                                                 SelectedItem="{Binding SelectedProfile}" Width="260" />
+                                </Grid>
+
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterProfileName}" VerticalAlignment="Center" />
+                                    <TextBox Grid.Column="1" MinHeight="34"
+                                             Text="{Binding SelectedProfile.Name, UpdateSourceTrigger=PropertyChanged}"
+                                             Width="260" />
+                                </Grid>
+
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterProfileActions}" VerticalAlignment="Center" />
+                                    <Grid Grid.Column="1" Width="260">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="8" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
+                                        <Button Command="{Binding AddProfileCommand}"
+                                                Content="{lex:Loc CharacterCreateProfile}"
+                                                Style="{StaticResource CharacterActionButtonStyle}" />
+                                        <Button Command="{Binding DeleteProfileCommand}"
+                                                Content="{lex:Loc CharacterDeleteProfile}"
+                                                Grid.Column="2"
+                                                Style="{StaticResource CharacterActionButtonStyle}" />
+                                    </Grid>
+                                </Grid>
+
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterAssetLocation}" VerticalAlignment="Center" />
+                                    <StackPanel Grid.Column="1" Width="260">
+                                        <Border Background="{DynamicResource ControlSurfaceBrush}"
+                                                CornerRadius="6" Padding="10,7">
+                                            <TextBlock FontSize="12"
+                                                       Foreground="{DynamicResource SecondaryTextBrush}"
+                                                       Text="{Binding AssetRoot}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding AssetRoot}" />
+                                        </Border>
+                                        <Button Command="{Binding OpenAssetRootCommand}"
+                                                Content="{lex:Loc CharacterOpenFolder}"
+                                                Margin="0,8,0,0"
+                                                Style="{StaticResource CharacterActionButtonStyle}" />
+                                    </StackPanel>
+                                </Grid>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
-
-                    <Border Style="{StaticResource CharacterSurfaceCardStyle}">
+                    <Border Style="{StaticResource SettingsCardStyle}" x:Name="PreviewSection">
                         <StackPanel>
-                            <TextBlock Style="{StaticResource CharacterSectionTitleStyle}"
-                                       Text="{lex:Loc CharacterFreeMovement}" />
-                            <CheckBox Content="{lex:Loc CharacterFreeMovementEnabled}"
-                                      IsChecked="{Binding SelectedProfile.IsFreeMovementEnabled}"
-                                      Margin="0,14,0,8" />
+                            <hc:Divider Content="{lex:Loc CharacterPreview}"
+                                        HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <StackPanel HorizontalAlignment="Stretch" MaxWidth="520">
+                                <Border Background="{DynamicResource ControlSurfaceBrush}"
+                                        CornerRadius="8" Height="260" HorizontalAlignment="Center"
+                                        MouseLeftButtonDown="OnPreviewMouseLeftButtonDown"
+                                        Width="240" x:Name="PreviewSurface">
+                                    <Grid>
+                                        <TextBlock FontSize="42"
+                                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   IsHitTestVisible="False"
+                                                   Text="🐾"
+                                                   VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding PreviewFrame}" Value="{x:Null}">
+                                                            <Setter Property="Visibility" Value="Visible" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                        <Image Source="{Binding PreviewFrame}" Stretch="Uniform" />
+                                        <Canvas IsHitTestVisible="False">
+                                            <Line Stroke="{DynamicResource DangerBrush}" StrokeThickness="1"
+                                                  X1="0" X2="240" Y1="240" Y2="240" />
+                                            <Ellipse Canvas.Left="115" Canvas.Top="235"
+                                                     Fill="{DynamicResource DangerBrush}"
+                                                     Height="10" Width="10"
+                                                     x:Name="FootAnchorMarker" />
+                                        </Canvas>
+                                    </Grid>
+                                </Border>
+                                <TextBlock FontSize="12"
+                                           Foreground="{DynamicResource SecondaryTextBrush}"
+                                           Margin="0,10,0,10"
+                                           Text="{lex:Loc CharacterFootAnchorHint}"
+                                           TextAlignment="Center"
+                                           TextWrapping="Wrap" />
 
-                            <Grid Margin="0,4,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Text="{lex:Loc CharacterMovementSpeed}" />
-                                <TextBlock Foreground="{DynamicResource SecondaryTextBrush}" Grid.Column="1"
-                                           Text="{Binding ElementName=CharacterMovementSpeedSlider, Path=Value, StringFormat={}{0:F0}px/s}" />
-                            </Grid>
-                            <Slider Maximum="300" Minimum="10" TickFrequency="10"
-                                    Value="{Binding SelectedProfile.MovementSpeed}"
-                                    x:Name="CharacterMovementSpeedSlider" />
-                            <CheckBox Content="{lex:Loc CharacterAutomaticMirror}"
-                                      IsChecked="{Binding SelectedProfile.UseAutomaticMirror}"
-                                      Margin="0,10,0,10" />
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterSize}" VerticalAlignment="Center" />
+                                    <Grid Grid.Column="1" Width="260">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="56" />
+                                        </Grid.ColumnDefinitions>
+                                        <Slider Maximum="512" Minimum="64" TickFrequency="16"
+                                                Value="{Binding SelectedProfile.Size}"
+                                                x:Name="CharacterSizeSlider" />
+                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                   Grid.Column="1" HorizontalAlignment="Right"
+                                                   Text="{Binding ElementName=CharacterSizeSlider, Path=Value, StringFormat={}{0:F0}px}"
+                                                   VerticalAlignment="Center" />
+                                    </Grid>
+                                </Grid>
 
-                            <TextBlock Text="{lex:Loc CharacterMinimumIdle}" />
-                            <Slider Maximum="30" Minimum="1"
-                                    Value="{Binding SelectedProfile.MinimumIdleSeconds}" />
-                            <TextBlock Margin="0,8,0,0" Text="{lex:Loc CharacterMaximumIdle}" />
-                            <Slider Maximum="60" Minimum="1"
-                                    Value="{Binding SelectedProfile.MaximumIdleSeconds}" />
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterShowStatus}" VerticalAlignment="Center" />
+                                    <CheckBox Grid.Column="1" HorizontalAlignment="Right"
+                                              IsChecked="{Binding SelectedProfile.ShowStatusBar}" />
+                                </Grid>
 
-                            <Grid Margin="0,12,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="12" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <TextBlock Style="{StaticResource CharacterFieldLabelStyle}"
-                                               Text="{lex:Loc CharacterFootAnchorX}" />
-                                    <Slider Maximum="1" Minimum="0"
-                                            Value="{Binding SelectedProfile.FootAnchorX}" />
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Style="{StaticResource CharacterFieldLabelStyle}"
-                                               Text="{lex:Loc CharacterFootAnchorY}" />
-                                    <Slider Maximum="1" Minimum="0"
-                                            Value="{Binding SelectedProfile.FootAnchorY}" />
-                                </StackPanel>
-                            </Grid>
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterLockPosition}" VerticalAlignment="Center" />
+                                    <CheckBox Grid.Column="1" HorizontalAlignment="Right"
+                                              IsChecked="{Binding SelectedProfile.IsPositionLocked}" />
+                                </Grid>
+
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterScreenPosition}" VerticalAlignment="Center" />
+                                    <Button Command="{Binding ResetPositionCommand}"
+                                            Content="{lex:Loc CharacterResetPosition}"
+                                            Grid.Column="1" Style="{StaticResource CharacterActionButtonStyle}"
+                                            Width="260" />
+                                </Grid>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2">
-                    <Border Margin="0,0,0,10" Style="{StaticResource CharacterSurfaceCardStyle}">
+                    <Border Style="{StaticResource SettingsCardStyle}" x:Name="MovementSection">
                         <StackPanel>
-                            <TextBlock Style="{StaticResource CharacterSectionTitleStyle}"
-                                       Text="{lex:Loc CharacterAnimations}" />
-                            <TextBlock FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}"
-                                       Margin="0,3,0,14" Text="{lex:Loc CharacterAnimationsDescription}"
+                            <hc:Divider Content="{lex:Loc CharacterFreeMovement}"
+                                        HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <StackPanel HorizontalAlignment="Stretch" MaxWidth="520">
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterFreeMovementEnabled}" VerticalAlignment="Center" />
+                                    <CheckBox Grid.Column="1" HorizontalAlignment="Right"
+                                              IsChecked="{Binding SelectedProfile.IsFreeMovementEnabled}" />
+                                </Grid>
+
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterMovementSpeed}" VerticalAlignment="Center" />
+                                    <Grid Grid.Column="1" Width="260">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="62" />
+                                        </Grid.ColumnDefinitions>
+                                        <Slider Maximum="300" Minimum="10" TickFrequency="10"
+                                                Value="{Binding SelectedProfile.MovementSpeed}"
+                                                x:Name="CharacterMovementSpeedSlider" />
+                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                   Grid.Column="1" HorizontalAlignment="Right"
+                                                   Text="{Binding ElementName=CharacterMovementSpeedSlider, Path=Value, StringFormat={}{0:F0}px/s}"
+                                                   VerticalAlignment="Center" />
+                                    </Grid>
+                                </Grid>
+
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterAutomaticMirror}" VerticalAlignment="Center" />
+                                    <CheckBox Grid.Column="1" HorizontalAlignment="Right"
+                                              IsChecked="{Binding SelectedProfile.UseAutomaticMirror}" />
+                                </Grid>
+
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterMinimumIdle}" VerticalAlignment="Center" />
+                                    <Grid Grid.Column="1" Width="260">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="42" />
+                                        </Grid.ColumnDefinitions>
+                                        <Slider Maximum="30" Minimum="1"
+                                                Value="{Binding SelectedProfile.MinimumIdleSeconds}"
+                                                x:Name="MinimumIdleSlider" />
+                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                   Grid.Column="1" HorizontalAlignment="Right"
+                                                   Text="{Binding ElementName=MinimumIdleSlider, Path=Value, StringFormat={}{0:F0}s}"
+                                                   VerticalAlignment="Center" />
+                                    </Grid>
+                                </Grid>
+
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterMaximumIdle}" VerticalAlignment="Center" />
+                                    <Grid Grid.Column="1" Width="260">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="42" />
+                                        </Grid.ColumnDefinitions>
+                                        <Slider Maximum="60" Minimum="1"
+                                                Value="{Binding SelectedProfile.MaximumIdleSeconds}"
+                                                x:Name="MaximumIdleSlider" />
+                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                   Grid.Column="1" HorizontalAlignment="Right"
+                                                   Text="{Binding ElementName=MaximumIdleSlider, Path=Value, StringFormat={}{0:F0}s}"
+                                                   VerticalAlignment="Center" />
+                                    </Grid>
+                                </Grid>
+
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterFootAnchorX}" VerticalAlignment="Center" />
+                                    <Grid Grid.Column="1" Width="260">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="42" />
+                                        </Grid.ColumnDefinitions>
+                                        <Slider Maximum="1" Minimum="0"
+                                                Value="{Binding SelectedProfile.FootAnchorX}"
+                                                x:Name="FootAnchorXSlider" />
+                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                   Grid.Column="1" HorizontalAlignment="Right"
+                                                   Text="{Binding ElementName=FootAnchorXSlider, Path=Value, StringFormat={}{0:P0}}"
+                                                   VerticalAlignment="Center" />
+                                    </Grid>
+                                </Grid>
+
+                                <Grid Margin="0,6">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="{lex:Loc CharacterFootAnchorY}" VerticalAlignment="Center" />
+                                    <Grid Grid.Column="1" Width="260">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="42" />
+                                        </Grid.ColumnDefinitions>
+                                        <Slider Maximum="1" Minimum="0"
+                                                Value="{Binding SelectedProfile.FootAnchorY}"
+                                                x:Name="FootAnchorYSlider" />
+                                        <TextBlock Foreground="{DynamicResource SecondaryTextBrush}"
+                                                   Grid.Column="1" HorizontalAlignment="Right"
+                                                   Text="{Binding ElementName=FootAnchorYSlider, Path=Value, StringFormat={}{0:P0}}"
+                                                   VerticalAlignment="Center" />
+                                    </Grid>
+                                </Grid>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource SettingsCardStyle}" x:Name="AnimationSection">
+                        <StackPanel>
+                            <hc:Divider Content="{lex:Loc CharacterAnimations}"
+                                        HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <TextBlock FontSize="13"
+                                       Foreground="{DynamicResource SecondaryTextBrush}"
+                                       Margin="0,0,0,14"
+                                       Text="{lex:Loc CharacterAnimationsDescription}"
                                        TextWrapping="Wrap" />
                             <ItemsControl ItemsSource="{Binding AnimationSlots}">
                                 <ItemsControl.ItemTemplate>
@@ -294,30 +427,41 @@
                                                     <ColumnDefinition Width="*" />
                                                     <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock FontSize="14" FontWeight="Medium" Text="{Binding Title}"
-                                                           VerticalAlignment="Center" />
-                                                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                                    <TextBlock FontSize="12" Foreground="{DynamicResource SecondaryTextBrush}"
-                                                               Margin="0,0,8,0" Text="{lex:Loc CharacterPlaybackRate}"
+                                                <TextBlock FontSize="14" FontWeight="Medium"
+                                                           Text="{Binding Title}" VerticalAlignment="Center" />
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                                            VerticalAlignment="Center">
+                                                    <TextBlock FontSize="12"
+                                                               Foreground="{DynamicResource SecondaryTextBrush}"
+                                                               Margin="0,0,8,0"
+                                                               Text="{lex:Loc CharacterPlaybackRateShort}"
                                                                VerticalAlignment="Center" />
                                                     <TextBox Height="32"
                                                              Text="{Binding PlaybackRate, StringFormat={}{0:F2}, UpdateSourceTrigger=LostFocus}"
-                                                             TextAlignment="Center" ToolTip="{lex:Loc CharacterPlaybackRate}"
+                                                             TextAlignment="Center"
+                                                             ToolTip="{lex:Loc CharacterPlaybackRate}"
                                                              Width="62" />
                                                 </StackPanel>
-                                                <TextBox Grid.ColumnSpan="2" Grid.Row="1" Margin="0,9,0,0" MinHeight="34"
+                                                <TextBox Grid.ColumnSpan="2" Grid.Row="1"
+                                                         Margin="0,9,0,0" MinHeight="34"
                                                          Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}"
                                                          ToolTip="{Binding SourcePath}" />
-                                                <WrapPanel Grid.ColumnSpan="2" Grid.Row="2" HorizontalAlignment="Right"
+                                                <WrapPanel Grid.ColumnSpan="2" Grid.Row="2"
+                                                           HorizontalAlignment="Right"
                                                            Margin="0,8,0,0" Orientation="Horizontal">
                                                     <Button Command="{Binding DataContext.BrowseAnimationFileCommand, ElementName=CharacterPage}"
-                                                            CommandParameter="{Binding}" Content="{lex:Loc CharacterChooseFile}"
-                                                            Margin="0,0,8,0" Style="{StaticResource CharacterActionButtonStyle}" />
+                                                            CommandParameter="{Binding}"
+                                                            Content="{lex:Loc CharacterChooseFile}"
+                                                            Margin="0,0,8,0"
+                                                            Style="{StaticResource CharacterActionButtonStyle}" />
                                                     <Button Command="{Binding DataContext.BrowseAnimationFolderCommand, ElementName=CharacterPage}"
-                                                            CommandParameter="{Binding}" Content="{lex:Loc CharacterChooseFrameFolder}"
-                                                            Margin="0,0,8,0" Style="{StaticResource CharacterActionButtonStyle}" />
+                                                            CommandParameter="{Binding}"
+                                                            Content="{lex:Loc CharacterChooseFrameFolder}"
+                                                            Margin="0,0,8,0"
+                                                            Style="{StaticResource CharacterActionButtonStyle}" />
                                                     <Button Command="{Binding DataContext.ClearAnimationCommand, ElementName=CharacterPage}"
-                                                            CommandParameter="{Binding}" Content="{lex:Loc CharacterClearAnimation}"
+                                                            CommandParameter="{Binding}"
+                                                            Content="{lex:Loc CharacterClearAnimation}"
                                                             Style="{StaticResource CharacterActionButtonStyle}" />
                                                 </WrapPanel>
                                             </Grid>
@@ -327,38 +471,39 @@
                             </ItemsControl>
                         </StackPanel>
                     </Border>
-
-                    <Border Style="{StaticResource CharacterSurfaceCardStyle}">
+                    <Border Style="{StaticResource SettingsCardStyle}" x:Name="TaskRulesSection">
                         <StackPanel>
-                            <Grid>
+                            <hc:Divider Content="{lex:Loc CharacterTaskRules}"
+                                        HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <Grid Margin="0,0,0,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <StackPanel>
-                                    <TextBlock Style="{StaticResource CharacterSectionTitleStyle}"
-                                               Text="{lex:Loc CharacterTaskRules}" />
-                                    <TextBlock FontSize="13" Foreground="{DynamicResource SecondaryTextBrush}"
-                                               Margin="0,3,0,0" Text="{lex:Loc CharacterTaskRulesDescription}"
-                                               TextWrapping="Wrap" />
-                                </StackPanel>
+                                <TextBlock FontSize="13"
+                                           Foreground="{DynamicResource SecondaryTextBrush}"
+                                           Text="{lex:Loc CharacterTaskRulesDescription}"
+                                           TextWrapping="Wrap"
+                                           VerticalAlignment="Center" />
                                 <Button Command="{Binding RefreshTaskListCommand}"
-                                        Content="{lex:Loc CharacterRefreshTaskList}" Grid.Column="1"
-                                        hc:IconElement.Geometry="{StaticResource BetterRefreshGeometry}"
+                                        Content="{lex:Loc CharacterRefreshTaskList}"
+                                        Grid.Column="1" Margin="12,0,0,0"
                                         Style="{StaticResource CharacterActionButtonStyle}" />
                             </Grid>
 
-                            <Grid Margin="0,14,0,14">
+                            <Grid Margin="0,0,0,14">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
-                                <hc:ComboBox DisplayMemberPath="Name" ItemsSource="{Binding AvailableTasks}"
-                                             MinHeight="36" SelectedItem="{Binding SelectedTask}" />
+                                <hc:ComboBox DisplayMemberPath="Name"
+                                             ItemsSource="{Binding AvailableTasks}"
+                                             MinHeight="36"
+                                             SelectedItem="{Binding SelectedTask}" />
                                 <Button Command="{Binding AddTaskRuleCommand}"
-                                        Content="{lex:Loc CharacterAddTaskRule}" Grid.Column="1"
-                                        hc:IconElement.Geometry="{StaticResource AddRegularGeometry}"
-                                        Margin="8,0,0,0" Style="{StaticResource CharacterActionButtonStyle}" />
+                                        Content="{lex:Loc CharacterAddTaskRule}"
+                                        Grid.Column="1" Margin="8,0,0,0"
+                                        Style="{StaticResource CharacterActionButtonStyle}" />
                             </Grid>
 
                             <ItemsControl ItemsSource="{Binding TaskRules}">
@@ -376,11 +521,15 @@
                                                     <ColumnDefinition Width="Auto" />
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock FontSize="14" FontWeight="SemiBold"
-                                                           Text="{Binding TaskName}" TextTrimming="CharacterEllipsis"
-                                                           ToolTip="{Binding TaskName}" VerticalAlignment="Center" />
+                                                           Text="{Binding TaskName}"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           ToolTip="{Binding TaskName}"
+                                                           VerticalAlignment="Center" />
                                                 <Button Command="{Binding DataContext.RemoveTaskRuleCommand, ElementName=CharacterPage}"
-                                                        CommandParameter="{Binding}" Content="{lex:Loc CharacterDeleteTaskRule}"
-                                                        Grid.Column="1" Style="{StaticResource CharacterActionButtonStyle}" />
+                                                        CommandParameter="{Binding}"
+                                                        Content="{lex:Loc CharacterDeleteTaskRule}"
+                                                        Grid.Column="1"
+                                                        Style="{StaticResource CharacterActionButtonStyle}" />
 
                                                 <Grid Grid.ColumnSpan="2" Grid.Row="1" Margin="0,10,0,0">
                                                     <Grid.ColumnDefinitions>
@@ -412,7 +561,8 @@
                                                              Text="{Binding Animation.SourcePath, UpdateSourceTrigger=PropertyChanged}"
                                                              ToolTip="{Binding Animation.SourcePath}" />
                                                     <Button Command="{Binding DataContext.BrowseTaskAnimationCommand, ElementName=CharacterPage}"
-                                                            CommandParameter="{Binding}" Content="{lex:Loc CharacterChooseAnimation}"
+                                                            CommandParameter="{Binding}"
+                                                            Content="{lex:Loc CharacterChooseAnimation}"
                                                             Grid.Column="1" Margin="8,0,0,0"
                                                             Style="{StaticResource CharacterActionButtonStyle}" />
                                                 </Grid>

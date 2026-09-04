@@ -1249,6 +1249,7 @@
   <data name="CharacterProfileName" xml:space="preserve"><value>Character name</value></data>
   <data name="CharacterCreateProfile" xml:space="preserve"><value>New character</value></data>
   <data name="CharacterDeleteProfile" xml:space="preserve"><value>Delete character</value></data>
+  <data name="CharacterProfileActions" xml:space="preserve"><value>Character management</value></data>
   <data name="CharacterAssetLocation" xml:space="preserve"><value>Asset folder</value></data>
   <data name="CharacterOpenFolder" xml:space="preserve"><value>Open asset folder</value></data>
   <data name="CharacterPreview" xml:space="preserve"><value>Preview and display</value></data>
@@ -1256,6 +1257,7 @@
   <data name="CharacterSize" xml:space="preserve"><value>Character size</value></data>
   <data name="CharacterShowStatus" xml:space="preserve"><value>Show task status bar</value></data>
   <data name="CharacterLockPosition" xml:space="preserve"><value>Lock character position</value></data>
+  <data name="CharacterScreenPosition" xml:space="preserve"><value>Screen position</value></data>
   <data name="CharacterResetPosition" xml:space="preserve"><value>Reset screen position</value></data>
   <data name="CharacterFreeMovement" xml:space="preserve"><value>Free movement</value></data>
   <data name="CharacterFreeMovementEnabled" xml:space="preserve"><value>Enable random idle and horizontal movement</value></data>
