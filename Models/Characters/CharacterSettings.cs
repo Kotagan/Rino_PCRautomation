@@ -1,3 +1,5 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace MFAWPF.Models.Characters;
 
 internal sealed class CharacterSettings
@@ -44,11 +46,11 @@ internal sealed class CharacterSettings
     }
 }
 
-internal sealed class CharacterProfile
+internal sealed partial class CharacterProfile : ObservableObject
 {
     public string Id { get; set; } = Guid.NewGuid().ToString("N");
 
-    public string Name { get; set; } = "Character";
+    [ObservableProperty] private string _name = "Character";
 
     public double Size { get; set; } = 180d;
 

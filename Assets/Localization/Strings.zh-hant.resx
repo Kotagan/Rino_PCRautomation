@@ -1234,10 +1234,15 @@
   </data>
   <data name="Character" xml:space="preserve"><value>角色</value></data>
   <data name="CharacterTitle" xml:space="preserve"><value>桌面角色</value></data>
-  <data name="CharacterDescription" xml:space="preserve"><value>設定桌面寵物、狀態動畫、自由移動和任務提示</value></data>
+  <data name="CharacterDescription" xml:space="preserve"><value>設定桌面角色、狀態動畫、自由移動和任務提示</value></data>
   <data name="CharacterEnabled" xml:space="preserve"><value>啟用桌面角色</value></data>
-  <data name="CharacterApply" xml:space="preserve"><value>儲存並套用</value></data>
-  <data name="CharacterProfile" xml:space="preserve"><value>寵物設定</value></data>
+  <data name="CharacterSaveConfiguration" xml:space="preserve"><value>儲存設定</value></data>
+  <data name="CharacterProfile" xml:space="preserve"><value>角色設定</value></data>
+  <data name="CharacterCurrentProfile" xml:space="preserve"><value>目前角色</value></data>
+  <data name="CharacterProfileName" xml:space="preserve"><value>角色名稱</value></data>
+  <data name="CharacterCreateProfile" xml:space="preserve"><value>新增角色</value></data>
+  <data name="CharacterDeleteProfile" xml:space="preserve"><value>刪除角色</value></data>
+  <data name="CharacterAssetLocation" xml:space="preserve"><value>素材目錄</value></data>
   <data name="CharacterOpenFolder" xml:space="preserve"><value>開啟素材目錄</value></data>
   <data name="CharacterPreview" xml:space="preserve"><value>預覽與顯示</value></data>
   <data name="CharacterFootAnchorHint" xml:space="preserve"><value>點擊預覽設定腳部位置；自由移動時腳點會貼合螢幕工作區域底部。</value></data>
@@ -1256,9 +1261,18 @@
   <data name="CharacterAnimations" xml:space="preserve"><value>動畫綁定</value></data>
   <data name="CharacterAnimationsDescription" xml:space="preserve"><value>支援 PNG、GIF 和包含 PNG 幀的目錄。播放倍率範圍為 0.25–3.00。</value></data>
   <data name="CharacterPlaybackRate" xml:space="preserve"><value>GIF/幀動畫播放倍率</value></data>
+  <data name="CharacterPlaybackRateShort" xml:space="preserve"><value>播放倍率</value></data>
+  <data name="CharacterChooseFile" xml:space="preserve"><value>選擇檔案</value></data>
+  <data name="CharacterChooseFrameFolder" xml:space="preserve"><value>選擇幀目錄</value></data>
+  <data name="CharacterClearAnimation" xml:space="preserve"><value>清除動畫</value></data>
+  <data name="CharacterChooseAnimation" xml:space="preserve"><value>選擇動畫</value></data>
   <data name="CharacterFile" xml:space="preserve"><value>檔案</value></data>
   <data name="CharacterFrames" xml:space="preserve"><value>幀目錄</value></data>
   <data name="CharacterTaskRules" xml:space="preserve"><value>頂層任務規則</value></data>
+  <data name="CharacterTaskRulesDescription" xml:space="preserve"><value>為首頁中的頂層任務設定狀態文字和執行動畫</value></data>
+  <data name="CharacterRefreshTaskList" xml:space="preserve"><value>重新整理任務清單</value></data>
+  <data name="CharacterAddTaskRule" xml:space="preserve"><value>新增任務規則</value></data>
+  <data name="CharacterDeleteTaskRule" xml:space="preserve"><value>刪除規則</value></data>
   <data name="CharacterStatusText" xml:space="preserve"><value>狀態文字，最多 24 個字元</value></data>
   <data name="CharacterIdle" xml:space="preserve"><value>待機</value></data>
   <data name="CharacterMoveLeft" xml:space="preserve"><value>向左移動</value></data>
@@ -1269,15 +1283,15 @@
   <data name="CharacterDragging" xml:space="preserve"><value>拖曳中</value></data>
   <data name="CharacterReleased" xml:space="preserve"><value>放開</value></data>
   <data name="CharacterRightClick" xml:space="preserve"><value>右鍵</value></data>
-  <data name="CharacterAtLeastOneProfile" xml:space="preserve"><value>至少需要保留一個寵物設定。</value></data>
-  <data name="CharacterSettingsApplied" xml:space="preserve"><value>角色設定已儲存並套用。</value></data>
-  <data name="CharacterPositionReset" xml:space="preserve"><value>角色位置將在套用設定後重設。</value></data>
+  <data name="CharacterAtLeastOneProfile" xml:space="preserve"><value>至少需要保留一個角色設定。</value></data>
+  <data name="CharacterSettingsSaved" xml:space="preserve"><value>角色設定已儲存。</value></data>
+  <data name="CharacterPositionReset" xml:space="preserve"><value>角色位置將在儲存設定後重設。</value></data>
   <data name="CharacterTaskListRefreshed" xml:space="preserve"><value>首頁任務清單已重新整理。</value></data>
   <data name="CharacterDuplicateTaskRule" xml:space="preserve"><value>該任務已存在角色規則。</value></data>
-  <data name="CharacterAssetOutsideRoot" xml:space="preserve"><value>請選擇寵物素材目錄內的檔案或資料夾。</value></data>
+  <data name="CharacterAssetOutsideRoot" xml:space="preserve"><value>請選擇角色素材目錄內的檔案或資料夾。</value></data>
   <data name="CharacterOpenMainWindow" xml:space="preserve"><value>開啟主視窗</value></data>
   <data name="CharacterOpenPage" xml:space="preserve"><value>開啟角色頁面</value></data>
-  <data name="CharacterOpenAssetFolder" xml:space="preserve"><value>開啟寵物目錄</value></data>
+  <data name="CharacterOpenAssetFolder" xml:space="preserve"><value>開啟角色素材目錄</value></data>
   <data name="CharacterTogglePositionLock" xml:space="preserve"><value>鎖定/解鎖位置</value></data>
   <data name="CharacterHide" xml:space="preserve"><value>隱藏角色</value></data>
 </root>

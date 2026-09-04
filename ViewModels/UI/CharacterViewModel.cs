@@ -135,7 +135,7 @@ internal partial class CharacterViewModel : ViewModel
     }
 
     [RelayCommand]
-    private void Apply()
+    private void SaveConfiguration()
     {
         SelectedProfile.TaskRules = TaskRules.ToList();
         SelectedProfile.Normalize();
@@ -144,7 +144,7 @@ internal partial class CharacterViewModel : ViewModel
         _settings.ActiveProfileId = SelectedProfile.Id;
         _settingsStore.Save(_settings);
         _runtimeService.ApplySettings(_settings, save: false);
-        Growl.SuccessGlobal("CharacterSettingsApplied".ToLocalization());
+        Growl.SuccessGlobal("CharacterSettingsSaved".ToLocalization());
     }
 
     [RelayCommand]

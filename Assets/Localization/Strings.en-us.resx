@@ -1241,10 +1241,15 @@
   </data>
   <data name="Character" xml:space="preserve"><value>Character</value></data>
   <data name="CharacterTitle" xml:space="preserve"><value>Desktop Character</value></data>
-  <data name="CharacterDescription" xml:space="preserve"><value>Configure the desktop pet, state animations, roaming, and task status</value></data>
+  <data name="CharacterDescription" xml:space="preserve"><value>Configure the desktop character, state animations, roaming, and task status</value></data>
   <data name="CharacterEnabled" xml:space="preserve"><value>Enable desktop character</value></data>
-  <data name="CharacterApply" xml:space="preserve"><value>Save and apply</value></data>
-  <data name="CharacterProfile" xml:space="preserve"><value>Pet profile</value></data>
+  <data name="CharacterSaveConfiguration" xml:space="preserve"><value>Save configuration</value></data>
+  <data name="CharacterProfile" xml:space="preserve"><value>Character profiles</value></data>
+  <data name="CharacterCurrentProfile" xml:space="preserve"><value>Current character</value></data>
+  <data name="CharacterProfileName" xml:space="preserve"><value>Character name</value></data>
+  <data name="CharacterCreateProfile" xml:space="preserve"><value>New character</value></data>
+  <data name="CharacterDeleteProfile" xml:space="preserve"><value>Delete character</value></data>
+  <data name="CharacterAssetLocation" xml:space="preserve"><value>Asset folder</value></data>
   <data name="CharacterOpenFolder" xml:space="preserve"><value>Open asset folder</value></data>
   <data name="CharacterPreview" xml:space="preserve"><value>Preview and display</value></data>
   <data name="CharacterFootAnchorHint" xml:space="preserve"><value>Click the preview to set the foot anchor. Roaming aligns it with the bottom of the screen work area.</value></data>
@@ -1263,9 +1268,18 @@
   <data name="CharacterAnimations" xml:space="preserve"><value>Animation bindings</value></data>
   <data name="CharacterAnimationsDescription" xml:space="preserve"><value>Supports PNG, GIF, and folders containing PNG frames. Playback range: 0.25–3.00.</value></data>
   <data name="CharacterPlaybackRate" xml:space="preserve"><value>GIF/frame playback rate</value></data>
+  <data name="CharacterPlaybackRateShort" xml:space="preserve"><value>Playback rate</value></data>
+  <data name="CharacterChooseFile" xml:space="preserve"><value>Choose file</value></data>
+  <data name="CharacterChooseFrameFolder" xml:space="preserve"><value>Choose frame folder</value></data>
+  <data name="CharacterClearAnimation" xml:space="preserve"><value>Clear animation</value></data>
+  <data name="CharacterChooseAnimation" xml:space="preserve"><value>Choose animation</value></data>
   <data name="CharacterFile" xml:space="preserve"><value>File</value></data>
   <data name="CharacterFrames" xml:space="preserve"><value>Frame folder</value></data>
   <data name="CharacterTaskRules" xml:space="preserve"><value>Top-level task rules</value></data>
+  <data name="CharacterTaskRulesDescription" xml:space="preserve"><value>Set status text and running animation for top-level home tasks</value></data>
+  <data name="CharacterRefreshTaskList" xml:space="preserve"><value>Refresh task list</value></data>
+  <data name="CharacterAddTaskRule" xml:space="preserve"><value>Add task rule</value></data>
+  <data name="CharacterDeleteTaskRule" xml:space="preserve"><value>Delete rule</value></data>
   <data name="CharacterStatusText" xml:space="preserve"><value>Status text, up to 24 characters</value></data>
   <data name="CharacterIdle" xml:space="preserve"><value>Idle</value></data>
   <data name="CharacterMoveLeft" xml:space="preserve"><value>Move left</value></data>
@@ -1276,15 +1290,15 @@
   <data name="CharacterDragging" xml:space="preserve"><value>Dragging</value></data>
   <data name="CharacterReleased" xml:space="preserve"><value>Released</value></data>
   <data name="CharacterRightClick" xml:space="preserve"><value>Right-click</value></data>
-  <data name="CharacterAtLeastOneProfile" xml:space="preserve"><value>At least one pet profile is required.</value></data>
-  <data name="CharacterSettingsApplied" xml:space="preserve"><value>Character settings were saved and applied.</value></data>
-  <data name="CharacterPositionReset" xml:space="preserve"><value>The position will reset when settings are applied.</value></data>
+  <data name="CharacterAtLeastOneProfile" xml:space="preserve"><value>At least one character profile is required.</value></data>
+  <data name="CharacterSettingsSaved" xml:space="preserve"><value>Character configuration saved.</value></data>
+  <data name="CharacterPositionReset" xml:space="preserve"><value>The position will reset after the configuration is saved.</value></data>
   <data name="CharacterTaskListRefreshed" xml:space="preserve"><value>The home task list was refreshed.</value></data>
   <data name="CharacterDuplicateTaskRule" xml:space="preserve"><value>This task already has a character rule.</value></data>
-  <data name="CharacterAssetOutsideRoot" xml:space="preserve"><value>Select a file or folder inside the pet asset folder.</value></data>
+  <data name="CharacterAssetOutsideRoot" xml:space="preserve"><value>Select a file or folder inside the character asset folder.</value></data>
   <data name="CharacterOpenMainWindow" xml:space="preserve"><value>Open main window</value></data>
   <data name="CharacterOpenPage" xml:space="preserve"><value>Open character page</value></data>
-  <data name="CharacterOpenAssetFolder" xml:space="preserve"><value>Open pet folder</value></data>
+  <data name="CharacterOpenAssetFolder" xml:space="preserve"><value>Open character asset folder</value></data>
   <data name="CharacterTogglePositionLock" xml:space="preserve"><value>Lock/unlock position</value></data>
   <data name="CharacterHide" xml:space="preserve"><value>Hide character</value></data>
 </root>
