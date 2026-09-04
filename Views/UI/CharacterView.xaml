@@ -475,33 +475,81 @@
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="Auto" />
                                                     <RowDefinition Height="Auto" />
+                                                    <RowDefinition Height="Auto" />
                                                 </Grid.RowDefinitions>
-                                                <TextBlock FontSize="14" FontWeight="Medium"
-                                                           Text="{Binding Title}"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           ToolTip="{Binding Title}"
-                                                           VerticalAlignment="Center" />
-                                                <Grid Grid.Row="1" Margin="0,8,0,0">
+                                                <Grid>
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition Width="*" />
                                                         <ColumnDefinition Width="Auto" />
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock FontSize="12"
-                                                               Foreground="{DynamicResource SecondaryTextBrush}"
-                                                               Text="{lex:Loc CharacterPlaybackRateShort}"
+                                                    <TextBlock FontSize="14" FontWeight="Medium"
+                                                               Text="{Binding Title}"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               ToolTip="{Binding Title}"
                                                                VerticalAlignment="Center" />
-                                                    <TextBox Height="32"
-                                                              Grid.Column="1"
-                                                              Text="{Binding PlaybackRate, StringFormat={}{0:F2}, UpdateSourceTrigger=LostFocus}"
-                                                              TextAlignment="Center"
-                                                              ToolTip="{lex:Loc CharacterPlaybackRate}"
-                                                              Width="62" />
+                                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                                        <TextBlock FontSize="12"
+                                                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                                                   Margin="0,0,5,0"
+                                                                   Text="{lex:Loc CharacterPlaybackRateShort}"
+                                                                   VerticalAlignment="Center" />
+                                                        <TextBox Height="28"
+                                                                 Text="{Binding PlaybackRate, StringFormat={}{0:F2}, UpdateSourceTrigger=LostFocus}"
+                                                                 TextAlignment="Center"
+                                                                 ToolTip="{lex:Loc CharacterPlaybackRate}"
+                                                                 Width="52" />
+                                                    </StackPanel>
                                                 </Grid>
-                                                <TextBox Grid.Row="2"
-                                                         Margin="0,9,0,0" MinHeight="34"
+                                                <Border Background="{DynamicResource RegionBrush}"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        CornerRadius="6"
+                                                        Cursor="Hand"
+                                                        Grid.Row="1"
+                                                        Height="72"
+                                                        HorizontalAlignment="Center"
+                                                        Margin="0,8,0,0"
+                                                        ToolTip="{lex:Loc CharacterAnimationPreview}"
+                                                        Width="72">
+                                                    <Border.InputBindings>
+                                                        <MouseBinding Command="{Binding DataContext.PreviewAnimationCommand, ElementName=CharacterPage}"
+                                                                      CommandParameter="{Binding}"
+                                                                      MouseAction="LeftClick" />
+                                                    </Border.InputBindings>
+                                                    <Grid>
+                                                        <TextBlock FontSize="24"
+                                                                   Foreground="{DynamicResource SecondaryTextBrush}"
+                                                                   HorizontalAlignment="Center"
+                                                                   IsHitTestVisible="False"
+                                                                   Text="🐾"
+                                                                   VerticalAlignment="Center">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Visibility" Value="Collapsed" />
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding Thumbnail}" Value="{x:Null}">
+                                                                            <Setter Property="Visibility" Value="Visible" />
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                        <Image RenderOptions.BitmapScalingMode="HighQuality"
+                                                               Source="{Binding Thumbnail}"
+                                                               Stretch="Uniform" />
+                                                    </Grid>
+                                                </Border>
+                                                <Border Background="{DynamicResource BorderBrush}"
+                                                        Grid.Row="2"
+                                                        Height="1"
+                                                        HorizontalAlignment="Center"
+                                                        Margin="0,10,0,10"
+                                                        Width="48" />
+                                                <TextBox Grid.Row="3"
+                                                         MinHeight="34"
                                                          Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}"
                                                          ToolTip="{Binding SourcePath}" />
-                                                <UniformGrid Columns="2" Grid.Row="3" Margin="0,8,0,0" Rows="2">
+                                                <UniformGrid Columns="2" Grid.Row="4" Margin="0,8,0,0" Rows="2">
                                                     <Button Command="{Binding DataContext.BrowseAnimationFileCommand, ElementName=CharacterPage}"
                                                             CommandParameter="{Binding}"
                                                             Content="{lex:Loc CharacterChooseFile}"

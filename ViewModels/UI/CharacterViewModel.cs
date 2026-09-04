@@ -17,13 +17,20 @@ namespace MFAWPF.ViewModels.UI;
 
 internal sealed partial class CharacterAnimationSlotViewModel : ObservableObject
 {
-    public CharacterAnimationSlotViewModel(string title, CharacterAnimationDefinition definition)
+    private readonly CharacterAnimationLoader _animationLoader;
+
+    public CharacterAnimationSlotViewModel(
+        string title,
+        CharacterAnimationDefinition definition,
+        CharacterAnimationLoader animationLoader)
     {
         Title = title;
         Definition = definition;
+        _animationLoader = animationLoader;
         _sourcePath = definition.SourcePath;
         _playbackRate = definition.PlaybackRate;
         _loop = definition.Loop;
+        _thumbnail = _animationLoader.LoadFirstFrame(definition);
     }
 
     public string Title { get; }
@@ -32,10 +39,18 @@ internal sealed partial class CharacterAnimationSlotViewModel : ObservableObject
     [ObservableProperty] private string _sourcePath;
     [ObservableProperty] private double _playbackRate;
     [ObservableProperty] private bool _loop;
+    [ObservableProperty] private ImageSource? _thumbnail;
 
-    partial void OnSourcePathChanged(string value) => Definition.SourcePath = value?.Trim() ?? string.Empty;
+    partial void OnSourcePathChanged(string value)
+    {
+        Definition.SourcePath = value?.Trim() ?? string.Empty;
+        Thumbnail = _animationLoader.LoadFirstFrame(Definition);
+    }
+
     partial void OnPlaybackRateChanged(double value) => Definition.PlaybackRate = Math.Clamp(value, 0.25d, 3d);
     partial void OnLoopChanged(bool value) => Definition.Loop = value;
+
+    public void RefreshThumbnail() => Thumbnail = _animationLoader.LoadFirstFrame(Definition);
 }
 
 internal sealed class CharacterTaskOption(string key, string name)
@@ -537,7 +552,8 @@ internal partial class CharacterViewModel : ViewModel
         {
             AnimationSlots.Add(new CharacterAnimationSlotViewModel(
                 $"{"CharacterIdle".ToLocalization()} {index + 1}",
-                SelectedProfile.IdleAnimations[index]));
+                SelectedProfile.IdleAnimations[index],
+                _animationLoader));
         }
 
         AddSlot("CharacterMoveLeft", SelectedProfile.MoveLeftAnimation);
@@ -555,7 +571,7 @@ internal partial class CharacterViewModel : ViewModel
     }
 
     private void AddSlot(string titleKey, CharacterAnimationDefinition definition) =>
-        AnimationSlots.Add(new CharacterAnimationSlotViewModel(titleKey.ToLocalization(), definition));
+        AnimationSlots.Add(new CharacterAnimationSlotViewModel(titleKey.ToLocalization(), definition, _animationLoader));
 
     private void StartPreview(CharacterAnimationDefinition? definition)
     {
