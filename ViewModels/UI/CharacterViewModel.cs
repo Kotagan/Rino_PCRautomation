@@ -53,6 +53,18 @@ internal sealed partial class CharacterAnimationSlotViewModel : ObservableObject
     public void RefreshThumbnail() => Thumbnail = _animationLoader.LoadFirstFrame(Definition);
 }
 
+internal sealed class CharacterAnimationRowViewModel(
+    CharacterAnimationSlotViewModel slot1,
+    CharacterAnimationSlotViewModel? slot2 = null,
+    CharacterAnimationSlotViewModel? slot3 = null,
+    bool isLastRow = false)
+{
+    public CharacterAnimationSlotViewModel Slot1 { get; } = slot1;
+    public CharacterAnimationSlotViewModel? Slot2 { get; } = slot2;
+    public CharacterAnimationSlotViewModel? Slot3 { get; } = slot3;
+    public bool IsLastRow { get; } = isLastRow;
+}
+
 internal sealed class CharacterTaskOption(string key, string name)
 {
     public string Key { get; } = key;
@@ -120,6 +132,7 @@ internal partial class CharacterViewModel : ViewModel
 
     public ObservableCollection<CharacterProfile> Profiles { get; }
     public ObservableCollection<CharacterAnimationSlotViewModel> AnimationSlots { get; } = [];
+    public ObservableCollection<CharacterAnimationRowViewModel> AnimationRows { get; } = [];
     public ObservableCollection<CharacterTaskAnimationRule> TaskRules { get; } = [];
     public ObservableCollection<CharacterTaskOption> AvailableTasks { get; } = [];
 
@@ -564,6 +577,16 @@ internal partial class CharacterViewModel : ViewModel
         AddSlot("CharacterDragging", SelectedProfile.DraggingAnimation);
         AddSlot("CharacterReleased", SelectedProfile.ReleasedAnimation);
         AddSlot("CharacterRightClick", SelectedProfile.RightClickAnimation);
+
+        AnimationRows.Clear();
+        for (var i = 0; i < AnimationSlots.Count; i += 3)
+        {
+            var slot1 = AnimationSlots[i];
+            var slot2 = i + 1 < AnimationSlots.Count ? AnimationSlots[i + 1] : null;
+            var slot3 = i + 2 < AnimationSlots.Count ? AnimationSlots[i + 2] : null;
+            var isLast = i + 3 >= AnimationSlots.Count;
+            AnimationRows.Add(new CharacterAnimationRowViewModel(slot1, slot2, slot3, isLast));
+        }
 
         TaskRules.Clear();
         TaskRules.AddRange(SelectedProfile.TaskRules);
