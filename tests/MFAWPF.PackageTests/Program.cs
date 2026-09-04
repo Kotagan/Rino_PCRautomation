@@ -117,6 +117,33 @@ internal static class Program
                     });
                 Assert(!frameClip.IsEmpty, "Expected PNG frame-directory decoding.");
                 Assert(frameClip.Frames.Count == 1, "Expected one PNG sequence frame.");
+
+                // Verify image loading does not lock the file on disk
+                using (var exclusiveStream = new FileStream(insidePath, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+                {
+                    Assert(exclusiveStream.Length > 0, "Expected non-locked image file accessible exclusively.");
+                }
+
+                // Verify default profile directory creation
+                var ensuredDirectory = paths.EnsureProfileDirectory("DefaultCharacter");
+                Assert(Directory.Exists(ensuredDirectory), "Expected ensured default character profile directory.");
+                Assert(Path.GetFileName(ensuredDirectory) == "DefaultCharacter", "Expected profile name as directory name.");
+
+                // Verify renaming profile directory
+                Assert(
+                    paths.TryRenameProfileDirectory("DefaultCharacter", "RenamedCharacter", out var renamedDir, out var renameError),
+                    $"Expected rename to succeed, got: {renameError}");
+                Assert(renamedDir == "RenamedCharacter", "Expected renamed directory name.");
+                Assert(!Directory.Exists(ensuredDirectory), "Expected old directory to be moved.");
+                Assert(Directory.Exists(Path.Combine(assetRoot, "RenamedCharacter")), "Expected new directory to exist.");
+
+                // Verify renaming collision handling
+                paths.EnsureProfileDirectory("ExistingOther");
+                Assert(
+                    !paths.TryRenameProfileDirectory("RenamedCharacter", "ExistingOther", out _, out var collisionError),
+                    "Expected duplicate/existing directory rename to fail.");
+                Assert(collisionError == "CharacterProfileDirectoryExists", "Expected collision error code.");
+
                 return Task.CompletedTask;
             });
 

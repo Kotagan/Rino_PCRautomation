@@ -1,3 +1,4 @@
+using MFAWPF.Helper;
 using System.IO;
 using System.Security;
 
@@ -46,6 +47,97 @@ internal sealed class CharacterStoragePaths
     {
         Directory.CreateDirectory(assetRoot);
         return new CharacterStoragePaths(assetRoot, configurationPath);
+    }
+
+    /// <summary>
+    /// Gets the sanitized safe directory name for a profile.
+    /// </summary>
+    /// <param name="profileName">The display name of the profile.</param>
+    /// <returns>The safe directory name.</returns>
+    public static string GetProfileDirectoryName(string profileName)
+    {
+        var baseName = CreateSafeDirectoryName(profileName);
+        return baseName[..Math.Min(baseName.Length, MaximumProfileDirectoryNameLength)].TrimEnd();
+    }
+
+    /// <summary>
+    /// Ensures that the asset directory for a character profile exists.
+    /// </summary>
+    /// <param name="profileName">The display name of the profile.</param>
+    /// <returns>The full path of the ensured directory.</returns>
+    public string EnsureProfileDirectory(string profileName)
+    {
+        var safeDirectoryName = GetProfileDirectoryName(profileName);
+        var directoryPath = Path.Combine(AssetRoot, safeDirectoryName);
+        if (!Directory.Exists(directoryPath))
+        {
+            Directory.CreateDirectory(directoryPath);
+        }
+
+        return directoryPath;
+    }
+
+    /// <summary>
+    /// Attempts to rename a character profile directory on disk.
+    /// </summary>
+    /// <param name="oldProfileName">The current profile name.</param>
+    /// <param name="newProfileName">The new profile name.</param>
+    /// <param name="finalDirectoryName">The final directory name after renaming.</param>
+    /// <param name="errorMessage">An error message or key if renaming failed.</param>
+    /// <returns><c>true</c> if the directory was renamed or already matches; otherwise <c>false</c>.</returns>
+    public bool TryRenameProfileDirectory(
+        string oldProfileName,
+        string newProfileName,
+        out string finalDirectoryName,
+        out string? errorMessage)
+    {
+        finalDirectoryName = string.Empty;
+        errorMessage = null;
+
+        var oldSafeName = GetProfileDirectoryName(oldProfileName);
+        var newSafeName = GetProfileDirectoryName(newProfileName);
+
+        finalDirectoryName = newSafeName;
+
+        if (string.Equals(oldSafeName, newSafeName, _pathComparison))
+        {
+            var existingPath = Path.Combine(AssetRoot, newSafeName);
+            if (!Directory.Exists(existingPath))
+            {
+                Directory.CreateDirectory(existingPath);
+            }
+
+            return true;
+        }
+
+        var oldPath = Path.Combine(AssetRoot, oldSafeName);
+        var newPath = Path.Combine(AssetRoot, newSafeName);
+
+        if (Directory.Exists(newPath) || File.Exists(newPath))
+        {
+            errorMessage = "CharacterProfileDirectoryExists";
+            return false;
+        }
+
+        try
+        {
+            if (Directory.Exists(oldPath))
+            {
+                Directory.Move(oldPath, newPath);
+            }
+            else
+            {
+                Directory.CreateDirectory(newPath);
+            }
+
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException)
+        {
+            LoggerService.LogError($"Failed to rename character profile directory from '{oldPath}' to '{newPath}': {ex}");
+            errorMessage = "CharacterProfileDirectoryRenameFailed";
+            return false;
+        }
     }
 
     /// <summary>

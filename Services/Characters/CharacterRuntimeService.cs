@@ -166,8 +166,21 @@ internal sealed class CharacterRuntimeService : IDisposable
 
     public void OpenAssetRoot()
     {
+        ReleaseAssetOccupancy();
         Directory.CreateDirectory(_storagePaths.AssetRoot);
         Process.Start(new ProcessStartInfo(_storagePaths.AssetRoot) { UseShellExecute = true });
+    }
+
+    /// <summary>
+    /// Releases cached asset clips and resets working directory to avoid locking asset files.
+    /// </summary>
+    public void ReleaseAssetOccupancy()
+    {
+        _clipCache.Clear();
+        Environment.CurrentDirectory = AppContext.BaseDirectory;
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+        GC.Collect();
     }
 
     private void EnsureWindow()

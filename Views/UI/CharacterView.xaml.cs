@@ -1,6 +1,7 @@
 using MFAWPF.ViewModels.UI;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -151,5 +152,16 @@ internal partial class CharacterView
             point.Y / PreviewSurface.ActualHeight);
         Canvas.SetLeft(FootAnchorMarker, point.X - FootAnchorMarker.Width / 2d);
         Canvas.SetTop(FootAnchorMarker, point.Y - FootAnchorMarker.Height / 2d);
+    }
+
+    private void OnProfileNameTextBoxKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter && sender is TextBox textBox)
+        {
+            var binding = BindingOperations.GetBindingExpression(textBox, TextBox.TextProperty);
+            binding?.UpdateSource();
+            Keyboard.ClearFocus();
+            e.Handled = true;
+        }
     }
 }

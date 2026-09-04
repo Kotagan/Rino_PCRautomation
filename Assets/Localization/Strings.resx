@@ -1309,4 +1309,8 @@
   <data name="CharacterOpenAssetFolder" xml:space="preserve"><value>打开角色素材目录</value></data>
   <data name="CharacterTogglePositionLock" xml:space="preserve"><value>锁定/解锁位置</value></data>
   <data name="CharacterHide" xml:space="preserve"><value>隐藏角色</value></data>
+  <data name="CharacterProfileNameEmpty" xml:space="preserve"><value>角色名称不能为空。</value></data>
+  <data name="CharacterProfileNameDuplicate" xml:space="preserve"><value>已存在同名的角色配置。</value></data>
+  <data name="CharacterProfileDirectoryRenameFailed" xml:space="preserve"><value>无法重命名角色素材文件夹，请检查目录权限或文件占用。</value></data>
+  <data name="CharacterProfileDirectoryExists" xml:space="preserve"><value>目标素材文件夹已存在。</value></data>
 </root>

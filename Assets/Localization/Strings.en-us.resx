@@ -1305,4 +1305,8 @@
   <data name="CharacterOpenAssetFolder" xml:space="preserve"><value>Open character asset folder</value></data>
   <data name="CharacterTogglePositionLock" xml:space="preserve"><value>Lock/unlock position</value></data>
   <data name="CharacterHide" xml:space="preserve"><value>Hide character</value></data>
+  <data name="CharacterProfileNameEmpty" xml:space="preserve"><value>Character profile name cannot be empty.</value></data>
+  <data name="CharacterProfileNameDuplicate" xml:space="preserve"><value>A character profile with the same name already exists.</value></data>
+  <data name="CharacterProfileDirectoryRenameFailed" xml:space="preserve"><value>Unable to rename the character asset folder. Check permissions or file usage.</value></data>
+  <data name="CharacterProfileDirectoryExists" xml:space="preserve"><value>The target character asset folder already exists.</value></data>
 </root>

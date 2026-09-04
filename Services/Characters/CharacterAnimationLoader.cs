@@ -68,11 +68,6 @@ internal sealed class CharacterAnimationLoader
             return CharacterAnimationClip.Empty;
         }
 
-        if (new FileInfo(path).Length > MaximumSourceBytes)
-        {
-            return CharacterAnimationClip.Empty;
-        }
-
         return string.Equals(Path.GetExtension(path), ".gif", StringComparison.OrdinalIgnoreCase)
             ? LoadGif(path)
             : LoadStaticImage(path);
@@ -86,7 +81,7 @@ internal sealed class CharacterAnimationLoader
         }
 
         var frame = LoadBitmap(path);
-        return IsFrameSafe(frame)
+        return frame is not null && IsFrameSafe(frame)
             ? new CharacterAnimationClip([frame], [DefaultFrameDuration])
             : CharacterAnimationClip.Empty;
     }
@@ -114,7 +109,7 @@ internal sealed class CharacterAnimationLoader
             }
 
             var frame = LoadBitmap(safePath);
-            if (!IsFrameSafe(frame))
+            if (frame is null || !IsFrameSafe(frame))
             {
                 continue;
             }
@@ -136,9 +131,15 @@ internal sealed class CharacterAnimationLoader
 
     private static CharacterAnimationClip LoadGif(string path)
     {
-        using var stream = File.OpenRead(path);
+        var bytes = ReadFileBytesSafe(path);
+        if (bytes is null || bytes.Length == 0)
+        {
+            return CharacterAnimationClip.Empty;
+        }
+
+        using var memoryStream = new MemoryStream(bytes);
         var decoder = new GifBitmapDecoder(
-            stream,
+            memoryStream,
             BitmapCreateOptions.PreservePixelFormat,
             BitmapCacheOption.OnLoad);
         var frames = new List<BitmapSource>();
@@ -169,16 +170,52 @@ internal sealed class CharacterAnimationLoader
             : new CharacterAnimationClip(frames, durations);
     }
 
-    private static BitmapSource LoadBitmap(string path)
+    private static BitmapSource? LoadBitmap(string path)
     {
-        using var stream = File.OpenRead(path);
+        var bytes = ReadFileBytesSafe(path);
+        if (bytes is null || bytes.Length == 0)
+        {
+            return null;
+        }
+
+        using var memoryStream = new MemoryStream(bytes);
         var decoder = BitmapDecoder.Create(
-            stream,
+            memoryStream,
             BitmapCreateOptions.PreservePixelFormat,
             BitmapCacheOption.OnLoad);
         var frame = decoder.Frames[0].Clone();
         frame.Freeze();
         return frame;
+    }
+
+    private static byte[]? ReadFileBytesSafe(string path)
+    {
+        try
+        {
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+
+            using var fileStream = new FileStream(
+                path,
+                FileMode.Open,
+                FileAccess.Read,
+                FileShare.ReadWrite | FileShare.Delete);
+            if (fileStream.Length > MaximumSourceBytes)
+            {
+                return null;
+            }
+
+            var buffer = new byte[fileStream.Length];
+            fileStream.ReadExactly(buffer);
+            return buffer;
+        }
+        catch (Exception ex)
+        {
+            LoggerService.LogError($"Failed to safely read desktop-character asset bytes from '{path}': {ex}");
+            return null;
+        }
     }
 
     private static TimeSpan ReadGifFrameDuration(BitmapFrame frame)

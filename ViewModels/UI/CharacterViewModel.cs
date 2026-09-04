@@ -80,6 +80,19 @@ internal partial class CharacterViewModel : ViewModel
         {
             profile.Name = "Character".ToLocalization();
         }
+
+        foreach (var profile in _settings.Profiles)
+        {
+            try
+            {
+                _storagePaths.EnsureProfileDirectory(profile.Name);
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError($"Failed to ensure character profile directory for '{profile.Name}': {ex}");
+            }
+        }
+
         Profiles = new ObservableCollection<CharacterProfile>(_settings.Profiles);
         SelectedProfile = Profiles.First(profile => profile.Id == _settings.ActiveProfileId);
         _isEnabled = _settings.IsEnabled;
@@ -99,6 +112,26 @@ internal partial class CharacterViewModel : ViewModel
 
     public string AssetRoot { get; }
 
+    public string CurrentProfileName
+    {
+        get => SelectedProfile?.Name ?? string.Empty;
+        set
+        {
+            if (SelectedProfile is null)
+            {
+                return;
+            }
+
+            var trimmed = value?.Trim() ?? string.Empty;
+            if (string.Equals(SelectedProfile.Name, trimmed, StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            RenameSelectedProfile(trimmed);
+        }
+    }
+
     [ObservableProperty] private CharacterProfile _selectedProfile;
     [ObservableProperty] private CharacterAnimationSlotViewModel? _selectedPreviewSlot;
     [ObservableProperty] private CharacterTaskOption? _selectedTask;
@@ -110,6 +143,7 @@ internal partial class CharacterViewModel : ViewModel
         if (value is not null)
         {
             RebuildProfileEditors();
+            OnPropertyChanged(nameof(CurrentProfileName));
         }
     }
 
@@ -128,10 +162,11 @@ internal partial class CharacterViewModel : ViewModel
     private void AddProfile()
     {
         var profile = CharacterProfile.CreateDefault();
-        profile.Name = $"{"Character".ToLocalization()} {Profiles.Count + 1}";
+        var candidateName = $"{"Character".ToLocalization()} {Profiles.Count + 1}";
         try
         {
-            _storagePaths.CreateProfileDirectory(profile.Name);
+            var createdPath = _storagePaths.CreateProfileDirectory(candidateName);
+            profile.Name = Path.GetFileName(createdPath);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException or ArgumentException or NotSupportedException)
         {
@@ -172,7 +207,121 @@ internal partial class CharacterViewModel : ViewModel
     }
 
     [RelayCommand]
-    private void OpenAssetRoot() => _runtimeService.OpenAssetRoot();
+    private void OpenAssetRoot()
+    {
+        ReleaseFileOccupancy();
+        _runtimeService.OpenAssetRoot();
+    }
+
+    /// <summary>
+    /// Cancels file occupancy by pausing preview, clearing frames, and resetting working directory.
+    /// </summary>
+    public void ReleaseFileOccupancy()
+    {
+        _previewTimer.Stop();
+        _previewClock.Stop();
+        _previewClip = CharacterAnimationClip.Empty;
+        PreviewFrame = null;
+        Environment.CurrentDirectory = AppContext.BaseDirectory;
+        _runtimeService.ReleaseAssetOccupancy();
+    }
+
+    private void RenameSelectedProfile(string newName)
+    {
+        if (SelectedProfile is null)
+        {
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(newName))
+        {
+            GrowlHelper.Warning("CharacterProfileNameEmpty".ToLocalization());
+            OnPropertyChanged(nameof(CurrentProfileName));
+            return;
+        }
+
+        if (Profiles.Any(profile => profile != SelectedProfile &&
+                                   string.Equals(profile.Name, newName, StringComparison.OrdinalIgnoreCase)))
+        {
+            GrowlHelper.Warning("CharacterProfileNameDuplicate".ToLocalization());
+            OnPropertyChanged(nameof(CurrentProfileName));
+            return;
+        }
+
+        var oldName = SelectedProfile.Name;
+        var oldSafeDir = CharacterStoragePaths.GetProfileDirectoryName(oldName);
+
+        ReleaseFileOccupancy();
+
+        if (!_storagePaths.TryRenameProfileDirectory(oldName, newName, out var finalDirName, out var errorMessageKey))
+        {
+            var message = (errorMessageKey ?? "CharacterProfileDirectoryRenameFailed").ToLocalization();
+            GrowlHelper.Error(message);
+            OnPropertyChanged(nameof(CurrentProfileName));
+            return;
+        }
+
+        SelectedProfile.Name = newName;
+        UpdateProfileAssetPaths(SelectedProfile, oldSafeDir, finalDirName);
+        RebuildProfileEditors();
+        OnPropertyChanged(nameof(CurrentProfileName));
+        OnPropertyChanged(nameof(SelectedProfile));
+    }
+
+    private static void UpdateProfileAssetPaths(
+        CharacterProfile profile,
+        string oldDirectoryName,
+        string newDirectoryName)
+    {
+        if (string.IsNullOrWhiteSpace(oldDirectoryName) ||
+            string.IsNullOrWhiteSpace(newDirectoryName) ||
+            string.Equals(oldDirectoryName, newDirectoryName, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        void UpdateDefinition(CharacterAnimationDefinition? definition)
+        {
+            if (definition is null || string.IsNullOrWhiteSpace(definition.SourcePath))
+            {
+                return;
+            }
+
+            var normalized = definition.SourcePath.Replace('\\', '/');
+            var oldPrefix = oldDirectoryName.Replace('\\', '/');
+            var newPrefix = newDirectoryName.Replace('\\', '/');
+
+            if (string.Equals(normalized, oldPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                definition.SourcePath = newDirectoryName;
+            }
+            else if (normalized.StartsWith(oldPrefix + "/", StringComparison.OrdinalIgnoreCase))
+            {
+                var remainder = definition.SourcePath[(oldDirectoryName.Length + 1)..];
+                var separator = definition.SourcePath[oldDirectoryName.Length];
+                definition.SourcePath = $"{newDirectoryName}{separator}{remainder}";
+            }
+        }
+
+        foreach (var anim in profile.IdleAnimations)
+        {
+            UpdateDefinition(anim);
+        }
+
+        UpdateDefinition(profile.MoveLeftAnimation);
+        UpdateDefinition(profile.MoveRightAnimation);
+        UpdateDefinition(profile.TaskRunningAnimation);
+        UpdateDefinition(profile.TaskSucceededAnimation);
+        UpdateDefinition(profile.TaskFailedAnimation);
+        UpdateDefinition(profile.DraggingAnimation);
+        UpdateDefinition(profile.ReleasedAnimation);
+        UpdateDefinition(profile.RightClickAnimation);
+
+        foreach (var rule in profile.TaskRules)
+        {
+            UpdateDefinition(rule.Animation);
+        }
+    }
 
     [RelayCommand]
     private void ResetPosition()
@@ -232,13 +381,21 @@ internal partial class CharacterViewModel : ViewModel
             InitialDirectory = _storagePaths.AssetRoot,
             Filter = "PNG / GIF|*.png;*.gif|PNG|*.png|GIF|*.gif",
             CheckFileExists = true,
+            RestoreDirectory = true,
         };
-        if (dialog.ShowDialog() == true)
+        try
         {
-            if (AssignAssetPath(dialog.FileName, path => slot.SourcePath = path))
+            if (dialog.ShowDialog() == true)
             {
-                PreviewAnimation(slot);
+                if (AssignAssetPath(dialog.FileName, path => slot.SourcePath = path))
+                {
+                    PreviewAnimation(slot);
+                }
             }
+        }
+        finally
+        {
+            Environment.CurrentDirectory = AppContext.BaseDirectory;
         }
     }
 
@@ -255,12 +412,19 @@ internal partial class CharacterViewModel : ViewModel
             InitialDirectory = _storagePaths.AssetRoot,
             Multiselect = false,
         };
-        if (dialog.ShowDialog() == true)
+        try
         {
-            if (AssignAssetPath(dialog.FolderName, path => slot.SourcePath = path))
+            if (dialog.ShowDialog() == true)
             {
-                PreviewAnimation(slot);
+                if (AssignAssetPath(dialog.FolderName, path => slot.SourcePath = path))
+                {
+                    PreviewAnimation(slot);
+                }
             }
+        }
+        finally
+        {
+            Environment.CurrentDirectory = AppContext.BaseDirectory;
         }
     }
 
@@ -309,14 +473,22 @@ internal partial class CharacterViewModel : ViewModel
             InitialDirectory = _storagePaths.AssetRoot,
             Filter = "PNG / GIF|*.png;*.gif|PNG|*.png|GIF|*.gif",
             CheckFileExists = true,
+            RestoreDirectory = true,
         };
-        if (dialog.ShowDialog() == true)
+        try
         {
-            if (AssignAssetPath(dialog.FileName, path => rule.Animation.SourcePath = path))
+            if (dialog.ShowDialog() == true)
             {
-                var index = TaskRules.IndexOf(rule);
-                TaskRules[index] = rule;
+                if (AssignAssetPath(dialog.FileName, path => rule.Animation.SourcePath = path))
+                {
+                    var index = TaskRules.IndexOf(rule);
+                    TaskRules[index] = rule;
+                }
             }
+        }
+        finally
+        {
+            Environment.CurrentDirectory = AppContext.BaseDirectory;
         }
     }
 

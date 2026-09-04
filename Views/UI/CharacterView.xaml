@@ -87,7 +87,7 @@
                         FontSize="12"
                         Foreground="{DynamicResource SecondaryTextBrush}"
                         Margin="2,0,2,6"
-                        Text="{Binding SelectedPreviewSlot.Title, FallbackValue={lex:Loc CharacterAnimationPreview}}"
+                        Text="{Binding SelectedPreviewSlot.Title}"
                         TextTrimming="CharacterEllipsis"
                         ToolTip="{Binding SelectedPreviewSlot.Title}" />
                     <Grid Grid.Row="1">
@@ -168,8 +168,8 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Text="{lex:Loc CharacterProfileName}" VerticalAlignment="Center" />
-                                    <TextBox Grid.Column="1" MinHeight="34"
-                                             Text="{Binding SelectedProfile.Name, UpdateSourceTrigger=PropertyChanged}"
+                                    <TextBox Grid.Column="1" KeyDown="OnProfileNameTextBoxKeyDown" MinHeight="34"
+                                             Text="{Binding CurrentProfileName, UpdateSourceTrigger=LostFocus}"
                                              Width="260" />
                                 </Grid>
 
