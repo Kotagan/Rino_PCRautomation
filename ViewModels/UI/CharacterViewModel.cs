@@ -71,6 +71,58 @@ internal sealed class CharacterTaskOption(string key, string name)
     public string Name { get; } = name;
 }
 
+internal sealed partial class CharacterTaskRuleViewModel : ObservableObject
+{
+    private readonly CharacterAnimationLoader _animationLoader;
+
+    public CharacterTaskRuleViewModel(
+        CharacterTaskAnimationRule rule,
+        CharacterAnimationLoader animationLoader)
+    {
+        Rule = rule;
+        _animationLoader = animationLoader;
+        _statusText = rule.StatusText;
+        _playbackRate = rule.Animation.PlaybackRate;
+        _sourcePath = rule.Animation.SourcePath;
+        _thumbnail = _animationLoader.LoadFirstFrame(rule.Animation);
+    }
+
+    public CharacterTaskAnimationRule Rule { get; }
+    public string TaskKey => Rule.TaskKey;
+    public string TaskName => Rule.TaskName;
+    public CharacterAnimationDefinition Animation => Rule.Animation;
+
+    [ObservableProperty] private string _statusText;
+    [ObservableProperty] private double _playbackRate;
+    [ObservableProperty] private string _sourcePath;
+    [ObservableProperty] private ImageSource? _thumbnail;
+
+    partial void OnStatusTextChanged(string value) => Rule.StatusText = value ?? string.Empty;
+
+    partial void OnPlaybackRateChanged(double value) =>
+        Rule.Animation.PlaybackRate = Math.Clamp(value, 0.25d, 3d);
+
+    partial void OnSourcePathChanged(string value)
+    {
+        Rule.Animation.SourcePath = value?.Trim() ?? string.Empty;
+        Thumbnail = _animationLoader.LoadFirstFrame(Rule.Animation);
+    }
+
+    public void RefreshThumbnail() => Thumbnail = _animationLoader.LoadFirstFrame(Rule.Animation);
+}
+
+internal sealed class CharacterTaskRuleRowViewModel(
+    CharacterTaskRuleViewModel rule1,
+    CharacterTaskRuleViewModel? rule2 = null,
+    CharacterTaskRuleViewModel? rule3 = null,
+    bool isLastRow = false)
+{
+    public CharacterTaskRuleViewModel Rule1 { get; } = rule1;
+    public CharacterTaskRuleViewModel? Rule2 { get; } = rule2;
+    public CharacterTaskRuleViewModel? Rule3 { get; } = rule3;
+    public bool IsLastRow { get; } = isLastRow;
+}
+
 /// <summary>
 /// Provides editable desktop-character settings for the character page.
 /// </summary>
@@ -135,6 +187,8 @@ internal partial class CharacterViewModel : ViewModel
     public ObservableCollection<CharacterProfile> Profiles { get; }
     public ObservableCollection<CharacterAnimationSlotViewModel> AnimationSlots { get; } = [];
     public ObservableCollection<CharacterAnimationRowViewModel> AnimationRows { get; } = [];
+    public ObservableCollection<CharacterTaskRuleViewModel> TaskRuleSlots { get; } = [];
+    public ObservableCollection<CharacterTaskRuleRowViewModel> TaskRuleRows { get; } = [];
     public ObservableCollection<CharacterTaskAnimationRule> TaskRules { get; } = [];
     public ObservableCollection<CharacterTaskOption> AvailableTasks { get; } = [];
 
@@ -167,6 +221,11 @@ internal partial class CharacterViewModel : ViewModel
     [ObservableProperty] private CharacterTaskOption? _selectedTask;
     [ObservableProperty] private ImageSource? _previewFrame;
     [ObservableProperty] private bool _isEnabled;
+    [ObservableProperty] private string _previewTitle = string.Empty;
+
+    private CharacterTaskRuleViewModel? _currentPreviewRule;
+    private double _currentPreviewPlaybackRate = 1.0;
+    private bool _currentPreviewLoop = true;
 
     partial void OnSelectedProfileChanged(CharacterProfile value)
     {
@@ -181,12 +240,21 @@ internal partial class CharacterViewModel : ViewModel
     {
         if (_selectedProfile is not null)
         {
-            _selectedProfile.TaskRules = TaskRules.ToList();
+            _selectedProfile.TaskRules = TaskRuleSlots.Select(vm => vm.Rule).ToList();
         }
     }
 
-    partial void OnSelectedPreviewSlotChanged(CharacterAnimationSlotViewModel? value) =>
-        StartPreview(value?.Definition);
+    partial void OnSelectedPreviewSlotChanged(CharacterAnimationSlotViewModel? value)
+    {
+        if (value is not null)
+        {
+            _currentPreviewRule = null;
+            PreviewTitle = value.Title;
+            _currentPreviewPlaybackRate = value.PlaybackRate;
+            _currentPreviewLoop = value.Loop;
+            StartPreview(value.Definition);
+        }
+    }
 
     [RelayCommand]
     private void AddProfile()
@@ -236,7 +304,7 @@ internal partial class CharacterViewModel : ViewModel
     [RelayCommand]
     private void SaveConfiguration()
     {
-        SelectedProfile.TaskRules = TaskRules.ToList();
+        SelectedProfile.TaskRules = TaskRuleSlots.Select(vm => vm.Rule).ToList();
         SelectedProfile.Normalize();
         _settings.IsEnabled = IsEnabled;
         _settings.Profiles = Profiles.ToList();
@@ -262,6 +330,7 @@ internal partial class CharacterViewModel : ViewModel
         _previewClock.Stop();
         _previewClip = CharacterAnimationClip.Empty;
         PreviewFrame = null;
+        _currentPreviewRule = null;
         Environment.CurrentDirectory = AppContext.BaseDirectory;
         _runtimeService.ReleaseAssetOccupancy();
     }
@@ -301,6 +370,7 @@ internal partial class CharacterViewModel : ViewModel
             return;
         }
 
+        SelectedProfile.TaskRules = TaskRuleSlots.Select(vm => vm.Rule).ToList();
         SelectedProfile.Name = newName;
         UpdateProfileAssetPaths(SelectedProfile, oldSafeDir, finalDirName);
         RebuildProfileEditors();
@@ -386,25 +456,51 @@ internal partial class CharacterViewModel : ViewModel
             return;
         }
 
-        if (TaskRules.Any(rule => string.Equals(rule.TaskKey, SelectedTask.Key, StringComparison.OrdinalIgnoreCase)))
+        if (TaskRuleSlots.Any(rule => string.Equals(rule.TaskKey, SelectedTask.Key, StringComparison.OrdinalIgnoreCase)))
         {
             GrowlHelper.Warning("CharacterDuplicateTaskRule".ToLocalization());
             return;
         }
 
-        TaskRules.Add(new CharacterTaskAnimationRule
+        var rule = new CharacterTaskAnimationRule
         {
             TaskKey = SelectedTask.Key,
             TaskName = SelectedTask.Name,
-        });
+        };
+        TaskRuleSlots.Add(new CharacterTaskRuleViewModel(rule, _animationLoader));
+        RebuildTaskRuleRows();
     }
 
     [RelayCommand]
-    private void RemoveTaskRule(CharacterTaskAnimationRule? rule)
+    private void RemoveTaskRule(object? parameter)
     {
-        if (rule is not null)
+        if (parameter is CharacterTaskRuleViewModel ruleVm)
         {
-            TaskRules.Remove(rule);
+            TaskRuleSlots.Remove(ruleVm);
+            if (ReferenceEquals(_currentPreviewRule, ruleVm))
+            {
+                _currentPreviewRule = null;
+                StartPreview(null);
+            }
+            RebuildTaskRuleRows();
+        }
+        else if (parameter is CharacterTaskAnimationRule rule)
+        {
+            var match = TaskRuleSlots.FirstOrDefault(vm => vm.Rule == rule);
+            if (match is not null)
+            {
+                TaskRuleSlots.Remove(match);
+                if (ReferenceEquals(_currentPreviewRule, match))
+                {
+                    _currentPreviewRule = null;
+                    StartPreview(null);
+                }
+                RebuildTaskRuleRows();
+            }
+            else
+            {
+                TaskRules.Remove(rule);
+            }
         }
     }
 
@@ -491,8 +587,12 @@ internal partial class CharacterViewModel : ViewModel
             return;
         }
 
+        _currentPreviewRule = null;
         if (ReferenceEquals(SelectedPreviewSlot, slot))
         {
+            PreviewTitle = slot.Title;
+            _currentPreviewPlaybackRate = slot.PlaybackRate;
+            _currentPreviewLoop = slot.Loop;
             StartPreview(slot.Definition);
             return;
         }
@@ -501,7 +601,7 @@ internal partial class CharacterViewModel : ViewModel
     }
 
     [RelayCommand]
-    private void BrowseTaskAnimation(CharacterTaskAnimationRule? rule)
+    private void BrowseTaskAnimationFile(CharacterTaskRuleViewModel? rule)
     {
         if (rule is null)
         {
@@ -519,10 +619,9 @@ internal partial class CharacterViewModel : ViewModel
         {
             if (dialog.ShowDialog() == true)
             {
-                if (AssignAssetPath(dialog.FileName, path => rule.Animation.SourcePath = path))
+                if (AssignAssetPath(dialog.FileName, path => rule.SourcePath = path))
                 {
-                    var index = TaskRules.IndexOf(rule);
-                    TaskRules[index] = rule;
+                    PreviewTaskAnimation(rule);
                 }
             }
         }
@@ -530,6 +629,67 @@ internal partial class CharacterViewModel : ViewModel
         {
             Environment.CurrentDirectory = AppContext.BaseDirectory;
         }
+    }
+
+    [RelayCommand]
+    private void BrowseTaskAnimationFolder(CharacterTaskRuleViewModel? rule)
+    {
+        if (rule is null)
+        {
+            return;
+        }
+
+        var dialog = new OpenFolderDialog
+        {
+            InitialDirectory = _storagePaths.AssetRoot,
+            Multiselect = false,
+        };
+        try
+        {
+            if (dialog.ShowDialog() == true)
+            {
+                if (AssignAssetPath(dialog.FolderName, path => rule.SourcePath = path))
+                {
+                    PreviewTaskAnimation(rule);
+                }
+            }
+        }
+        finally
+        {
+            Environment.CurrentDirectory = AppContext.BaseDirectory;
+        }
+    }
+
+    [RelayCommand]
+    private void ClearTaskAnimation(CharacterTaskRuleViewModel? rule)
+    {
+        if (rule is null)
+        {
+            return;
+        }
+
+        rule.SourcePath = string.Empty;
+        if (ReferenceEquals(_currentPreviewRule, rule))
+        {
+            StartPreview(null);
+            _currentPreviewRule = null;
+        }
+    }
+
+    [RelayCommand]
+    private void PreviewTaskAnimation(CharacterTaskRuleViewModel? rule)
+    {
+        if (rule is null)
+        {
+            return;
+        }
+
+        SelectedPreviewSlot = null;
+        _currentPreviewRule = rule;
+        PreviewTitle = rule.TaskName;
+        _currentPreviewPlaybackRate = rule.PlaybackRate;
+        _currentPreviewLoop = true;
+        StartPreview(rule.Animation);
     }
 
     internal void SetFootAnchor(double x, double y)
@@ -544,7 +704,14 @@ internal partial class CharacterViewModel : ViewModel
         _isPreviewActive = isActive;
         if (isActive)
         {
-            StartPreview(SelectedPreviewSlot?.Definition);
+            if (SelectedPreviewSlot is not null)
+            {
+                StartPreview(SelectedPreviewSlot.Definition);
+            }
+            else if (_currentPreviewRule is not null)
+            {
+                StartPreview(_currentPreviewRule.Animation);
+            }
             return;
         }
 
@@ -600,9 +767,31 @@ internal partial class CharacterViewModel : ViewModel
             AnimationRows.Add(new CharacterAnimationRowViewModel(slot1, slot2, slot3, isLast));
         }
 
-        TaskRules.Clear();
-        TaskRules.AddRange(SelectedProfile.TaskRules);
+        TaskRuleSlots.Clear();
+        foreach (var rule in SelectedProfile.TaskRules)
+        {
+            TaskRuleSlots.Add(new CharacterTaskRuleViewModel(rule, _animationLoader));
+        }
+        RebuildTaskRuleRows();
+
         SelectedPreviewSlot = AnimationSlots.FirstOrDefault();
+        PreviewTitle = SelectedPreviewSlot?.Title ?? string.Empty;
+    }
+
+    private void RebuildTaskRuleRows()
+    {
+        TaskRuleRows.Clear();
+        for (var i = 0; i < TaskRuleSlots.Count; i += 3)
+        {
+            var rule1 = TaskRuleSlots[i];
+            var rule2 = i + 1 < TaskRuleSlots.Count ? TaskRuleSlots[i + 1] : null;
+            var rule3 = i + 2 < TaskRuleSlots.Count ? TaskRuleSlots[i + 2] : null;
+            var isLast = i + 3 >= TaskRuleSlots.Count;
+            TaskRuleRows.Add(new CharacterTaskRuleRowViewModel(rule1, rule2, rule3, isLast));
+        }
+
+        TaskRules.Clear();
+        TaskRules.AddRange(TaskRuleSlots.Select(vm => vm.Rule));
     }
 
     private void AddSlot(string titleKey, CharacterAnimationDefinition definition) =>
@@ -629,14 +818,14 @@ internal partial class CharacterViewModel : ViewModel
     {
         var elapsed = _previewClock.Elapsed;
         _previewClock.Restart();
-        if (_previewClip.IsEmpty || SelectedPreviewSlot is null)
+        if (_previewClip.IsEmpty || (SelectedPreviewSlot is null && _currentPreviewRule is null))
         {
             _previewTimer.Stop();
             _previewClock.Stop();
             return;
         }
 
-        var playbackRate = Math.Clamp(SelectedPreviewSlot.PlaybackRate, 0.25d, 3d);
+        var playbackRate = Math.Clamp(_currentPreviewPlaybackRate, 0.25d, 3d);
         _previewFrameElapsed += TimeSpan.FromTicks((long)(elapsed.Ticks * playbackRate));
         var frameDuration = _previewClip.FrameDurations[
             Math.Min(_previewFrameIndex, _previewClip.FrameDurations.Count - 1)];
@@ -650,7 +839,7 @@ internal partial class CharacterViewModel : ViewModel
         {
             _previewFrameIndex++;
         }
-        else if (SelectedPreviewSlot.Loop)
+        else if (_currentPreviewLoop)
         {
             _previewFrameIndex = 0;
         }

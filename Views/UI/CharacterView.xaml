@@ -149,6 +149,134 @@
                 </Grid>
             </Border>
         </DataTemplate>
+        <DataTemplate x:Key="TaskRuleCardTemplate">
+            <Border Margin="4" Style="{StaticResource CharacterItemCardStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock FontSize="14" FontWeight="Medium"
+                                   Text="{Binding TaskName}"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding TaskName}"
+                                   VerticalAlignment="Center" />
+                        <Button Command="{Binding DataContext.RemoveTaskRuleCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                Content="{lex:Loc CharacterDeleteTaskRule}"
+                                FontSize="12"
+                                Grid.Column="1"
+                                Height="28"
+                                Margin="6,0,0,0"
+                                MinHeight="28"
+                                Padding="8,0"
+                                Style="{StaticResource CharacterActionButtonStyle}" />
+                    </Grid>
+                    <Button Command="{Binding DataContext.PreviewTaskAnimationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"
+                            Cursor="Hand"
+                            Grid.Row="1"
+                            Height="72"
+                            HorizontalAlignment="Center"
+                            Margin="0,8,0,0"
+                            ToolTip="{lex:Loc CharacterAnimationPreview}"
+                            Width="72">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{DynamicResource RegionBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="6"
+                                        Height="72"
+                                        Width="72">
+                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                        <Grid>
+                            <TextBlock FontSize="24"
+                                       Foreground="{DynamicResource SecondaryTextBrush}"
+                                       HorizontalAlignment="Center"
+                                       IsHitTestVisible="False"
+                                       Text="🐾"
+                                       VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Thumbnail}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <Image RenderOptions.BitmapScalingMode="HighQuality"
+                                   Source="{Binding Thumbnail}"
+                                   Stretch="Uniform" />
+                        </Grid>
+                    </Button>
+                    <Grid Grid.Row="2" Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox hc:InfoElement.Placeholder="{lex:Loc CharacterStatusText}"
+                                 Height="28"
+                                 MaxLength="24"
+                                 Text="{Binding StatusText, UpdateSourceTrigger=PropertyChanged}"
+                                 ToolTip="{lex:Loc CharacterStatusText}" />
+                        <StackPanel Grid.Column="1" Margin="6,0,0,0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock FontSize="12"
+                                       Foreground="{DynamicResource SecondaryTextBrush}"
+                                       Margin="0,0,5,0"
+                                       Text="{lex:Loc CharacterPlaybackRateShort}"
+                                       VerticalAlignment="Center" />
+                            <TextBox Height="28"
+                                     Text="{Binding PlaybackRate, StringFormat={}{0:F2}, UpdateSourceTrigger=LostFocus}"
+                                     TextAlignment="Center"
+                                     ToolTip="{lex:Loc CharacterPlaybackRate}"
+                                     Width="52" />
+                        </StackPanel>
+                    </Grid>
+                    <TextBox Grid.Row="3"
+                             Margin="0,8,0,0"
+                             MinHeight="34"
+                             Text="{Binding SourcePath, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="{Binding SourcePath}" />
+                    <UniformGrid Columns="2" Grid.Row="4" Margin="0,8,0,0" Rows="2">
+                        <Button Command="{Binding DataContext.BrowseTaskAnimationFileCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                Content="{lex:Loc CharacterChooseFile}"
+                                Margin="0,0,4,4"
+                                Style="{StaticResource CharacterActionButtonStyle}" />
+                        <Button Command="{Binding DataContext.BrowseTaskAnimationFolderCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                Content="{lex:Loc CharacterChooseFrameFolder}"
+                                Margin="4,0,0,4"
+                                Style="{StaticResource CharacterActionButtonStyle}" />
+                        <Button Command="{Binding DataContext.PreviewTaskAnimationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                Content="{lex:Loc CharacterAnimationPreview}"
+                                Margin="0,0,4,0"
+                                Style="{StaticResource CharacterActionButtonStyle}" />
+                        <Button Command="{Binding DataContext.ClearTaskAnimationCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                Content="{lex:Loc CharacterClearAnimation}"
+                                Margin="4,0,0,0"
+                                Style="{StaticResource CharacterActionButtonStyle}" />
+                    </UniformGrid>
+                </Grid>
+            </Border>
+        </DataTemplate>
     </UserControl.Resources>
 
     <Grid Margin="20,5,20,20">
@@ -193,9 +321,9 @@
                         FontSize="12"
                         Foreground="{DynamicResource SecondaryTextBrush}"
                         Margin="2,0,2,6"
-                        Text="{Binding SelectedPreviewSlot.Title}"
+                        Text="{Binding PreviewTitle}"
                         TextTrimming="CharacterEllipsis"
-                        ToolTip="{Binding SelectedPreviewSlot.Title}" />
+                        ToolTip="{Binding PreviewTitle}" />
                     <Grid Grid.Row="1">
                         <TextBlock
                             FontSize="34"
@@ -771,68 +899,171 @@
                                         Style="{StaticResource CharacterActionButtonStyle}" />
                             </Grid>
 
-                            <ItemsControl ItemsSource="{Binding TaskRules}">
+                            <ItemsControl ItemsSource="{Binding TaskRuleRows}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Style="{StaticResource CharacterItemCardStyle}">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="Auto" />
-                                                    <RowDefinition Height="Auto" />
-                                                </Grid.RowDefinitions>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*" />
-                                                    <ColumnDefinition Width="Auto" />
-                                                </Grid.ColumnDefinitions>
-                                                <TextBlock FontSize="14" FontWeight="SemiBold"
-                                                           Text="{Binding TaskName}"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           ToolTip="{Binding TaskName}"
-                                                           VerticalAlignment="Center" />
-                                                <Button Command="{Binding DataContext.RemoveTaskRuleCommand, ElementName=CharacterPage}"
-                                                        CommandParameter="{Binding}"
-                                                        Content="{lex:Loc CharacterDeleteTaskRule}"
-                                                        Grid.Column="1"
-                                                        Style="{StaticResource CharacterActionButtonStyle}" />
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <RowDefinition Height="Auto" />
+                                            </Grid.RowDefinitions>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                                <ColumnDefinition Width="Auto" />
+                                                <ColumnDefinition Width="*" />
+                                            </Grid.ColumnDefinitions>
 
-                                                <Grid Grid.ColumnSpan="2" Grid.Row="1" Margin="0,10,0,0">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="12" />
-                                                        <ColumnDefinition Width="82" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <StackPanel>
-                                                        <TextBlock Style="{StaticResource CharacterFieldLabelStyle}"
-                                                                   Text="{lex:Loc CharacterStatusText}" />
-                                                        <TextBox MaxLength="24" MinHeight="34"
-                                                                 Text="{Binding StatusText, UpdateSourceTrigger=PropertyChanged}" />
-                                                    </StackPanel>
-                                                    <StackPanel Grid.Column="2">
-                                                        <TextBlock Style="{StaticResource CharacterFieldLabelStyle}"
-                                                                   Text="{lex:Loc CharacterPlaybackRateShort}" />
-                                                        <TextBox MinHeight="34"
-                                                                 Text="{Binding Animation.PlaybackRate, StringFormat={}{0:F2}, UpdateSourceTrigger=LostFocus}"
-                                                                 TextAlignment="Center" />
-                                                    </StackPanel>
-                                                </Grid>
+                                            <!-- Rule 1 -->
+                                            <ContentControl Grid.Row="0" Grid.Column="0"
+                                                            Content="{Binding Rule1}"
+                                                            ContentTemplate="{StaticResource TaskRuleCardTemplate}"
+                                                            HorizontalContentAlignment="Stretch"
+                                                            VerticalContentAlignment="Stretch" />
 
-                                                <Grid Grid.ColumnSpan="2" Grid.Row="2" Margin="0,10,0,0">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*" />
-                                                        <ColumnDefinition Width="Auto" />
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBox MinHeight="34"
-                                                             Text="{Binding Animation.SourcePath, UpdateSourceTrigger=PropertyChanged}"
-                                                             ToolTip="{Binding Animation.SourcePath}" />
-                                                    <Button Command="{Binding DataContext.BrowseTaskAnimationCommand, ElementName=CharacterPage}"
-                                                            CommandParameter="{Binding}"
-                                                            Content="{lex:Loc CharacterChooseAnimation}"
-                                                            Grid.Column="1" Margin="8,0,0,0"
-                                                            Style="{StaticResource CharacterActionButtonStyle}" />
-                                                </Grid>
-                                            </Grid>
-                                        </Border>
+                                            <!-- Column 1: Vertical Divider between Rule 1 and Rule 2 -->
+                                            <Border Grid.Row="0" Grid.Column="1"
+                                                    Background="{DynamicResource BorderBrush}"
+                                                    Height="72"
+                                                    HorizontalAlignment="Center"
+                                                    Margin="6,0"
+                                                    VerticalAlignment="Center"
+                                                    Width="1">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Rule2}" Value="{x:Null}">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                            </Border>
+
+                                            <!-- Rule 2 -->
+                                            <ContentControl Grid.Row="0" Grid.Column="2"
+                                                            Content="{Binding Rule2}"
+                                                            ContentTemplate="{StaticResource TaskRuleCardTemplate}"
+                                                            HorizontalContentAlignment="Stretch"
+                                                            VerticalContentAlignment="Stretch">
+                                                <ContentControl.Style>
+                                                    <Style TargetType="ContentControl">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Rule2}" Value="{x:Null}">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ContentControl.Style>
+                                            </ContentControl>
+
+                                            <!-- Column 3: Vertical Divider between Rule 2 and Rule 3 -->
+                                            <Border Grid.Row="0" Grid.Column="3"
+                                                    Background="{DynamicResource BorderBrush}"
+                                                    Height="72"
+                                                    HorizontalAlignment="Center"
+                                                    Margin="6,0"
+                                                    VerticalAlignment="Center"
+                                                    Width="1">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Rule3}" Value="{x:Null}">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                            </Border>
+
+                                            <!-- Rule 3 -->
+                                            <ContentControl Grid.Row="0" Grid.Column="4"
+                                                            Content="{Binding Rule3}"
+                                                            ContentTemplate="{StaticResource TaskRuleCardTemplate}"
+                                                            HorizontalContentAlignment="Stretch"
+                                                            VerticalContentAlignment="Stretch">
+                                                <ContentControl.Style>
+                                                    <Style TargetType="ContentControl">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Rule3}" Value="{x:Null}">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ContentControl.Style>
+                                            </ContentControl>
+
+                                            <!-- Row 1: Short horizontal divider centered under Rule 1 -->
+                                            <Border Grid.Row="1" Grid.Column="0"
+                                                    Background="{DynamicResource BorderBrush}"
+                                                    Height="1"
+                                                    HorizontalAlignment="Center"
+                                                    Margin="0,10"
+                                                    VerticalAlignment="Center"
+                                                    Width="72">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsLastRow}" Value="True">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                            </Border>
+
+                                            <!-- Row 1: Short horizontal divider centered under Rule 2 -->
+                                            <Border Grid.Row="1" Grid.Column="2"
+                                                    Background="{DynamicResource BorderBrush}"
+                                                    Height="1"
+                                                    HorizontalAlignment="Center"
+                                                    Margin="0,10"
+                                                    VerticalAlignment="Center"
+                                                    Width="72">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsLastRow}" Value="True">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Rule2}" Value="{x:Null}">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                            </Border>
+
+                                            <!-- Row 1: Short horizontal divider centered under Rule 3 -->
+                                            <Border Grid.Row="1" Grid.Column="4"
+                                                    Background="{DynamicResource BorderBrush}"
+                                                    Height="1"
+                                                    HorizontalAlignment="Center"
+                                                    Margin="0,10"
+                                                    VerticalAlignment="Center"
+                                                    Width="72">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Visibility" Value="Visible" />
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsLastRow}" Value="True">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Rule3}" Value="{x:Null}">
+                                                                <Setter Property="Visibility" Value="Collapsed" />
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                            </Border>
+                                        </Grid>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
