@@ -120,6 +120,8 @@ internal partial class CharacterViewModel : ViewModel
             }
         }
 
+        _storagePaths.CleanupEmptyOrphanedProfileDirectories(_settings.Profiles.Select(profile => profile.Name));
+
         Profiles = new ObservableCollection<CharacterProfile>(_settings.Profiles);
         SelectedProfile = Profiles.First(profile => profile.Id == _settings.ActiveProfileId);
         _isEnabled = _settings.IsEnabled;
@@ -216,9 +218,19 @@ internal partial class CharacterViewModel : ViewModel
             return;
         }
 
-        var index = Profiles.IndexOf(SelectedProfile);
-        Profiles.Remove(SelectedProfile);
+        var profileToDelete = SelectedProfile;
+        var index = Profiles.IndexOf(profileToDelete);
+        Profiles.Remove(profileToDelete);
         SelectedProfile = Profiles[Math.Clamp(index - 1, 0, Profiles.Count - 1)];
+
+        try
+        {
+            _storagePaths.TryDeleteProfileDirectory(profileToDelete.Name);
+        }
+        catch (Exception ex)
+        {
+            LoggerService.LogError($"Failed to delete directory for profile '{profileToDelete.Name}': {ex}");
+        }
     }
 
     [RelayCommand]

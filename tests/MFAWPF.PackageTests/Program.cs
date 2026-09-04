@@ -144,6 +144,21 @@ internal static class Program
                     "Expected duplicate/existing directory rename to fail.");
                 Assert(collisionError == "CharacterProfileDirectoryExists", "Expected collision error code.");
 
+                // Verify deleting profile directory
+                Assert(paths.TryDeleteProfileDirectory("RenamedCharacter"), "Expected profile directory deletion to succeed.");
+                Assert(!Directory.Exists(Path.Combine(assetRoot, "RenamedCharacter")), "Expected deleted profile directory to not exist.");
+
+                // Verify cleaning up empty orphaned directories
+                var orphanedEmpty = paths.EnsureProfileDirectory("OrphanedEmpty");
+                var orphanedWithFile = paths.EnsureProfileDirectory("OrphanedWithFile");
+                File.WriteAllText(Path.Combine(orphanedWithFile, "keep.txt"), "data");
+                var activeDir = paths.EnsureProfileDirectory("ActiveProfile");
+
+                paths.CleanupEmptyOrphanedProfileDirectories(["ActiveProfile"]);
+                Assert(!Directory.Exists(orphanedEmpty), "Expected empty orphaned directory to be cleaned up.");
+                Assert(Directory.Exists(orphanedWithFile), "Expected non-empty orphaned directory to be preserved.");
+                Assert(Directory.Exists(activeDir), "Expected active profile directory to be preserved.");
+
                 return Task.CompletedTask;
             });
 

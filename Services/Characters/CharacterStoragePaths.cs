@@ -11,6 +11,9 @@ internal sealed class CharacterStoragePaths
     private readonly StringComparison _pathComparison = OperatingSystem.IsWindows()
         ? StringComparison.OrdinalIgnoreCase
         : StringComparison.Ordinal;
+    private readonly StringComparer _pathComparer = OperatingSystem.IsWindows()
+        ? StringComparer.OrdinalIgnoreCase
+        : StringComparer.Ordinal;
 
     private CharacterStoragePaths(string assetRoot, string configurationPath)
     {
@@ -137,6 +140,85 @@ internal sealed class CharacterStoragePaths
             LoggerService.LogError($"Failed to rename character profile directory from '{oldPath}' to '{newPath}': {ex}");
             errorMessage = "CharacterProfileDirectoryRenameFailed";
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Attempts to delete a character profile directory on disk.
+    /// </summary>
+    /// <param name="profileName">The display name of the profile.</param>
+    /// <param name="recursive">Whether to delete files and subdirectories recursively.</param>
+    /// <returns><c>true</c> if the directory was deleted or already does not exist; otherwise <c>false</c>.</returns>
+    public bool TryDeleteProfileDirectory(string profileName, bool recursive = true)
+    {
+        if (string.IsNullOrWhiteSpace(profileName))
+        {
+            return false;
+        }
+
+        var safeName = GetProfileDirectoryName(profileName);
+        var directoryPath = Path.Combine(AssetRoot, safeName);
+        if (!Directory.Exists(directoryPath))
+        {
+            return true;
+        }
+
+        try
+        {
+            Directory.Delete(directoryPath, recursive);
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException)
+        {
+            LoggerService.LogError($"Failed to delete character profile directory '{directoryPath}': {ex}");
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Cleans up empty orphaned profile directories that do not belong to any active profile.
+    /// Non-empty directories are always preserved for safety.
+    /// </summary>
+    /// <param name="activeProfileNames">The list of currently active profile display names.</param>
+    public void CleanupEmptyOrphanedProfileDirectories(IEnumerable<string> activeProfileNames)
+    {
+        if (!Directory.Exists(AssetRoot))
+        {
+            return;
+        }
+
+        var activeSet = new HashSet<string>(
+            activeProfileNames
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Select(GetProfileDirectoryName),
+            _pathComparer);
+
+        try
+        {
+            foreach (var directory in Directory.EnumerateDirectories(AssetRoot))
+            {
+                var dirName = Path.GetFileName(directory);
+                if (activeSet.Contains(dirName))
+                {
+                    continue;
+                }
+
+                if (!Directory.EnumerateFileSystemEntries(directory).Any())
+                {
+                    try
+                    {
+                        Directory.Delete(directory, recursive: false);
+                    }
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException)
+                    {
+                        LoggerService.LogError($"Failed to clean up empty orphaned character directory '{directory}': {ex}");
+                    }
+                }
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or SecurityException)
+        {
+            LoggerService.LogError($"Failed to enumerate character directories in '{AssetRoot}': {ex}");
         }
     }
 
