@@ -1305,4 +1305,8 @@
   <data name="CharacterProfileNameDuplicate" xml:space="preserve"><value>已存在同名的角色配置。</value></data>
   <data name="CharacterProfileDirectoryRenameFailed" xml:space="preserve"><value>無法重命名角色素材資料夾，請檢查目錄權限或檔案佔用。</value></data>
   <data name="CharacterProfileDirectoryExists" xml:space="preserve"><value>目標素材資料夾已存在。</value></data>
+  <data name="OpenMainWindow" xml:space="preserve"><value>顯示主介面</value></data>
+  <data name="HideMainWindow" xml:space="preserve"><value>隱藏主介面</value></data>
+  <data name="StatusIdle" xml:space="preserve"><value>空閒中</value></data>
+  <data name="StatusRunning" xml:space="preserve"><value>運行中</value></data>
 </root>

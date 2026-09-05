@@ -114,9 +114,40 @@ public partial class RootView
     {
         DispatcherHelper.RunOnMainThread(() =>
         {
+            ShowWindow();
             if (RootTabControl != null)
             {
                 RootTabControl.SelectedIndex = 0;
+            }
+        });
+    }
+
+    /// <summary>
+    /// Switches the main navigation tab control to the Task Sequence tab.
+    /// </summary>
+    public void SwitchToTaskSequenceTab()
+    {
+        DispatcherHelper.RunOnMainThread(() =>
+        {
+            ShowWindow();
+            if (RootTabControl != null)
+            {
+                RootTabControl.SelectedIndex = 1;
+            }
+        });
+    }
+
+    /// <summary>
+    /// Switches the main navigation tab control to the Settings tab.
+    /// </summary>
+    public void SwitchToSettingsTab()
+    {
+        DispatcherHelper.RunOnMainThread(() =>
+        {
+            ShowWindow();
+            if (RootTabControl != null)
+            {
+                RootTabControl.SelectedIndex = 5;
             }
         });
     }
@@ -256,9 +287,7 @@ public partial class RootView
 
     protected override void OnClosing(CancelEventArgs e)
     {
-        if (!_isExitRequested &&
-            !Application.Current.Dispatcher.HasShutdownStarted &&
-            ConfigurationHelper.GetValue(ConfigurationKeys.ShouldMinimizeToTray, false))
+        if (!_isExitRequested && !Application.Current.Dispatcher.HasShutdownStarted)
         {
             e.Cancel = true;
             ViewModel.IsVisible = false;
@@ -559,6 +588,7 @@ public partial class RootView
     {
         if (!ViewModel.IsRunning)
             return true;
+        ShowWindow();
         var result = MessageBoxHelper.Show("ConfirmExitText".ToLocalization(),
             "ConfirmExitTitle".ToLocalization(), buttons: MessageBoxButton.YesNo, icon: MessageBoxImage.Question);
         return result == MessageBoxResult.Yes;

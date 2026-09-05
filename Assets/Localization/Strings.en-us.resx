@@ -1312,4 +1312,8 @@
   <data name="CharacterProfileNameDuplicate" xml:space="preserve"><value>A character profile with the same name already exists.</value></data>
   <data name="CharacterProfileDirectoryRenameFailed" xml:space="preserve"><value>Unable to rename the character asset folder. Check permissions or file usage.</value></data>
   <data name="CharacterProfileDirectoryExists" xml:space="preserve"><value>The target character asset folder already exists.</value></data>
+  <data name="OpenMainWindow" xml:space="preserve"><value>Show Window</value></data>
+  <data name="HideMainWindow" xml:space="preserve"><value>Hide Window</value></data>
+  <data name="StatusIdle" xml:space="preserve"><value>Idle</value></data>
+  <data name="StatusRunning" xml:space="preserve"><value>Running</value></data>
 </root>
