@@ -29,6 +29,13 @@ public static class ApplePopupAnimationBehavior
     private static readonly List<WeakReference<Popup>> ActivePopups = [];
     private static long _lastPopupOpenTime;
 
+    /// <summary>
+    /// Gets the timestamp when a popup was last opened.
+    /// </summary>
+    public static long LastPopupOpenTime => _lastPopupOpenTime;
+
+    private const int PopupGracePeriodMs = 600;
+
     private static readonly Duration RetractDuration = new(TimeSpan.FromMilliseconds(120));
 
     private static readonly IEasingFunction AppleOpenEase = new QuarticEase { EasingMode = EasingMode.EaseOut };
@@ -200,6 +207,11 @@ public static class ApplePopupAnimationBehavior
         if (sender is not ComboBox cb) return;
 
         _lastPopupOpenTime = Environment.TickCount64;
+
+        if (FindVisualParent<ScrollViewer>(cb) is ScrollViewer parentScrollViewer)
+        {
+            SmoothScrollViewerBehavior.StopAllAnimations(parentScrollViewer);
+        }
 
         EnforceComboBoxPopupWidth(cb);
 
@@ -384,7 +396,7 @@ public static class ApplePopupAnimationBehavior
         if (e.VerticalChange == 0 && e.HorizontalChange == 0) return;
         if (sender is not DependencyObject scrollViewer) return;
 
-        if (Environment.TickCount64 - _lastPopupOpenTime < 350) return;
+        if (Environment.TickCount64 - _lastPopupOpenTime < PopupGracePeriodMs) return;
         if (IsInsidePopup(scrollViewer)) return;
 
         CloseAllOpenPopups(scrollViewer);
@@ -409,7 +421,7 @@ public static class ApplePopupAnimationBehavior
     /// </summary>
     public static void CloseAllOpenPopups(DependencyObject? scope = null)
     {
-        if (Environment.TickCount64 - _lastPopupOpenTime < 350) return;
+        if (Environment.TickCount64 - _lastPopupOpenTime < PopupGracePeriodMs) return;
 
         List<ComboBox> comboBoxesToRetract;
         lock (ActiveComboBoxes)
@@ -424,6 +436,7 @@ public static class ApplePopupAnimationBehavior
 
         foreach (var cb in comboBoxesToRetract)
         {
+            if (IsComboBoxInteracting(cb)) continue;
             RetractAndClose(cb);
         }
 
@@ -456,7 +469,10 @@ public static class ApplePopupAnimationBehavior
             switch (element)
             {
                 case ComboBox cb when cb.IsDropDownOpen:
-                    RetractAndClose(cb);
+                    if (!IsComboBoxInteracting(cb))
+                    {
+                        RetractAndClose(cb);
+                    }
                     break;
                 case SplitButton sb when sb.IsDropDownOpen:
                     sb.IsDropDownOpen = false;
@@ -478,6 +494,22 @@ public static class ApplePopupAnimationBehavior
                     break;
             }
         }
+    }
+
+    private static bool IsComboBoxInteracting(ComboBox cb)
+    {
+        if (cb.IsMouseOver || cb.IsKeyboardFocusWithin)
+        {
+            return true;
+        }
+
+        Popup? popup = cb.Template?.FindName("PART_Popup", cb) as Popup ?? FindVisualChildren<Popup>(cb).FirstOrDefault();
+        if (popup != null && (popup.IsMouseOver || (popup.Child as FrameworkElement)?.IsMouseOver == true))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>

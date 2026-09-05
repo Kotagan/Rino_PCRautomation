@@ -60,6 +60,16 @@ namespace MFAWPF.Helper.Animations
         public static void SetTargetVerticalOffset(DependencyObject obj, double value) =>
             obj.SetValue(TargetVerticalOffsetProperty, value);
 
+        /// <summary>
+        /// Stops any ongoing smooth scrolling animation on the specified ScrollViewer and synchronizes its target offset.
+        /// </summary>
+        public static void StopAllAnimations(ScrollViewer scrollViewer)
+        {
+            var state = GetState(scrollViewer);
+            StopAnimation(state);
+            SyncTargetToActual(scrollViewer, state);
+        }
+
         private static void OnIsEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is not ScrollViewer scrollViewer)

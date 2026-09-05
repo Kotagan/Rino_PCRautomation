@@ -393,6 +393,7 @@
                                     <TextBlock Text="{lex:Loc CharacterCurrentProfile}" VerticalAlignment="Center" />
                                     <hc:ComboBox DisplayMemberPath="Name" Grid.Column="1"
                                                  ItemsSource="{Binding Profiles}" MinHeight="34"
+                                                 RequestBringIntoView="OnComboBoxRequestBringIntoView"
                                                  SelectedItem="{Binding SelectedProfile}" Width="260" />
                                 </Grid>
 
@@ -892,6 +893,7 @@
                                 <hc:ComboBox DisplayMemberPath="Name"
                                              ItemsSource="{Binding AvailableTasks}"
                                              MinHeight="36"
+                                             RequestBringIntoView="OnComboBoxRequestBringIntoView"
                                              SelectedItem="{Binding SelectedTask}" />
                                 <Button Command="{Binding AddTaskRuleCommand}"
                                         Content="{lex:Loc CharacterAddTaskRule}"

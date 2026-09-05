@@ -84,10 +84,18 @@ internal partial class CharacterView
 
         if (e.VerticalChange != 0d || e.HorizontalChange != 0d)
         {
-            Helper.Animations.ApplePopupAnimationBehavior.CloseAllOpenPopups(SettingsViewer);
+            if (Environment.TickCount64 - Helper.Animations.ApplePopupAnimationBehavior.LastPopupOpenTime >= 600)
+            {
+                Helper.Animations.ApplePopupAnimationBehavior.CloseAllOpenPopups(SettingsViewer);
+            }
         }
 
         SynchronizeSectionSelection();
+    }
+
+    private void OnComboBoxRequestBringIntoView(object sender, RequestBringIntoViewEventArgs e)
+    {
+        e.Handled = true;
     }
 
     private void EnsureSections() =>
