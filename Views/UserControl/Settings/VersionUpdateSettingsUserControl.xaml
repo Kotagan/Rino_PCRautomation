@@ -77,7 +77,7 @@
                 VerticalAlignment="Center">
 
                 <hc:Shield
-                    Color="#6969AA"
+                    Color="{DynamicResource PrimaryBrush}"
                     Cursor="Hand"
                     FontSize="12"
                     HorizontalAlignment="Center"
@@ -101,7 +101,7 @@
                         x:Name="SoftwareShieldTextBlock" />
                 </hc:Shield>
                 <hc:Shield
-                    Color="#6969AA"
+                    Color="{DynamicResource PrimaryBrush}"
                     Cursor="Hand"
                     FontSize="12"
                     HorizontalAlignment="Center"
