@@ -1191,7 +1191,7 @@
     <value>套用預設</value>
   </data>
   <data name="AssignNext" xml:space="preserve">
-    <value>設為下一個</value>
+    <value>設定執行順序</value>
   </data>
   <data name="ClearOrder" xml:space="preserve">
     <value>清除</value>

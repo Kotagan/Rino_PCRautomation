@@ -1198,7 +1198,7 @@
     <value>Apply Preset</value>
   </data>
   <data name="AssignNext" xml:space="preserve">
-    <value>Set as Next</value>
+    <value>Set Execution Order</value>
   </data>
   <data name="ClearOrder" xml:space="preserve">
     <value>Clear</value>

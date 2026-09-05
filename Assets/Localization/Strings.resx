@@ -1202,7 +1202,7 @@
     <value>应用预设</value>
   </data>
   <data name="AssignNext" xml:space="preserve">
-    <value>设为下一个</value>
+    <value>设置执行顺序</value>
   </data>
   <data name="ClearOrder" xml:space="preserve">
     <value>清除</value>

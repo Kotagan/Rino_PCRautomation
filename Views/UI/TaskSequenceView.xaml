@@ -405,25 +405,13 @@
                                                 HorizontalAlignment="Right"
                                                 Orientation="Horizontal"
                                                 VerticalAlignment="Center">
-                                                <TextBox
-                                                    FontSize="13.5"
-                                                    FontWeight="Medium"
-                                                    Height="34"
-                                                    InputMethod.IsInputMethodEnabled="False"
-                                                    KeyDown="OnOrderTextBoxKeyDown"
-                                                    Margin="0,0,8,0"
-                                                    MaxLength="3"
-                                                    PreviewTextInput="OnOrderTextBoxPreviewTextInput"
-                                                    Text="{Binding InputOrderText, UpdateSourceTrigger=LostFocus, Mode=TwoWay}"
-                                                    TextAlignment="Center"
-                                                    VerticalContentAlignment="Center"
-                                                    Width="54" />
                                                 <Button
                                                     Command="{Binding ViewModel.AssignNextCommand, RelativeSource={RelativeSource AncestorType=ui:TaskSequenceView}}"
                                                     CommandParameter="{Binding}"
                                                     Content="{lex:Loc AssignNext}"
+                                                    IsEnabled="{calcBinding:Binding '!IsAssigned'}"
                                                     Margin="0,0,8,0"
-                                                    MinWidth="94"
+                                                    MinWidth="108"
                                                     Style="{StaticResource SequenceActionButtonStyle}" />
                                                 <Button
                                                     Command="{Binding ViewModel.ClearOrderCommand, RelativeSource={RelativeSource AncestorType=ui:TaskSequenceView}}"
