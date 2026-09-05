@@ -146,7 +146,6 @@
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button
                     Click="ApplyPresetButton_Click"
-                    Command="{Binding ViewModel.ApplyPresetCommand}"
                     Content="{lex:Loc ApplyPreset}"
                     Style="{StaticResource SequencePrimaryButtonStyle}"
                     MinWidth="120" />

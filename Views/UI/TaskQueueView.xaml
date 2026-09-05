@@ -46,11 +46,11 @@
                                 Background="Transparent"
                                 BorderBrush="{DynamicResource BorderBrush}"
                                 BorderThickness="1.5"
-                                CornerRadius="4"
-                                Height="21"
-                                Width="21"
+                                CornerRadius="6"
+                                Height="26"
+                                Width="26"
                                 HorizontalAlignment="Center"
-                                Margin="0,0,8,0"
+                                Margin="0,0,10,0"
                                 VerticalAlignment="Center">
                                 <Grid>
                                     <Path
@@ -63,15 +63,15 @@
                                         StrokeLineJoin="Round"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
-                                        Width="10"
-                                        Height="8"
+                                        Width="12"
+                                        Height="10"
                                         Stretch="Uniform"
                                         Visibility="Collapsed" />
                                     <TextBlock
                                         x:Name="sequenceNumberBadge"
                                         Text="{Binding SequenceOrder}"
                                         Foreground="#FFFFFF"
-                                        FontSize="11"
+                                        FontSize="13"
                                         FontWeight="Bold"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"

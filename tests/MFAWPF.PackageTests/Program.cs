@@ -207,15 +207,15 @@ internal static class Program
                 Assert(queueVm.IsPresetMode, "Expected preset mode active.");
                 Assert(queueVm.TaskItemViewModels.Count == 3, "Expected 3 tasks in queue.");
 
-                Assert(queueVm.TaskItemViewModels[0].Name == "启动游戏", "Expected 启动游戏 at position 0.");
-                Assert(queueVm.TaskItemViewModels[0].SequenceOrder == 1, "Expected order 1 for 启动游戏.");
-                Assert(queueVm.TaskItemViewModels[0].IsSequenceBadgeVisible, "Expected badge visible for 启动游戏.");
-                Assert(queueVm.TaskItemViewModels[0].IsChecked, "Expected 启动游戏 checked.");
+                Assert(queueVm.TaskItemViewModels[0].Name == "每日签到", "Expected 每日签到 at position 0.");
+                Assert(queueVm.TaskItemViewModels[0].SequenceOrder == 2, "Expected order 2 for 每日签到.");
+                Assert(queueVm.TaskItemViewModels[0].IsSequenceBadgeVisible, "Expected badge visible for 每日签到.");
+                Assert(queueVm.TaskItemViewModels[0].IsChecked, "Expected 每日签到 checked.");
 
-                Assert(queueVm.TaskItemViewModels[1].Name == "每日签到", "Expected 每日签到 at position 1.");
-                Assert(queueVm.TaskItemViewModels[1].SequenceOrder == 2, "Expected order 2 for 每日签到.");
-                Assert(queueVm.TaskItemViewModels[1].IsSequenceBadgeVisible, "Expected badge visible for 每日签到.");
-                Assert(queueVm.TaskItemViewModels[1].IsChecked, "Expected 每日签到 checked.");
+                Assert(queueVm.TaskItemViewModels[1].Name == "启动游戏", "Expected 启动游戏 at position 1.");
+                Assert(queueVm.TaskItemViewModels[1].SequenceOrder == 1, "Expected order 1 for 启动游戏.");
+                Assert(queueVm.TaskItemViewModels[1].IsSequenceBadgeVisible, "Expected badge visible for 启动游戏.");
+                Assert(queueVm.TaskItemViewModels[1].IsChecked, "Expected 启动游戏 checked.");
 
                 Assert(queueVm.TaskItemViewModels[2].Name == "领取邮件", "Expected 领取邮件 at position 2.");
                 Assert(queueVm.TaskItemViewModels[2].SequenceOrder == null, "Expected null sequence order for unassigned 领取邮件.");
@@ -284,9 +284,13 @@ internal static class Program
 
                         Assert(listBox.Items.Count == 2, $"After preset: expected 2, got {listBox.Items.Count}");
                         var firstItem = (MFAWPF.ViewModels.Tool.DragItemViewModel)listBox.Items[0];
-                        Assert(firstItem.Name == "任务2", $"Expected first item '任务2', got '{firstItem.Name}'");
-                        Assert(firstItem.SequenceOrder == 1, $"Expected order 1, got '{firstItem.SequenceOrder}'");
-                        Assert(firstItem.IsSequenceBadgeVisible, "Expected badge visible.");
+                        var secondItem = (MFAWPF.ViewModels.Tool.DragItemViewModel)listBox.Items[1];
+                        Assert(firstItem.Name == "任务1", $"Expected first item '任务1', got '{firstItem.Name}'");
+                        Assert(firstItem.SequenceOrder == 2, $"Expected order 2, got '{firstItem.SequenceOrder}'");
+                        Assert(firstItem.IsSequenceBadgeVisible, "Expected badge visible for item 1.");
+                        Assert(secondItem.Name == "任务2", $"Expected second item '任务2', got '{secondItem.Name}'");
+                        Assert(secondItem.SequenceOrder == 1, $"Expected order 1, got '{secondItem.SequenceOrder}'");
+                        Assert(secondItem.IsSequenceBadgeVisible, "Expected badge visible for item 2.");
                         tcs.SetResult(true);
                     }
                     catch (Exception ex)

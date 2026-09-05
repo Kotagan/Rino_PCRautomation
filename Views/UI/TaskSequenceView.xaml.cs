@@ -34,6 +34,8 @@ public partial class TaskSequenceView
             binding?.UpdateSource();
         }
         System.Windows.Input.Keyboard.ClearFocus();
+
+        ViewModel.ApplyPreset();
     }
 
     private void DeletePresetButton_Click(object sender, RoutedEventArgs e)

@@ -374,13 +374,20 @@ public partial class TaskSequenceViewModel : ViewModel
 
         if (sequence.Count == 0)
         {
-            GrowlHelper.Warning("NoSequenceToApply".ToLocalization());
+            GrowlHelper.WarningGlobal("NoSequenceToApply".ToLocalization());
             return;
         }
 
-        var presetName = SelectedPreset?.Name ?? "Custom";
+        var presetName = !string.IsNullOrWhiteSpace(SelectedPreset?.Name)
+            ? SelectedPreset.Name
+            : "DefaultPreset".ToLocalization();
+        if (string.IsNullOrWhiteSpace(presetName))
+        {
+            presetName = "默认预设";
+        }
+
         Instances.TaskQueueViewModel.ApplyPresetSequence(sequence, presetName);
-        GrowlHelper.Success(string.Format("PresetAppliedSuccess".ToLocalization(), presetName));
+        GrowlHelper.SuccessGlobal(string.Format("PresetAppliedSuccess".ToLocalization(), presetName));
 
         try
         {

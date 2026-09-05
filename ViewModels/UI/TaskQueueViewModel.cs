@@ -45,71 +45,54 @@ public partial class TaskQueueViewModel : ViewModel
             IsPresetMode = true;
             ActivePresetName = presetName;
 
-            var currentItems = TaskItemViewModels.ToList();
-            var allSourceItems = TasksSource.ToList();
-
-            var newOrderedList = new List<Tool.DragItemViewModel>();
-            var usedItems = new HashSet<Tool.DragItemViewModel>();
-
-            // 1. Add preset tasks in exact sequence order (1, 2, 3...)
-            foreach (var presetItem in orderedPresetItems)
+            // If queue is empty, populate from TasksSource
+            if (!TaskItemViewModels.Any() && TasksSource.Any())
             {
-                var match = currentItems.FirstOrDefault(item =>
-                    !usedItems.Contains(item) && IsTaskMatch(item, presetItem.TaskName));
-
-                if (match == null)
+                foreach (var sourceItem in TasksSource)
                 {
-                    var sourceMatch = allSourceItems.FirstOrDefault(item =>
-                        !usedItems.Contains(item) && IsTaskMatch(item, presetItem.TaskName));
-                    if (sourceMatch != null)
-                    {
-                        match = sourceMatch.Clone();
-                    }
-                }
-
-                if (match != null)
-                {
-                    match.SequenceOrder = presetItem.Order;
-                    match.IsSequenceBadgeVisible = true;
-                    match.IsCheckedWithNull = true;
-                    newOrderedList.Add(match);
-                    usedItems.Add(match);
+                    TaskItemViewModels.Add(sourceItem.Clone());
                 }
             }
 
-            // 2. Append remaining unassigned tasks that were already in the queue
-            foreach (var item in currentItems)
+            var usedPresetItems = new HashSet<Models.TaskPresetItem>();
+
+            // Update existing items in place, preserving their existing queue positions
+            foreach (var item in TaskItemViewModels)
             {
-                if (!usedItems.Contains(item))
+                var matchedPreset = orderedPresetItems.FirstOrDefault(p =>
+                    !usedPresetItems.Contains(p) && IsTaskMatch(item, p.TaskName));
+
+                if (matchedPreset != null)
+                {
+                    item.SequenceOrder = matchedPreset.Order;
+                    item.IsSequenceBadgeVisible = true;
+                    item.IsCheckedWithNull = true;
+                    usedPresetItems.Add(matchedPreset);
+                }
+                else
                 {
                     item.SequenceOrder = null;
                     item.IsSequenceBadgeVisible = false;
-                    item.IsCheckedWithNull = false;
-                    newOrderedList.Add(item);
-                    usedItems.Add(item);
+                    item.IsCheckedWithNull = false; // Unselected tasks maintain empty box style
                 }
             }
 
-            // 3. Also append any remaining tasks from allSourceItems that are not yet in usedItems
-            foreach (var sourceItem in allSourceItems)
+            // Append any preset tasks that were not yet present in the queue
+            foreach (var presetItem in orderedPresetItems)
             {
-                var sourceKey = sourceItem.InterfaceItem?.Name ?? sourceItem.Name;
-                if (!usedItems.Any(u => IsTaskMatch(u, sourceKey)))
+                if (!usedPresetItems.Contains(presetItem))
                 {
-                    var clone = sourceItem.Clone();
-                    clone.SequenceOrder = null;
-                    clone.IsSequenceBadgeVisible = false;
-                    clone.IsCheckedWithNull = false;
-                    newOrderedList.Add(clone);
-                    usedItems.Add(clone);
-                }
-            }
+                    var sourceMatch = TasksSource.FirstOrDefault(s => IsTaskMatch(s, presetItem.TaskName));
+                    var item = sourceMatch != null
+                        ? sourceMatch.Clone()
+                        : new Tool.DragItemViewModel(new Helper.ValueType.TaskInterfaceItem { Name = presetItem.TaskName });
 
-            // 4. Update the observable collection in-place so listeners remain attached and UI re-renders cleanly
-            TaskItemViewModels.Clear();
-            foreach (var item in newOrderedList)
-            {
-                TaskItemViewModels.Add(item);
+                    item.SequenceOrder = presetItem.Order;
+                    item.IsSequenceBadgeVisible = true;
+                    item.IsCheckedWithNull = true;
+                    TaskItemViewModels.Add(item);
+                    usedPresetItems.Add(presetItem);
+                }
             }
 
             ConfigurationHelper.SetValue(ConfigurationKeys.TaskItems, TaskItemViewModels.ToList().Select(model => model.InterfaceItem));
@@ -118,9 +101,11 @@ public partial class TaskQueueViewModel : ViewModel
 
     private static bool IsTaskMatch(Tool.DragItemViewModel item, string taskName)
     {
-        return string.Equals(item.InterfaceItem?.Name, taskName, StringComparison.OrdinalIgnoreCase) ||
-               string.Equals(item.Name, taskName, StringComparison.OrdinalIgnoreCase) ||
-               string.Equals(item.InterfaceItem?.Entry, taskName, StringComparison.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(taskName)) return false;
+        var trimmed = taskName.Trim();
+        return string.Equals(item.InterfaceItem?.Name?.Trim(), trimmed, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(item.Name?.Trim(), trimmed, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(item.InterfaceItem?.Entry?.Trim(), trimmed, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
