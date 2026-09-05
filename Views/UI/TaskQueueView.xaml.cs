@@ -469,31 +469,9 @@ public partial class TaskQueueView
 
     private void OnTaskCheckBoxClick(object sender, RoutedEventArgs e)
     {
-        if (sender is CheckBox { DataContext: DragItemViewModel clickedTask })
+        if (ViewModel.IsPresetMode)
         {
-            if (ViewModel.IsPresetMode)
-            {
-                if (clickedTask.IsChecked)
-                {
-                    int maxOrder = ViewModel.TaskItemViewModels
-                        .Where(t => t.SequenceOrder.HasValue)
-                        .Select(t => t.SequenceOrder!.Value)
-                        .DefaultIfEmpty(0)
-                        .Max();
-                    clickedTask.SequenceOrder = maxOrder + 1;
-                    clickedTask.IsSequenceBadgeVisible = true;
-                }
-                else
-                {
-                    clickedTask.SequenceOrder = null;
-                    clickedTask.IsSequenceBadgeVisible = false;
-
-                    if (!ViewModel.TaskItemViewModels.Any(t => t.SequenceOrder.HasValue && t.SequenceOrder.Value > 0))
-                    {
-                        ViewModel.ExitPresetMode();
-                    }
-                }
-            }
+            ViewModel.ExitPresetMode();
         }
     }
 
@@ -518,6 +496,7 @@ public partial class TaskQueueView
         addTaskDialog.ShowDialog();
         if (addTaskDialog.OutputContent != null)
         {
+            ViewModel.ExitPresetMode();
             ViewModel.TaskItemViewModels.Add(addTaskDialog.OutputContent.Clone());
             ConfigurationHelper.SetValue(ConfigurationKeys.TaskItems, ViewModel.TaskItemViewModels.ToList().Select(model => model.InterfaceItem));
         }
@@ -533,6 +512,7 @@ public partial class TaskQueueView
         {
             if (item.DataContext is DragItemViewModel taskItemViewModel)
             {
+                ViewModel.ExitPresetMode();
                 int index = ViewModel.TaskItemViewModels.IndexOf(taskItemViewModel);
                 ViewModel.TaskItemViewModels.RemoveAt(index);
                 Instances.TaskOptionSettingsUserControl.SetOption(taskItemViewModel, false);

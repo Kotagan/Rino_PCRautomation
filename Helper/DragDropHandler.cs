@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.ObjectModel;
 using GongSolutions.Wpf.DragDrop;
 using MFAWPF.Configuration;
@@ -72,6 +72,7 @@ public class DragDropHandler : IDropTarget
 
             if (targetCollection is ObservableCollection<DragItemViewModel> dragItemViewModels)
             {
+                Instances.TaskQueueViewModel.ExitPresetMode();
                 List<TaskInterfaceItem> tasks = new();
                 foreach (var dragItem in dragItemViewModels)
                 {

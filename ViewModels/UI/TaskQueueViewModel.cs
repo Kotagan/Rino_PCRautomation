@@ -121,7 +121,10 @@ public partial class TaskQueueViewModel : ViewModel
         foreach (var item in TaskItemViewModels)
         {
             item.SequenceOrder = null;
+            item.IsSequenceBadgeVisible = false;
         }
+
+        ConfigurationHelper.SetValue(ConfigurationKeys.TaskItems, TaskItemViewModels.ToList().Select(model => model.InterfaceItem));
     }
 
 

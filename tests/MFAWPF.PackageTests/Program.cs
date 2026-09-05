@@ -226,6 +226,15 @@ internal static class Program
                 Assert(!queueVm.IsPresetMode, "Expected preset mode inactive.");
                 Assert(queueVm.TaskItemViewModels[0].SequenceOrder == null, "Expected cleared order after exit.");
                 Assert(!queueVm.TaskItemViewModels[0].IsSequenceBadgeVisible, "Expected cleared badge after exit.");
+                Assert(queueVm.TaskItemViewModels[0].IsChecked, "Expected 每日签到 remains checked as checkmark.");
+                Assert(queueVm.TaskItemViewModels[1].IsChecked, "Expected 启动游戏 remains checked as checkmark.");
+
+                var topToBottomTasks = queueVm.TaskItemViewModels
+                    .Where(task => task.IsChecked || task.IsCheckedWithNull == null)
+                    .ToList();
+                Assert(topToBottomTasks.Count == 2, "Expected 2 manual tasks.");
+                Assert(topToBottomTasks[0].Name == "每日签到", "Expected 每日签到 first in top-to-bottom order.");
+                Assert(topToBottomTasks[1].Name == "启动游戏", "Expected 启动游戏 second in top-to-bottom order.");
 
                 return Task.CompletedTask;
             });
