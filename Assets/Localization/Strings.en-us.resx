@@ -1237,7 +1237,7 @@
     <value>New Preset</value>
   </data>
   <data name="RenamePreset" xml:space="preserve">
-    <value>Rename</value>
+    <value>Rename Preset</value>
   </data>
   <data name="EnterPresetName" xml:space="preserve">
     <value>Please enter preset name</value>

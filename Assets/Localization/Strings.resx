@@ -1241,7 +1241,7 @@
     <value>新建预设</value>
   </data>
   <data name="RenamePreset" xml:space="preserve">
-    <value>重命名</value>
+    <value>重命名预设</value>
   </data>
   <data name="EnterPresetName" xml:space="preserve">
     <value>请输入预设名称</value>
