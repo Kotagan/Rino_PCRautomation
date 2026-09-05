@@ -8,8 +8,8 @@ echo ========================================================
 echo [INFO] Changing directory to project root...
 cd /d "%~dp0.."
 
-rem 1. Read version from MFAWPF.csproj
-for /f "tokens=3 delims=<>" %%a in ('findstr /i "<Version>" MFAWPF.csproj') do (
+rem 1. Read version from Rino_WFP.csproj
+for /f "tokens=3 delims=<>" %%a in ('findstr /i "<Version>" Rino_WFP.csproj') do (
     set "VERSION=%%a"
 )
 if "%VERSION%"=="" set "VERSION=0.1.0"

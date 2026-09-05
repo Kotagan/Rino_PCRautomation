@@ -54,7 +54,7 @@ if (Test-Path -LiteralPath $OutputDir) {
     }
 }
 
-$projectPath = Join-Path $repoRoot "MFAWPF.csproj"
+$projectPath = Join-Path $repoRoot "Rino_WFP.csproj"
 
 Write-Host "Running dotnet publish..." -ForegroundColor Yellow
 dotnet publish $projectPath -c $Configuration -r win-x64 --no-self-contained -o $OutputDir
@@ -166,7 +166,7 @@ if ($CreateInstaller) {
         throw "Inno Setup script not found at: $issPath"
     }
 
-    # Extract version from MFAWPF.csproj
+    # Extract version from Rino_WFP.csproj
     $csprojContent = Get-Content -Path $projectPath -Raw
     $versionMatch = [System.Text.RegularExpressions.Regex]::Match($csprojContent, "<Version>([^<]+)</Version>")
     if ($versionMatch.Success) {

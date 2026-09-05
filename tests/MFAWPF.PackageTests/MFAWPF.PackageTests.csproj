@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\MFAWPF.csproj" />
+    <ProjectReference Include="..\..\Rino_WFP.csproj" />
   </ItemGroup>
 
   <ItemGroup>
