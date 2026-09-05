@@ -21,8 +21,20 @@ namespace MFAWPF.ViewModels.UI;
 public partial class ConnectingViewModel : ViewModel
 {
     [ObservableProperty] private ObservableCollection<object> _devices = [];
-    [ObservableProperty] private int _devicesIndex = 0;
+    [ObservableProperty] private int _devicesIndex = -1;
     [ObservableProperty] private object? _currentDevice;
+
+    partial void OnDevicesIndexChanged(int value)
+    {
+        if (value >= 0 && value < Devices.Count)
+        {
+            CurrentDevice = Devices[value];
+        }
+        else if (Devices.Count == 0)
+        {
+            CurrentDevice = null;
+        }
+    }
 
     partial void OnCurrentDeviceChanged(object? value)
     {
@@ -44,6 +56,20 @@ public partial class ConnectingViewModel : ViewModel
             MaaProcessor.MaaFwConfiguration.AdbDevice.Config = device.Config;
             MaaProcessor.Instance.SetCurrentTasker();
             ConfigurationHelper.SetValue(ConfigurationKeys.AdbDevice, device);
+        }
+        else if (value == null)
+        {
+            if (CurrentController == MaaControllerTypes.Adb)
+            {
+                MaaProcessor.MaaFwConfiguration.AdbDevice.Name = string.Empty;
+                MaaProcessor.MaaFwConfiguration.AdbDevice.AdbSerial = string.Empty;
+            }
+            else
+            {
+                MaaProcessor.MaaFwConfiguration.DesktopWindow.Name = string.Empty;
+                MaaProcessor.MaaFwConfiguration.DesktopWindow.HWnd = nint.Zero;
+            }
+            MaaProcessor.Instance.SetCurrentTasker();
         }
     }
 
@@ -83,6 +109,7 @@ public partial class ConnectingViewModel : ViewModel
         if (dialog.ShowDialog().IsTrue())
         {
             Devices = [dialog.Output];
+            DevicesIndex = 0;
             CurrentDevice = dialog.Output;
         }
     }
@@ -207,11 +234,50 @@ public partial class ConnectingViewModel : ViewModel
 
     private void UpdateDeviceList(ObservableCollection<object> devices, int index)
     {
-        DispatcherHelper.RunOnMainThread(() =>
+        if (devices.Count > 0)
         {
-            Devices = devices;
-            DevicesIndex = index;
-        });
+            var validIndex = (index >= 0 && index < devices.Count) ? index : 0;
+            var selected = devices[validIndex];
+            if (selected is AdbDeviceInfo adbDev)
+            {
+                MaaProcessor.MaaFwConfiguration.AdbDevice.Name = adbDev.Name;
+                MaaProcessor.MaaFwConfiguration.AdbDevice.AdbPath = adbDev.AdbPath;
+                MaaProcessor.MaaFwConfiguration.AdbDevice.AdbSerial = adbDev.AdbSerial;
+                MaaProcessor.MaaFwConfiguration.AdbDevice.Config = adbDev.Config;
+            }
+            else if (selected is DesktopWindowInfo winInfo)
+            {
+                MaaProcessor.MaaFwConfiguration.DesktopWindow.Name = winInfo.Name;
+                MaaProcessor.MaaFwConfiguration.DesktopWindow.HWnd = winInfo.Handle;
+            }
+
+            DispatcherHelper.RunOnMainThread(() =>
+            {
+                Devices = devices;
+                DevicesIndex = validIndex;
+                CurrentDevice = selected;
+            });
+        }
+        else
+        {
+            if (CurrentController == MaaControllerTypes.Adb)
+            {
+                MaaProcessor.MaaFwConfiguration.AdbDevice.Name = string.Empty;
+                MaaProcessor.MaaFwConfiguration.AdbDevice.AdbSerial = string.Empty;
+            }
+            else
+            {
+                MaaProcessor.MaaFwConfiguration.DesktopWindow.Name = string.Empty;
+                MaaProcessor.MaaFwConfiguration.DesktopWindow.HWnd = nint.Zero;
+            }
+
+            DispatcherHelper.RunOnMainThread(() =>
+            {
+                Devices = devices;
+                DevicesIndex = -1;
+                CurrentDevice = null;
+            });
+        }
     }
 
     private void HandleControllerSettings(bool isAdb)
@@ -307,17 +373,23 @@ public partial class ConnectingViewModel : ViewModel
         if (refresh
             || CurrentController != MaaControllerTypes.Adb
             || !ConfigurationHelper.GetValue(ConfigurationKeys.RememberAdb, true)
-            || MaaProcessor.MaaFwConfiguration.AdbDevice.AdbPath != "adb"
             || !ConfigurationHelper.TryGetValue(ConfigurationKeys.AdbDevice, out AdbDeviceInfo device,
-                new UniversalEnumConverter<AdbInputMethods>(), new UniversalEnumConverter<AdbScreencapMethods>()))
+                new UniversalEnumConverter<AdbInputMethods>(), new UniversalEnumConverter<AdbScreencapMethods>())
+            || string.IsNullOrWhiteSpace(device?.AdbSerial))
         {
             DispatcherHelper.RunOnMainThread(AutoDetectDevice);
             return;
         }
 
+        MaaProcessor.MaaFwConfiguration.AdbDevice.Name = device.Name;
+        MaaProcessor.MaaFwConfiguration.AdbDevice.AdbPath = device.AdbPath;
+        MaaProcessor.MaaFwConfiguration.AdbDevice.AdbSerial = device.AdbSerial;
+        MaaProcessor.MaaFwConfiguration.AdbDevice.Config = device.Config;
+
         DispatcherHelper.RunOnMainThread(() =>
         {
             Devices = [device];
+            DevicesIndex = 0;
             CurrentDevice = device;
         });
     }

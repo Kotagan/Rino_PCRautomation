@@ -54,16 +54,25 @@ public static class EmulatorHelper
     private static bool KillEmulatorMuMuEmulator12()
     {
         string address = MaaProcessor.MaaFwConfiguration.AdbDevice.AdbSerial;
+        if (string.IsNullOrWhiteSpace(address))
+        {
+            return false;
+        }
+
         int emuIndex;
         if (address == "127.0.0.1:16384")
         {
             emuIndex = 0;
         }
-        else
+        else if (address.Contains(':'))
         {
             string portStr = address.Split(':')[1];
-            int port = int.Parse(portStr);
+            if (!int.TryParse(portStr, out int port)) return false;
             emuIndex = (port - 16384) / 32;
+        }
+        else
+        {
+            return false;
         }
 
         var processes = Process.GetProcessesByName("MuMuPlayer");
@@ -127,18 +136,27 @@ public static class EmulatorHelper
     private static bool KillEmulatorLdPlayer()
     {
         var address = MaaProcessor.MaaFwConfiguration.AdbDevice.AdbSerial;
+        if (string.IsNullOrWhiteSpace(address))
+        {
+            return false;
+        }
+
         int emuIndex;
         if (address.Contains(':'))
         {
             var portStr = address.Split(':')[1];
-            var port = int.Parse(portStr);
+            if (!int.TryParse(portStr, out var port)) return false;
             emuIndex = (port - 5555) / 2;
+        }
+        else if (address.Contains('-'))
+        {
+            var portStr = address.Split('-')[1];
+            if (!int.TryParse(portStr, out var port)) return false;
+            emuIndex = (port - 5554) / 2;
         }
         else
         {
-            var portStr = address.Split('-')[1];
-            var port = int.Parse(portStr);
-            emuIndex = (port - 5554) / 2;
+            return false;
         }
 
         var processes = Process.GetProcessesByName("dnplayer");
@@ -203,16 +221,25 @@ public static class EmulatorHelper
     private static bool KillEmulatorNox()
     {
         string address = MaaProcessor.MaaFwConfiguration.AdbDevice.AdbSerial;
+        if (string.IsNullOrWhiteSpace(address))
+        {
+            return false;
+        }
+
         int emuIndex;
         if (address == "127.0.0.1:62001")
         {
             emuIndex = 0;
         }
-        else
+        else if (address.Contains(':'))
         {
             string portStr = address.Split(':')[1];
-            int port = int.Parse(portStr);
+            if (!int.TryParse(portStr, out int port)) return false;
             emuIndex = port - 62024;
+        }
+        else
+        {
+            return false;
         }
 
         var processes = Process.GetProcessesByName("Nox");
@@ -276,8 +303,13 @@ public static class EmulatorHelper
     private static bool KillEmulatorXyaz()
     {
         string address = MaaProcessor.MaaFwConfiguration.AdbDevice.AdbSerial;
+        if (string.IsNullOrWhiteSpace(address) || !address.Contains(':'))
+        {
+            return false;
+        }
+
         string portStr = address.Split(':')[1];
-        int port = int.Parse(portStr);
+        if (!int.TryParse(portStr, out int port)) return false;
         var emuIndex = (port - 21503) / 10;
 
         Process[] processes = Process.GetProcessesByName("MEmu");
@@ -477,7 +509,7 @@ public static class EmulatorHelper
     {
         int pid = 0;
         string address = MaaProcessor.MaaFwConfiguration.AdbDevice.AdbSerial;
-        var port = address.StartsWith("127") ? address.Substring(10) : "5555";
+        var port = !string.IsNullOrEmpty(address) && address.StartsWith("127") && address.Length > 10 ? address.Substring(10) : "5555";
         LoggerService.LogInfo($"address: {address}, port: {port}");
 
         string portCmd = "netstat -ano|findstr \"" + port + "\"";

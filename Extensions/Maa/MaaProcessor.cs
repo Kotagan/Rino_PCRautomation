@@ -1059,6 +1059,11 @@ public class MaaProcessor
         {
             token.ThrowIfCancellationRequested();
 
+            if (controller == null)
+            {
+                LoggerService.LogWarning("Controller is null, cannot proceed with MaaTasker initialization.");
+                return null;
+            }
 
             var tasker = new MaaTasker
             {
@@ -1233,37 +1238,58 @@ public class MaaProcessor
     //
     // }
 
-    private MaaController InitializeController(bool isAdb)
+    private MaaController? InitializeController(bool isAdb)
     {
         if (isAdb)
         {
+            if (string.IsNullOrWhiteSpace(MaaFwConfiguration.AdbDevice.AdbSerial))
+            {
+                LoggerService.LogWarning("AdbSerial is empty or null, cannot initialize MaaAdbController.");
+                return null;
+            }
+
             LoggerService.LogInfo($"AdbPath: {MaaFwConfiguration.AdbDevice.AdbPath}");
             LoggerService.LogInfo($"AdbSerial: {MaaFwConfiguration.AdbDevice.AdbSerial}");
             LoggerService.LogInfo($"ScreenCap: {MaaFwConfiguration.AdbDevice.ScreenCap}");
             LoggerService.LogInfo($"Input: {MaaFwConfiguration.AdbDevice.Input}");
             LoggerService.LogInfo($"Config: {MaaFwConfiguration.AdbDevice.Config}");
+
+            var adbPath = !string.IsNullOrWhiteSpace(MaaFwConfiguration.AdbDevice.AdbPath)
+                ? MaaFwConfiguration.AdbDevice.AdbPath
+                : "adb";
+            var config = !string.IsNullOrWhiteSpace(MaaFwConfiguration.AdbDevice.Config)
+                ? MaaFwConfiguration.AdbDevice.Config
+                : "{}";
+
+            return new MaaAdbController(
+                adbPath,
+                MaaFwConfiguration.AdbDevice.AdbSerial,
+                MaaFwConfiguration.AdbDevice.ScreenCap,
+                MaaFwConfiguration.AdbDevice.Input,
+                config,
+                Path.Combine(AppContext.BaseDirectory, "MaaAgentBinary"));
         }
         else
         {
+            if (MaaFwConfiguration.DesktopWindow.HWnd == nint.Zero)
+            {
+                LoggerService.LogWarning("DesktopWindow HWnd is 0, cannot initialize MaaWin32Controller.");
+                return null;
+            }
+
             LoggerService.LogInfo($"HWnd: {MaaFwConfiguration.DesktopWindow.HWnd}");
             LoggerService.LogInfo($"ScreenCap: {MaaFwConfiguration.DesktopWindow.ScreenCap}");
             LoggerService.LogInfo($"Input: {MaaFwConfiguration.DesktopWindow.Input}");
             LoggerService.LogInfo($"Link: {MaaFwConfiguration.DesktopWindow.Link}");
             LoggerService.LogInfo($"Check: {MaaFwConfiguration.DesktopWindow.Check}");
-        }
-        return isAdb
-            ? new MaaAdbController(
-                MaaFwConfiguration.AdbDevice.AdbPath,
-                MaaFwConfiguration.AdbDevice.AdbSerial,
-                MaaFwConfiguration.AdbDevice.ScreenCap, MaaFwConfiguration.AdbDevice.Input,
-                !string.IsNullOrWhiteSpace(MaaFwConfiguration.AdbDevice.Config) ? MaaFwConfiguration.AdbDevice.Config : "{}",
-                Path.Combine(AppContext.BaseDirectory, "MaaAgentBinary")
-            )
-            : new MaaWin32Controller(
+
+            return new MaaWin32Controller(
                 MaaFwConfiguration.DesktopWindow.HWnd,
-                MaaFwConfiguration.DesktopWindow.ScreenCap, MaaFwConfiguration.DesktopWindow.Input,
+                MaaFwConfiguration.DesktopWindow.ScreenCap,
+                MaaFwConfiguration.DesktopWindow.Input,
                 MaaFwConfiguration.DesktopWindow.Link,
                 MaaFwConfiguration.DesktopWindow.Check);
+        }
     }
 
     private static List<MetadataReference>? _metadataReferences;
@@ -1684,7 +1710,7 @@ public class MaaProcessor
         var adbPath = MaaFwConfiguration.AdbDevice.AdbPath;
         var address = MaaFwConfiguration.AdbDevice.AdbSerial;
 
-        if (string.IsNullOrEmpty(adbPath) || adbPath == "adb")
+        if (string.IsNullOrEmpty(adbPath) || adbPath == "adb" || string.IsNullOrWhiteSpace(address))
         {
             return;
         }
