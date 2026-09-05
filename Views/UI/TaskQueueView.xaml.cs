@@ -471,7 +471,16 @@ public partial class TaskQueueView
     {
         if (ViewModel.IsPresetMode)
         {
-            ViewModel.ExitPresetMode();
+            var clickedTask = (sender as CheckBox)?.DataContext as DragItemViewModel;
+            ViewModel.ExitPresetMode(cancelPresetSelections: true, keepSelectedTask: clickedTask);
+            if (sender is CheckBox checkBox)
+            {
+                checkBox.IsChecked = true;
+            }
+            if (clickedTask != null)
+            {
+                clickedTask.IsCheckedWithNull = true;
+            }
         }
     }
 
@@ -547,8 +556,16 @@ public partial class TaskQueueView
             return;
         }
 
-        ViewModel.ExitPresetMode();
         CheckBox checkBox = (CheckBox)sender;
+        if (checkBox.DataContext is DragItemViewModel clickedTask && ViewModel.IsPresetMode)
+        {
+            ViewModel.ExitPresetMode(cancelPresetSelections: true);
+            clickedTask.IsCheckedWithNull = null;
+            checkBox.IsChecked = null;
+            return;
+        }
+
+        ViewModel.ExitPresetMode();
         checkBox.IsChecked = checkBox.IsChecked == null ? (bool?)false : null;
     }
 
@@ -560,6 +577,15 @@ public partial class TaskQueueView
         }
         if (sender is CheckBox checkBox)
         {
+            if (checkBox.DataContext is DragItemViewModel clickedTask && ViewModel.IsPresetMode)
+            {
+                ViewModel.ExitPresetMode(cancelPresetSelections: true);
+                clickedTask.IsCheckedWithNull = null;
+                checkBox.IsChecked = null;
+                e.Handled = true;
+                return;
+            }
+
             ViewModel.ExitPresetMode();
             checkBox.IsChecked = checkBox.IsChecked == null ? (bool?)false : null;
         }

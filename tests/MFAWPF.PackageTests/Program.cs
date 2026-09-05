@@ -222,19 +222,19 @@ internal static class Program
                 Assert(!queueVm.TaskItemViewModels[2].IsSequenceBadgeVisible, "Expected badge hidden for unassigned 领取邮件.");
                 Assert(!queueVm.TaskItemViewModels[2].IsChecked, "Expected 领取邮件 unchecked.");
 
-                queueVm.ExitPresetMode();
+                queueVm.ExitPresetMode(cancelPresetSelections: true, keepSelectedTask: queueVm.TaskItemViewModels[2]);
                 Assert(!queueVm.IsPresetMode, "Expected preset mode inactive.");
                 Assert(queueVm.TaskItemViewModels[0].SequenceOrder == null, "Expected cleared order after exit.");
                 Assert(!queueVm.TaskItemViewModels[0].IsSequenceBadgeVisible, "Expected cleared badge after exit.");
-                Assert(queueVm.TaskItemViewModels[0].IsChecked, "Expected 每日签到 remains checked as checkmark.");
-                Assert(queueVm.TaskItemViewModels[1].IsChecked, "Expected 启动游戏 remains checked as checkmark.");
+                Assert(!queueVm.TaskItemViewModels[0].IsChecked, "Expected 每日签到 canceled when exiting preset mode.");
+                Assert(!queueVm.TaskItemViewModels[1].IsChecked, "Expected 启动游戏 canceled when exiting preset mode.");
+                Assert(queueVm.TaskItemViewModels[2].IsChecked, "Expected clicked task 领取邮件 to be checked.");
 
                 var topToBottomTasks = queueVm.TaskItemViewModels
                     .Where(task => task.IsChecked || task.IsCheckedWithNull == null)
                     .ToList();
-                Assert(topToBottomTasks.Count == 2, "Expected 2 manual tasks.");
-                Assert(topToBottomTasks[0].Name == "每日签到", "Expected 每日签到 first in top-to-bottom order.");
-                Assert(topToBottomTasks[1].Name == "启动游戏", "Expected 启动游戏 second in top-to-bottom order.");
+                Assert(topToBottomTasks.Count == 1, "Expected 1 manual task.");
+                Assert(topToBottomTasks[0].Name == "领取邮件", "Expected 领取邮件 executed.");
 
                 return Task.CompletedTask;
             });

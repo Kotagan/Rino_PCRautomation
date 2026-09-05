@@ -111,7 +111,7 @@ public partial class TaskQueueViewModel : ViewModel
     /// <summary>
     /// Exits preset mode and clears sequence badges.
     /// </summary>
-    public void ExitPresetMode()
+    public void ExitPresetMode(bool cancelPresetSelections = false, Tool.DragItemViewModel? keepSelectedTask = null)
     {
         if (!IsPresetMode) return;
 
@@ -122,6 +122,11 @@ public partial class TaskQueueViewModel : ViewModel
         {
             item.SequenceOrder = null;
             item.IsSequenceBadgeVisible = false;
+
+            if (cancelPresetSelections)
+            {
+                item.IsCheckedWithNull = (keepSelectedTask != null && item == keepSelectedTask);
+            }
         }
 
         ConfigurationHelper.SetValue(ConfigurationKeys.TaskItems, TaskItemViewModels.ToList().Select(model => model.InterfaceItem));

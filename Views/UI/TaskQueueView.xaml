@@ -177,29 +177,29 @@
                     <Button
                         Click="SelectAll"
                         Foreground="{DynamicResource ControlIconBrush}"
-                        Height="15"
+                        Height="22"
                         IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
                         Margin="7,0,0,0"
                         Padding="0"
                         Style="{StaticResource textBoxButton}"
                         ToolTip="{lex:Loc SelectAll}"
-                        Width="15"
+                        Width="22"
                         hc:IconElement.Geometry="{StaticResource SelectAllGeometry}" />
                     <Button
                         Click="SelectNone"
                         Foreground="{DynamicResource ControlIconBrush}"
-                        Height="15"
+                        Height="22"
                         IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
                         Margin="7,0,0,0"
                         Padding="0"
                         Style="{StaticResource textBoxButton}"
                         ToolTip="{lex:Loc DeselectAll}"
-                        Width="15"
+                        Width="22"
                         hc:IconElement.Geometry="{StaticResource SelectNoneGeometry}" />
                     <Button
                         Click="Edit"
                         Foreground="{DynamicResource ControlIconBrush}"
-                        Height="15"
+                        Height="22"
                         IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
                         Margin="7,0,0,0"
                         Padding="0"
@@ -207,20 +207,20 @@
                         ToolTip="{lex:Loc EditTask}"
                         Visibility="{calcBinding:Binding 'EnableEdit',
                                                          Source={x:Static helper:Instances.RootViewModel}}"
-                        Width="15"
+                        Width="22"
                         hc:IconElement.Geometry="{StaticResource EditGeometry}"
                         x:Name="EditButton" />
                     <Button
                         Click="Edit"
                         Foreground="{DynamicResource ControlIconBrush}"
-                        Height="15"
+                        Height="22"
                         IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
                         Margin="7,0,0,0"
                         Padding="0"
                         Style="{StaticResource textBoxButton}"
                         ToolTip="{lex:Loc TaskSettings}"
                         Visibility="Collapsed"
-                        Width="15"
+                        Width="22"
                         hc:IconElement.Geometry="{StaticResource SettingsRegular}" />
 
 
