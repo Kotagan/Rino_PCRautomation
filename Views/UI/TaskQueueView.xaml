@@ -171,57 +171,65 @@
 
                 <StackPanel
                     HorizontalAlignment="Right"
-                    Margin="2,2,0,0"
+                    Margin="2,0,0,0"
                     Orientation="Horizontal"
                     VerticalAlignment="Center">
                     <Button
                         Click="SelectAll"
                         Foreground="{DynamicResource ControlIconBrush}"
-                        Height="22"
+                        Height="28"
                         IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                        Margin="7,0,0,0"
+                        Margin="6,0,0,0"
                         Padding="0"
                         Style="{StaticResource textBoxButton}"
                         ToolTip="{lex:Loc SelectAll}"
-                        Width="22"
-                        hc:IconElement.Geometry="{StaticResource SelectAllGeometry}" />
+                        Width="28"
+                        hc:IconElement.Geometry="{StaticResource SelectAllGeometry}"
+                        hc:IconElement.Height="18"
+                        hc:IconElement.Width="18" />
                     <Button
                         Click="SelectNone"
                         Foreground="{DynamicResource ControlIconBrush}"
-                        Height="22"
+                        Height="28"
                         IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                        Margin="7,0,0,0"
+                        Margin="6,0,0,0"
                         Padding="0"
                         Style="{StaticResource textBoxButton}"
                         ToolTip="{lex:Loc DeselectAll}"
-                        Width="22"
-                        hc:IconElement.Geometry="{StaticResource SelectNoneGeometry}" />
+                        Width="28"
+                        hc:IconElement.Geometry="{StaticResource SelectNoneGeometry}"
+                        hc:IconElement.Height="18"
+                        hc:IconElement.Width="18" />
                     <Button
                         Click="Edit"
                         Foreground="{DynamicResource ControlIconBrush}"
-                        Height="22"
+                        Height="28"
                         IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                        Margin="7,0,0,0"
+                        Margin="6,0,0,0"
                         Padding="0"
                         Style="{StaticResource textBoxButton}"
                         ToolTip="{lex:Loc EditTask}"
                         Visibility="{calcBinding:Binding 'EnableEdit',
                                                          Source={x:Static helper:Instances.RootViewModel}}"
-                        Width="22"
+                        Width="28"
                         hc:IconElement.Geometry="{StaticResource EditGeometry}"
+                        hc:IconElement.Height="18"
+                        hc:IconElement.Width="18"
                         x:Name="EditButton" />
                     <Button
                         Click="Edit"
                         Foreground="{DynamicResource ControlIconBrush}"
-                        Height="22"
+                        Height="28"
                         IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                        Margin="7,0,0,0"
+                        Margin="6,0,0,0"
                         Padding="0"
                         Style="{StaticResource textBoxButton}"
                         ToolTip="{lex:Loc TaskSettings}"
                         Visibility="Collapsed"
-                        Width="22"
-                        hc:IconElement.Geometry="{StaticResource SettingsRegular}" />
+                        Width="28"
+                        hc:IconElement.Geometry="{StaticResource SettingsRegular}"
+                        hc:IconElement.Height="18"
+                        hc:IconElement.Width="18" />
 
 
                 </StackPanel>
