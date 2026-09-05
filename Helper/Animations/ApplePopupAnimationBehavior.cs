@@ -395,6 +395,12 @@ public static class ApplePopupAnimationBehavior
         if (sender is not DependencyObject scrollViewer) return;
         if (IsInsidePopup(scrollViewer)) return;
 
+        if (e.OriginalSource is DependencyObject source)
+        {
+            if (IsInsidePopup(source)) return;
+            if (FindVisualParent<ComboBox>(source) is ComboBox { IsDropDownOpen: true }) return;
+        }
+
         CloseAllOpenPopups(scrollViewer);
     }
 
@@ -664,14 +670,32 @@ public static class ApplePopupAnimationBehavior
         }
     }
 
-    private static bool IsInsidePopup(DependencyObject element)
+    /// <summary>
+    /// Checks whether the specified element is located inside a popup or dropdown.
+    /// </summary>
+    public static bool IsInsidePopup(DependencyObject? element)
     {
+        if (element == null) return false;
+
+        if (element is Visual visual)
+        {
+            var source = PresentationSource.FromVisual(visual);
+            if (source?.RootVisual != null && source.RootVisual.GetType().Name == "PopupRoot")
+            {
+                return true;
+            }
+        }
+
         DependencyObject? current = element;
         while (current != null)
         {
-            if (current is Popup) return true;
+            if (current is Popup || current.GetType().Name == "PopupRoot") return true;
 
-            DependencyObject? parent = VisualTreeHelper.GetParent(current);
+            DependencyObject? parent = null;
+            if (current is Visual || current is System.Windows.Media.Media3D.Visual3D)
+            {
+                parent = VisualTreeHelper.GetParent(current);
+            }
             if (parent == null && current is FrameworkElement fe)
             {
                 parent = fe.Parent ?? fe.TemplatedParent;

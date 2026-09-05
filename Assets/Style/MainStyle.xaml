@@ -674,7 +674,9 @@
                                         x:Name="DropDownScrollViewer"
                                         CanContentScroll="True"
                                         HorizontalScrollBarVisibility="Disabled"
-                                        VerticalScrollBarVisibility="Auto">
+                                        VerticalScrollBarVisibility="Auto"
+                                        Focusable="False"
+                                        anim:SmoothScrollViewerBehavior.IsEnabled="False">
                                         <ItemsPresenter
                                             x:Name="ItemsPresenter"
                                             KeyboardNavigation.DirectionalNavigation="Contained"

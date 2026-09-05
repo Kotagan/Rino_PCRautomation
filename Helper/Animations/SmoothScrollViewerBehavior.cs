@@ -126,6 +126,38 @@ namespace MFAWPF.Helper.Animations
                 return;
             }
 
+            if (e.OriginalSource is DependencyObject source)
+            {
+                if (ApplePopupAnimationBehavior.IsInsidePopup(source))
+                {
+                    return;
+                }
+
+                if (FindOpenComboBox(source) is ComboBox openComboBox)
+                {
+                    if (openComboBox.Template?.FindName("DropDownScrollViewer", openComboBox) is ScrollViewer dropDownScrollViewer &&
+                        dropDownScrollViewer.ScrollableHeight > 0)
+                    {
+                        if (e.Delta > 0)
+                        {
+                            dropDownScrollViewer.LineUp();
+                        }
+                        else
+                        {
+                            dropDownScrollViewer.LineDown();
+                        }
+                    }
+                    e.Handled = true;
+                    return;
+                }
+
+                if (FindNestedScrollViewer(source, scrollViewer) is ScrollViewer nestedScrollViewer &&
+                    nestedScrollViewer.ScrollableHeight > 0)
+                {
+                    return;
+                }
+            }
+
             var state = GetState(scrollViewer);
             if (!state.HasTarget)
             {
@@ -283,6 +315,54 @@ namespace MFAWPF.Helper.Animations
             }
 
             return Math.Clamp(offset, 0, Math.Max(0, scrollableHeight));
+        }
+
+        private static ComboBox? FindOpenComboBox(DependencyObject? element)
+        {
+            DependencyObject? current = element;
+            while (current != null)
+            {
+                if (current is ComboBox { IsDropDownOpen: true } cb)
+                {
+                    return cb;
+                }
+
+                DependencyObject? parent = null;
+                if (current is Visual || current is System.Windows.Media.Media3D.Visual3D)
+                {
+                    parent = VisualTreeHelper.GetParent(current);
+                }
+                if (parent == null && current is FrameworkElement fe)
+                {
+                    parent = fe.Parent ?? fe.TemplatedParent;
+                }
+                current = parent;
+            }
+            return null;
+        }
+
+        private static ScrollViewer? FindNestedScrollViewer(DependencyObject? element, ScrollViewer parentScrollViewer)
+        {
+            DependencyObject? current = element;
+            while (current != null && !ReferenceEquals(current, parentScrollViewer))
+            {
+                if (current is ScrollViewer sv && sv.ScrollableHeight > 0)
+                {
+                    return sv;
+                }
+
+                DependencyObject? parent = null;
+                if (current is Visual || current is System.Windows.Media.Media3D.Visual3D)
+                {
+                    parent = VisualTreeHelper.GetParent(current);
+                }
+                if (parent == null && current is FrameworkElement fe)
+                {
+                    parent = fe.Parent ?? fe.TemplatedParent;
+                }
+                current = parent;
+            }
+            return null;
         }
 
         private static ScrollState GetState(ScrollViewer scrollViewer)
