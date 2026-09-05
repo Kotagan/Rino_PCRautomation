@@ -230,6 +230,28 @@ internal static class Program
                 return Task.CompletedTask;
             });
 
+            await RunAsync("interface.json deserializes tasks correctly", failures, () =>
+            {
+                var sampleJson = "{\"task\": [{\"name\": \"Task1\", \"entry\": \"Entry1\"}]}";
+                var sampleInstance = Newtonsoft.Json.JsonConvert.DeserializeObject<MFAWPF.Extensions.Maa.MaaInterface>(
+                    sampleJson,
+                    new MFAWPF.Helper.Converters.MaaInterfaceSelectAdvancedConverter(false),
+                    new MFAWPF.Helper.Converters.MaaInterfaceSelectOptionConverter(false));
+                Assert(sampleInstance?.Task?.Count == 1, "Expected sample task deserialization to succeed.");
+
+                var interfacePath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "bin", "x64", "Debug", "interface.json");
+                if (File.Exists(interfacePath))
+                {
+                    var text = File.ReadAllText(interfacePath);
+                    var instance = Newtonsoft.Json.JsonConvert.DeserializeObject<MFAWPF.Extensions.Maa.MaaInterface>(
+                        text,
+                        new MFAWPF.Helper.Converters.MaaInterfaceSelectAdvancedConverter(false),
+                        new MFAWPF.Helper.Converters.MaaInterfaceSelectOptionConverter(false));
+                    Assert(instance?.Task != null, "Expected valid task collection in interface.json");
+                }
+                return Task.CompletedTask;
+            });
+
             await RunAsync("invalid trust public key rejected", failures, () =>
             {
                 try
