@@ -86,11 +86,33 @@ public partial class TaskQueueViewModel : ViewModel
                     item.IsSequenceBadgeVisible = false;
                     item.IsCheckedWithNull = false;
                     newOrderedList.Add(item);
+                    usedItems.Add(item);
                 }
             }
 
-            // 3. Update the observable collection so the UI re-renders in the new order
-            TaskItemViewModels = new ObservableCollection<Tool.DragItemViewModel>(newOrderedList);
+            // 3. Also append any remaining tasks from allSourceItems that are not yet in usedItems
+            foreach (var sourceItem in allSourceItems)
+            {
+                var sourceKey = sourceItem.InterfaceItem?.Name ?? sourceItem.Name;
+                if (!usedItems.Any(u => IsTaskMatch(u, sourceKey)))
+                {
+                    var clone = sourceItem.Clone();
+                    clone.SequenceOrder = null;
+                    clone.IsSequenceBadgeVisible = false;
+                    clone.IsCheckedWithNull = false;
+                    newOrderedList.Add(clone);
+                    usedItems.Add(clone);
+                }
+            }
+
+            // 4. Update the observable collection in-place so listeners remain attached and UI re-renders cleanly
+            TaskItemViewModels.Clear();
+            foreach (var item in newOrderedList)
+            {
+                TaskItemViewModels.Add(item);
+            }
+
+            ConfigurationHelper.SetValue(ConfigurationKeys.TaskItems, TaskItemViewModels.ToList().Select(model => model.InterfaceItem));
         });
     }
 

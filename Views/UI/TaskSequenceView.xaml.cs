@@ -25,6 +25,17 @@ public partial class TaskSequenceView
         ViewModel.RefreshTasksFromQueue();
     }
 
+    private void ApplyPresetButton_Click(object sender, RoutedEventArgs e)
+    {
+        var focusedElement = System.Windows.Input.FocusManager.GetFocusedElement(this) as UIElement;
+        if (focusedElement is TextBox textBox)
+        {
+            var binding = System.Windows.Data.BindingOperations.GetBindingExpression(textBox, TextBox.TextProperty);
+            binding?.UpdateSource();
+        }
+        System.Windows.Input.Keyboard.ClearFocus();
+    }
+
     private void DeletePresetButton_Click(object sender, RoutedEventArgs e)
     {
         if (sender is Button { CommandParameter: TaskPreset preset })

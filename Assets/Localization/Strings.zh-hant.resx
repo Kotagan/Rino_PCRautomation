@@ -1217,6 +1217,9 @@
   <data name="DefaultPreset" xml:space="preserve">
     <value>預設方案</value>
   </data>
+  <data name="NoSequenceToApply" xml:space="preserve">
+    <value>沒有可套用的預設任務順序，請先為任務設定執行順序！</value>
+  </data>
   <data name="NoTasksAvailable" xml:space="preserve">
     <value>暫無可調整的任務，請先確保已載入任務資源</value>
   </data>

@@ -1761,6 +1761,15 @@ namespace MFAWPF.Res.Localization {
         }
 
         /// <summary>
+        ///   Looks up a localized string similar to 没有可应用的预设任务顺序，请先为任务设置执行顺序！.
+        /// </summary>
+        internal static string NoSequenceToApply {
+            get {
+                return ResourceManager.GetString("NoSequenceToApply", resourceCulture);
+            }
+        }
+
+        /// <summary>
         ///   Looks up a localized string similar to 默认（当前主页状态）.
         /// </summary>
         internal static string DefaultHomeState {

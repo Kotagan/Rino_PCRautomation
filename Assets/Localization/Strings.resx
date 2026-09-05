@@ -1228,6 +1228,9 @@
   <data name="DefaultPreset" xml:space="preserve">
     <value>默认预设</value>
   </data>
+  <data name="NoSequenceToApply" xml:space="preserve">
+    <value>没有可应用的预设任务顺序，请先为任务设置执行顺序！</value>
+  </data>
   <data name="NoTasksAvailable" xml:space="preserve">
     <value>暂无可调整的任务，请先确保已加载任务资源</value>
   </data>

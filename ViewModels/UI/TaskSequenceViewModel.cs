@@ -372,8 +372,23 @@ public partial class TaskSequenceViewModel : ViewModel
                 .ToList();
         }
 
+        if (sequence.Count == 0)
+        {
+            GrowlHelper.Warning("NoSequenceToApply".ToLocalization());
+            return;
+        }
+
         var presetName = SelectedPreset?.Name ?? "Custom";
         Instances.TaskQueueViewModel.ApplyPresetSequence(sequence, presetName);
         GrowlHelper.Success(string.Format("PresetAppliedSuccess".ToLocalization(), presetName));
+
+        try
+        {
+            Instances.RootView.SwitchToHomeTab();
+        }
+        catch (Exception ex)
+        {
+            LoggerService.LogError(ex);
+        }
     }
 }

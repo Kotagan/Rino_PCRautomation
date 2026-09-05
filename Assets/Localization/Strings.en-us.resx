@@ -1224,6 +1224,9 @@
   <data name="DefaultPreset" xml:space="preserve">
     <value>Default Preset</value>
   </data>
+  <data name="NoSequenceToApply" xml:space="preserve">
+    <value>No task sequence to apply. Please set execution order for tasks first!</value>
+  </data>
   <data name="NoTasksAvailable" xml:space="preserve">
     <value>No tasks available. Please ensure task resources are loaded.</value>
   </data>

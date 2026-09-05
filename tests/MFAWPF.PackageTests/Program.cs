@@ -230,6 +230,75 @@ internal static class Program
                 return Task.CompletedTask;
             });
 
+            await RunAsync("checkbox badge renders in template", failures, () =>
+            {
+                var tcs = new TaskCompletionSource<bool>();
+                var thread = new Thread(() =>
+                {
+                    try
+                    {
+                        var app = System.Windows.Application.Current ?? new System.Windows.Application();
+                        var xaml = @"<ResourceDictionary xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+                                                       xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"">
+                            <Style x:Key=""TestStyle"" TargetType=""CheckBox"">
+                                <Setter Property=""Template"">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType=""CheckBox"">
+                                            <Grid>
+                                                <Path x:Name=""checkMark"" Visibility=""Collapsed"" />
+                                                <TextBlock x:Name=""sequenceNumberBadge"" Text=""{Binding SequenceOrder}"" Visibility=""Collapsed"" />
+                                            </Grid>
+                                            <ControlTemplate.Triggers>
+                                                <DataTrigger Binding=""{Binding Path=IsSequenceBadgeVisible}"" Value=""True"">
+                                                    <Setter Property=""Visibility"" TargetName=""sequenceNumberBadge"" Value=""Visible"" />
+                                                    <Setter Property=""Visibility"" TargetName=""checkMark"" Value=""Collapsed"" />
+                                                </DataTrigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ResourceDictionary>";
+                        var rd = (System.Windows.ResourceDictionary)System.Windows.Markup.XamlReader.Parse(xaml);
+                        var style = (System.Windows.Style)rd["TestStyle"];
+
+                        var queueVm = new MFAWPF.ViewModels.UI.TaskQueueViewModel();
+                        var task1 = new MFAWPF.ViewModels.Tool.DragItemViewModel(new MFAWPF.Helper.ValueType.TaskInterfaceItem { Name = "任务1" });
+                        var task2 = new MFAWPF.ViewModels.Tool.DragItemViewModel(new MFAWPF.Helper.ValueType.TaskInterfaceItem { Name = "任务2" });
+                        queueVm.TaskItemViewModels.Add(task1);
+                        queueVm.TaskItemViewModels.Add(task2);
+
+                        // Simulates TaskQueueView having DataContext = this, and ViewModel property without INPC
+                        var container = new TestContainer { ViewModel = queueVm };
+                        var listBox = new System.Windows.Controls.ListBox { DataContext = container };
+                        var binding = new System.Windows.Data.Binding("ViewModel.TaskItemViewModels");
+                        System.Windows.Data.BindingOperations.SetBinding(listBox, System.Windows.Controls.ItemsControl.ItemsSourceProperty, binding);
+
+                        Assert(listBox.Items.Count == 2, $"Initial count: expected 2, got {listBox.Items.Count}");
+
+                        queueVm.ApplyPresetSequence(new[]
+                        {
+                            new MFAWPF.Models.TaskPresetItem { TaskName = "任务2", Order = 1 },
+                            new MFAWPF.Models.TaskPresetItem { TaskName = "任务1", Order = 2 }
+                        });
+
+                        Assert(listBox.Items.Count == 2, $"After preset: expected 2, got {listBox.Items.Count}");
+                        var firstItem = (MFAWPF.ViewModels.Tool.DragItemViewModel)listBox.Items[0];
+                        Assert(firstItem.Name == "任务2", $"Expected first item '任务2', got '{firstItem.Name}'");
+                        Assert(firstItem.SequenceOrder == 1, $"Expected order 1, got '{firstItem.SequenceOrder}'");
+                        Assert(firstItem.IsSequenceBadgeVisible, "Expected badge visible.");
+                        tcs.SetResult(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        tcs.SetException(ex);
+                    }
+                });
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
+                return tcs.Task;
+            });
+
             await RunAsync("interface.json deserializes tasks correctly", failures, () =>
             {
                 var sampleJson = "{\"task\": [{\"name\": \"Task1\", \"entry\": \"Entry1\"}]}";
@@ -1816,6 +1885,11 @@ internal static class Program
         {
             throw new InvalidOperationException(message);
         }
+    }
+
+    private sealed class TestContainer
+    {
+        public MFAWPF.ViewModels.UI.TaskQueueViewModel ViewModel { get; set; } = null!;
     }
 
     private sealed record TestPackage(

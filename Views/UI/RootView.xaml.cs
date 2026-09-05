@@ -107,6 +107,20 @@ public partial class RootView
         };
     }
 
+    /// <summary>
+    /// Switches the main navigation tab control back to the Home (TaskQueue) tab.
+    /// </summary>
+    public void SwitchToHomeTab()
+    {
+        DispatcherHelper.RunOnMainThread(() =>
+        {
+            if (RootTabControl != null)
+            {
+                RootTabControl.SelectedIndex = 0;
+            }
+        });
+    }
+
     private void InitializeResponsiveWindowSize()
     {
         if (_windowSizeInitialized)
