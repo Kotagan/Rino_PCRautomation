@@ -108,6 +108,19 @@
         <Setter Property="UseLayoutRounding" Value="True" />
     </Style>
 
+    <Style TargetType="{x:Type hc:Shield}" BasedOn="{StaticResource {x:Type hc:Shield}}">
+        <Setter Property="Foreground" Value="#FFFFFF" />
+        <Style.Resources>
+            <Style TargetType="{x:Type TextBlock}">
+                <Setter Property="Foreground" Value="#FFFFFF" />
+                <Setter Property="FontSize" Value="12" />
+                <Setter Property="FontWeight" Value="Medium" />
+                <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+        </Style.Resources>
+    </Style>
+
     <Style TargetType="{x:Type controls1:CustomTextBlock}">
         <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
         <Setter Property="FontSize" Value="17" />

@@ -86,6 +86,13 @@
                     ToolTip="{x:Static helper:MFAUrls.GitHub}"
                     Visibility="{calcBinding:Binding 'ViewModel.ShowSoftwareVersion'}"
                     x:Name="SoftwareShield">
+                    <hc:Shield.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="#FFFFFF" />
+                            <Setter Property="FontSize" Value="12" />
+                            <Setter Property="FontWeight" Value="Medium" />
+                        </Style>
+                    </hc:Shield.Resources>
                     <hc:Shield.InputBindings>
                         <MouseBinding Gesture="LeftClick" Command="{Binding ViewModel.OpenSoftwareUrlCommand}" />
                     </hc:Shield.InputBindings>
@@ -109,6 +116,13 @@
                     Subject="{lex:Loc ResourceVersion}"
                     Visibility="{calcBinding:Binding 'ViewModel.ShowResourceVersion'}"
                     x:Name="ResourceShield">
+                    <hc:Shield.Resources>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="#FFFFFF" />
+                            <Setter Property="FontSize" Value="12" />
+                            <Setter Property="FontWeight" Value="Medium" />
+                        </Style>
+                    </hc:Shield.Resources>
                     <hc:Shield.InputBindings>
                         <MouseBinding Gesture="LeftClick" Command="{Binding ViewModel.OpenResourceUrlCommand}" />
                     </hc:Shield.InputBindings>
