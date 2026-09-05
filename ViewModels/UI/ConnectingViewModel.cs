@@ -108,9 +108,60 @@ public partial class ConnectingViewModel : ViewModel
         var dialog = new AdbEditorDialog(deviceInfo);
         if (dialog.ShowDialog().IsTrue())
         {
-            Devices = [dialog.Output];
-            DevicesIndex = 0;
-            CurrentDevice = dialog.Output;
+            var output = dialog.Output;
+            if (deviceInfo != null && Devices.Contains(deviceInfo))
+            {
+                var idx = Devices.IndexOf(deviceInfo);
+                Devices[idx] = output;
+            }
+            else
+            {
+                Devices.Add(output);
+            }
+            CurrentDevice = output;
+            DevicesIndex = Devices.IndexOf(output);
+        }
+    }
+
+    [RelayCommand]
+    public void DeleteDevice(object? device)
+    {
+        if (device == null) return;
+
+        Devices.Remove(device);
+
+        if (Equals(CurrentDevice, device))
+        {
+            if (Devices.Count > 0)
+            {
+                DevicesIndex = 0;
+                CurrentDevice = Devices[0];
+            }
+            else
+            {
+                DevicesIndex = -1;
+                CurrentDevice = null;
+            }
+        }
+        else
+        {
+            DevicesIndex = Devices.IndexOf(CurrentDevice);
+        }
+
+        if (CurrentController == MaaControllerTypes.Adb)
+        {
+            if (CurrentDevice is AdbDeviceInfo adbDevice)
+            {
+                ConfigurationHelper.SetValue(ConfigurationKeys.AdbDevice, adbDevice);
+            }
+            else
+            {
+                ConfigurationHelper.SetValue(ConfigurationKeys.AdbDevice, null);
+                MaaProcessor.MaaFwConfiguration.AdbDevice.Name = string.Empty;
+                MaaProcessor.MaaFwConfiguration.AdbDevice.AdbSerial = string.Empty;
+                MaaProcessor.MaaFwConfiguration.AdbDevice.AdbPath = string.Empty;
+                MaaProcessor.MaaFwConfiguration.AdbDevice.Config = string.Empty;
+            }
         }
     }
 

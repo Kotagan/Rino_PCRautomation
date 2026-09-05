@@ -25,9 +25,17 @@ public partial class GuiSettingsUserControlModel: ViewModel
         new("FollowingSystem"),
     ];
     
+    public bool SuppressThemeUpdate { get; set; }
+
     [ObservableProperty] private int _themeIndex = ConfigurationHelper.GetValue(ConfigurationKeys.ThemeIndex, 0);
     
     partial void OnThemeIndexChanged(int value)
+    {
+        if (SuppressThemeUpdate) return;
+        ApplyTheme(value);
+    }
+
+    public void ApplyTheme(int value)
     {
         ThemeHelper.UpdateThemeIndexChanged(value);
         ConfigurationHelper.SetValue(ConfigurationKeys.ThemeIndex, value);

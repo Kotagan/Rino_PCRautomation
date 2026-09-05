@@ -14,10 +14,12 @@
     xmlns:helper="clr-namespace:MFAWPF.Helper"
     xmlns:lex="http://wpflocalizeextension.codeplex.com"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="clr-namespace:MFAWPF.Helper.Converters"
     xmlns:ui="clr-namespace:MFAWPF.Views.UI"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
     <UserControl.Resources>
+        <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter" />
         <Style x:Key="SequenceActionButtonStyle" TargetType="Button" BasedOn="{StaticResource DialogSecondaryButtonStyle}">
             <Setter Property="FontSize" Value="13.5" />
             <Setter Property="FontWeight" Value="Medium" />
@@ -165,7 +167,6 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
-                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <Grid>
@@ -221,13 +222,15 @@
                                         Content="×"
                                         FontSize="15"
                                         FontWeight="SemiBold"
+                                        Foreground="{DynamicResource GrayColor4}"
                                         Grid.Column="1"
-                                        Height="24"
+                                        Height="20"
                                         Margin="8,0,0,0"
                                         Padding="0"
                                         Style="{StaticResource textBoxButton}"
                                         ToolTip="{lex:Loc DeletePreset}"
-                                        Width="24" />
+                                        Visibility="{Binding RelativeSource={RelativeSource AncestorType=ComboBoxItem}, Converter={StaticResource NotNullToVisibilityConverter}}"
+                                        Width="20" />
                                 </Grid>
                             </DataTemplate>
                         </hc:ComboBox.ItemTemplate>
@@ -235,14 +238,16 @@
 
                     <StackPanel Grid.Row="2">
                         <Button
-                            Command="{Binding ViewModel.SaveCurrentPresetCommand}"
+                            Click="SavePresetButton_Click"
                             Content="{lex:Loc SavePreset}"
                             HorizontalAlignment="Stretch"
                             Style="{StaticResource SequenceActionButtonStyle}" />
                         <Grid Margin="0,8,0,0">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="8" />
+                                <ColumnDefinition Width="6" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="6" />
                                 <ColumnDefinition Width="*" />
                             </Grid.ColumnDefinitions>
                             <Button
@@ -254,15 +259,13 @@
                                 Content="{lex:Loc RenamePreset}"
                                 Grid.Column="2"
                                 Style="{StaticResource SequenceActionButtonStyle}" />
+                            <Button
+                                Click="DeletePresetActionButton_Click"
+                                Content="{lex:Loc DeletePreset}"
+                                Grid.Column="4"
+                                Style="{StaticResource SequenceActionButtonStyle}" />
                         </Grid>
                     </StackPanel>
-
-                    <Button
-                        Command="{Binding ViewModel.DeleteCurrentPresetCommand}"
-                        Content="{lex:Loc DeletePreset}"
-                        Grid.Row="4"
-                        HorizontalAlignment="Stretch"
-                        Style="{StaticResource SequenceActionButtonStyle}" />
                 </Grid>
             </Border>
 

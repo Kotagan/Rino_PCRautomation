@@ -177,44 +177,46 @@
 
 
     </hc:Window.Resources>
-    <DockPanel>
-        <ui:NotifyIcon Visibility="Visible" x:Name="NotifyIcon" />
-        <TabControl
-            Background="Transparent"
-            BorderThickness="0"
-            anim:TabControlAnimationBehavior.IsEnabled="True"
-            x:Name="RootTabControl">
-            <TabItem
-                Header="{lex:Loc Home}"
-                IsSelected="True"
-                Style="{StaticResource CustomTabItemStyle}">
-                <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type ui:TaskQueueView}}" />
-            </TabItem>
-            <TabItem Header="{lex:Loc Tasks}" Style="{StaticResource CustomTabItemStyle}">
-                <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type ui:TaskSequenceView}}" />
-            </TabItem>
-            <TabItem Header="{lex:Loc Connection}" Style="{StaticResource CustomTabItemStyle}">
-                <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type ui:ConnectingView}}" />
-            </TabItem>
-            <TabItem Header="{lex:Loc PackageDownloads}" Style="{StaticResource CustomTabItemStyle}">
-                <Border Background="{DynamicResource SecundaryBackgroundColor}">
-                    <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type settings:DownloadCenterUserControl}}" />
-                </Border>
-            </TabItem>
-            <TabItem
-                Header="{lex:Loc Character}"
-                Style="{StaticResource CustomTabItemStyle}"
-                x:Name="CharacterTabItem">
-                <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type ui:CharacterView}}" />
-            </TabItem>
-            <TabItem Header="{lex:Loc Settings}" Style="{StaticResource CustomTabItemStyle}">
-                <Border Background="{DynamicResource SecundaryBackgroundColor}" x:Name="SettingViewBorder">
-                    <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type ui:SettingsView}}" />
-                </Border>
-            </TabItem>
-        </TabControl>
-
-    </DockPanel>
+    <Grid>
+        <DockPanel>
+            <ui:NotifyIcon Visibility="Visible" x:Name="NotifyIcon" />
+            <TabControl
+                Background="Transparent"
+                BorderThickness="0"
+                anim:TabControlAnimationBehavior.IsEnabled="True"
+                x:Name="RootTabControl">
+                <TabItem
+                    Header="{lex:Loc Home}"
+                    IsSelected="True"
+                    Style="{StaticResource CustomTabItemStyle}">
+                    <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type ui:TaskQueueView}}" />
+                </TabItem>
+                <TabItem Header="{lex:Loc Tasks}" Style="{StaticResource CustomTabItemStyle}">
+                    <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type ui:TaskSequenceView}}" />
+                </TabItem>
+                <TabItem Header="{lex:Loc Connection}" Style="{StaticResource CustomTabItemStyle}">
+                    <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type ui:ConnectingView}}" />
+                </TabItem>
+                <TabItem Header="{lex:Loc PackageDownloads}" Style="{StaticResource CustomTabItemStyle}">
+                    <Border Background="{DynamicResource SecundaryBackgroundColor}">
+                        <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type settings:DownloadCenterUserControl}}" />
+                    </Border>
+                </TabItem>
+                <TabItem
+                    Header="{lex:Loc Character}"
+                    Style="{StaticResource CustomTabItemStyle}"
+                    x:Name="CharacterTabItem">
+                    <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type ui:CharacterView}}" />
+                </TabItem>
+                <TabItem Header="{lex:Loc Settings}" Style="{StaticResource CustomTabItemStyle}">
+                    <Border Background="{DynamicResource SecundaryBackgroundColor}" x:Name="SettingViewBorder">
+                        <ContentControl Content="{utils:ServiceProvider ServiceType={x:Type ui:SettingsView}}" />
+                    </Border>
+                </TabItem>
+            </TabControl>
+        </DockPanel>
+        <Canvas x:Name="ThemeTransitionCanvas" IsHitTestVisible="False" ClipToBounds="True" />
+    </Grid>
 
     <hc:Interaction.Behaviors>
         <hc:TaskbarRebuildBehavior Element="{Binding ElementName=NotifyIcon}" />

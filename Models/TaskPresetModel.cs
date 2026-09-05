@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace MFAWPF.Models;
 
@@ -22,22 +23,25 @@ public class TaskPresetItem
 /// <summary>
 /// Represents a named task execution order preset.
 /// </summary>
-public class TaskPreset
+public partial class TaskPreset : ObservableObject
 {
     /// <summary>
     /// Gets or sets the unique name of the preset.
     /// </summary>
-    public string Name { get; set; } = string.Empty;
+    [ObservableProperty]
+    private string _name = string.Empty;
 
     /// <summary>
     /// Gets or sets the list of ordered task items in this preset.
     /// </summary>
-    public List<TaskPresetItem> Items { get; set; } = new();
+    [ObservableProperty]
+    private List<TaskPresetItem> _items = new();
 
     /// <summary>
     /// Gets or sets the timestamp when this preset was created or last updated.
     /// </summary>
-    public DateTime UpdatedAt { get; set; } = DateTime.Now;
+    [ObservableProperty]
+    private DateTime _updatedAt = DateTime.Now;
 
     /// <summary>
     /// Creates a deep clone of the preset.

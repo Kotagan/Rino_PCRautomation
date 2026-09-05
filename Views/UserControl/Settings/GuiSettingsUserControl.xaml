@@ -46,6 +46,8 @@
                 IsEnabled="{calcBinding:Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
                 ItemsSource="{Binding ViewModel.Themes}"
                 SelectedIndex="{Binding ViewModel.ThemeIndex}"
+                SelectionChanged="ThemeComboBox_SelectionChanged"
+                x:Name="ThemeComboBox"
                 Width="260" />
         </Grid>
 

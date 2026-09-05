@@ -15,22 +15,67 @@
     xmlns:lex="http://wpflocalizeextension.codeplex.com"
     xmlns:local="clr-namespace:MFAWPF.Views.UI"
     xmlns:maa="clr-namespace:MFAWPF.Extensions.Maa"
+    xmlns:converters="clr-namespace:MFAWPF.Helper.Converters"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
+        <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter" />
+
         <DataTemplate DataType="{x:Type binding:AdbDeviceInfo}" x:Key="DeviceInfoTemplate">
-            <TextBlock>
-                <TextBlock.Text>
-                    <MultiBinding StringFormat="{}{0} ({1})">
-                        <Binding Path="Name" />
-                        <Binding Path="AdbSerial" />
-                    </MultiBinding>
-                </TextBlock.Text>
-            </TextBlock>
+            <Grid HorizontalAlignment="Stretch" MinWidth="180">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis">
+                    <TextBlock.Text>
+                        <MultiBinding StringFormat="{}{0} ({1})">
+                            <Binding Path="Name" />
+                            <Binding Path="AdbSerial" />
+                        </MultiBinding>
+                    </TextBlock.Text>
+                </TextBlock>
+                <Button
+                    Command="{Binding DeleteDeviceCommand, Source={x:Static helper:Instances.ConnectingViewModel}}"
+                    CommandParameter="{Binding}"
+                    Foreground="{DynamicResource GrayColor4}"
+                    Grid.Column="1"
+                    Height="16"
+                    Margin="8,0,0,0"
+                    Padding="0"
+                    Style="{StaticResource textBoxButton}"
+                    ToolTip="{lex:Loc Delete}"
+                    Visibility="{Binding RelativeSource={RelativeSource AncestorType=ComboBoxItem}, Converter={StaticResource NotNullToVisibilityConverter}}"
+                    Width="16"
+                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                    hc:IconElement.Height="10"
+                    hc:IconElement.Width="10" />
+            </Grid>
         </DataTemplate>
         <!--  DataTemplate for WindowInfo  -->
         <DataTemplate x:Key="WindowInfoTemplate">
-            <TextBlock Text="{Binding Name}" />
+            <Grid HorizontalAlignment="Stretch" MinWidth="180">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="{Binding Name}" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+                <Button
+                    Command="{Binding DeleteDeviceCommand, Source={x:Static helper:Instances.ConnectingViewModel}}"
+                    CommandParameter="{Binding}"
+                    Foreground="{DynamicResource GrayColor4}"
+                    Grid.Column="1"
+                    Height="16"
+                    Margin="8,0,0,0"
+                    Padding="0"
+                    Style="{StaticResource textBoxButton}"
+                    ToolTip="{lex:Loc Delete}"
+                    Visibility="{Binding RelativeSource={RelativeSource AncestorType=ComboBoxItem}, Converter={StaticResource NotNullToVisibilityConverter}}"
+                    Width="16"
+                    hc:IconElement.Geometry="{StaticResource CloseGeometry}"
+                    hc:IconElement.Height="10"
+                    hc:IconElement.Width="10" />
+            </Grid>
         </DataTemplate>
 
         <!--  DataTemplateSelector  -->

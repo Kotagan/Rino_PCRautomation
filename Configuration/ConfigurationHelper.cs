@@ -45,7 +45,7 @@ public static class ConfigurationHelper
         foreach (var file in Directory.GetFiles(configPath))
         {
             var fileName = Path.GetFileName(file);
-            if (fileName.EndsWith(".json") && !fileName.Contains("maa", StringComparison.OrdinalIgnoreCase))
+            if (fileName.EndsWith(".json") && !fileName.Contains("maa", StringComparison.OrdinalIgnoreCase) && !fileName.Contains("task_presets", StringComparison.OrdinalIgnoreCase))
             {
                 var name = fileName.Replace(".json", "");
                 var config = JsonHelper.ReadFromConfigJsonFile(name, new Dictionary<string, object>());
