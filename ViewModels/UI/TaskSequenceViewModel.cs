@@ -68,6 +68,26 @@ public partial class TaskSequenceViewModel : ViewModel
 
         SequenceItems = newItems;
         HasTasks = SequenceItems.Count > 0;
+
+        if (currentAssignments.Count == 0)
+        {
+            if (SelectedPreset != null && SelectedPreset.Items.Count > 0)
+            {
+                ApplyPresetToItems(SelectedPreset);
+                return;
+            }
+            else if (Instances.TaskQueueViewModel.IsPresetMode)
+            {
+                foreach (var itemVm in SequenceItems)
+                {
+                    if (itemVm.DragItem.SequenceOrder.HasValue && itemVm.DragItem.SequenceOrder.Value > 0)
+                    {
+                        itemVm.SetOrderInternal(itemVm.DragItem.SequenceOrder.Value);
+                    }
+                }
+            }
+        }
+
         NormalizeSequence();
     }
 
@@ -343,6 +363,14 @@ public partial class TaskSequenceViewModel : ViewModel
                 Order = i.OrderIndex!.Value
             })
             .ToList();
+
+        if (sequence.Count == 0 && SelectedPreset != null && SelectedPreset.Items.Count > 0)
+        {
+            sequence = SelectedPreset.Items
+                .Where(i => !string.IsNullOrWhiteSpace(i.TaskName) && i.Order > 0)
+                .OrderBy(i => i.Order)
+                .ToList();
+        }
 
         var presetName = SelectedPreset?.Name ?? "Custom";
         Instances.TaskQueueViewModel.ApplyPresetSequence(sequence, presetName);

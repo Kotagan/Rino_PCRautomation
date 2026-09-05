@@ -473,15 +473,26 @@ public partial class TaskQueueView
         {
             if (ViewModel.IsPresetMode)
             {
-                ViewModel.ExitPresetMode();
-                foreach (var task in ViewModel.TaskItemViewModels)
+                if (clickedTask.IsChecked)
                 {
-                    if (task != clickedTask)
+                    int maxOrder = ViewModel.TaskItemViewModels
+                        .Where(t => t.SequenceOrder.HasValue)
+                        .Select(t => t.SequenceOrder!.Value)
+                        .DefaultIfEmpty(0)
+                        .Max();
+                    clickedTask.SequenceOrder = maxOrder + 1;
+                    clickedTask.IsSequenceBadgeVisible = true;
+                }
+                else
+                {
+                    clickedTask.SequenceOrder = null;
+                    clickedTask.IsSequenceBadgeVisible = false;
+
+                    if (!ViewModel.TaskItemViewModels.Any(t => t.SequenceOrder.HasValue && t.SequenceOrder.Value > 0))
                     {
-                        task.IsCheckedWithNull = false;
+                        ViewModel.ExitPresetMode();
                     }
                 }
-                clickedTask.IsCheckedWithNull = true;
             }
         }
     }

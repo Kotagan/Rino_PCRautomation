@@ -188,6 +188,48 @@ internal static class Program
                 Assert(result.Manifest.Payload.DefaultProjectEntrypointId == "main", "Expected main entrypoint.");
             });
 
+            await RunAsync("task sequence preset applies order and sequence badges to home queue", failures, () =>
+            {
+                var queueVm = new MFAWPF.ViewModels.UI.TaskQueueViewModel();
+                var task1 = new MFAWPF.ViewModels.Tool.DragItemViewModel(new MFAWPF.Helper.ValueType.TaskInterfaceItem { Name = "每日签到" });
+                var task2 = new MFAWPF.ViewModels.Tool.DragItemViewModel(new MFAWPF.Helper.ValueType.TaskInterfaceItem { Name = "启动游戏" });
+                var task3 = new MFAWPF.ViewModels.Tool.DragItemViewModel(new MFAWPF.Helper.ValueType.TaskInterfaceItem { Name = "领取邮件" });
+                queueVm.TaskItemViewModels = new System.Collections.ObjectModel.ObservableCollection<MFAWPF.ViewModels.Tool.DragItemViewModel> { task1, task2, task3 };
+
+                var presetSequence = new List<MFAWPF.Models.TaskPresetItem>
+                {
+                    new() { TaskName = "启动游戏", Order = 1 },
+                    new() { TaskName = "每日签到", Order = 2 },
+                };
+
+                queueVm.ApplyPresetSequence(presetSequence, "测试预设");
+
+                Assert(queueVm.IsPresetMode, "Expected preset mode active.");
+                Assert(queueVm.TaskItemViewModels.Count == 3, "Expected 3 tasks in queue.");
+
+                Assert(queueVm.TaskItemViewModels[0].Name == "启动游戏", "Expected 启动游戏 at position 0.");
+                Assert(queueVm.TaskItemViewModels[0].SequenceOrder == 1, "Expected order 1 for 启动游戏.");
+                Assert(queueVm.TaskItemViewModels[0].IsSequenceBadgeVisible, "Expected badge visible for 启动游戏.");
+                Assert(queueVm.TaskItemViewModels[0].IsChecked, "Expected 启动游戏 checked.");
+
+                Assert(queueVm.TaskItemViewModels[1].Name == "每日签到", "Expected 每日签到 at position 1.");
+                Assert(queueVm.TaskItemViewModels[1].SequenceOrder == 2, "Expected order 2 for 每日签到.");
+                Assert(queueVm.TaskItemViewModels[1].IsSequenceBadgeVisible, "Expected badge visible for 每日签到.");
+                Assert(queueVm.TaskItemViewModels[1].IsChecked, "Expected 每日签到 checked.");
+
+                Assert(queueVm.TaskItemViewModels[2].Name == "领取邮件", "Expected 领取邮件 at position 2.");
+                Assert(queueVm.TaskItemViewModels[2].SequenceOrder == null, "Expected null sequence order for unassigned 领取邮件.");
+                Assert(!queueVm.TaskItemViewModels[2].IsSequenceBadgeVisible, "Expected badge hidden for unassigned 领取邮件.");
+                Assert(!queueVm.TaskItemViewModels[2].IsChecked, "Expected 领取邮件 unchecked.");
+
+                queueVm.ExitPresetMode();
+                Assert(!queueVm.IsPresetMode, "Expected preset mode inactive.");
+                Assert(queueVm.TaskItemViewModels[0].SequenceOrder == null, "Expected cleared order after exit.");
+                Assert(!queueVm.TaskItemViewModels[0].IsSequenceBadgeVisible, "Expected cleared badge after exit.");
+
+                return Task.CompletedTask;
+            });
+
             await RunAsync("invalid trust public key rejected", failures, () =>
             {
                 try

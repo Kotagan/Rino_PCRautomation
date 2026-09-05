@@ -66,7 +66,7 @@
                                         Width="10"
                                         Height="8"
                                         Stretch="Uniform"
-                                        Opacity="0" />
+                                        Visibility="Collapsed" />
                                     <TextBlock
                                         x:Name="sequenceNumberBadge"
                                         Text="{Binding SequenceOrder}"
@@ -75,7 +75,7 @@
                                         FontWeight="Bold"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
-                                        Opacity="0" />
+                                        Visibility="Collapsed" />
                                     <Rectangle
                                         x:Name="indeterminateMark"
                                         Fill="#FFFFFF"
@@ -85,7 +85,7 @@
                                         RadiusY="1"
                                         HorizontalAlignment="Center"
                                         VerticalAlignment="Center"
-                                        Opacity="0" />
+                                        Visibility="Collapsed" />
                                 </Grid>
                             </Border>
                             <ContentPresenter
@@ -108,23 +108,27 @@
                             <Trigger Property="IsEnabled" Value="false">
                                 <Setter Property="Opacity" TargetName="templateRoot" Value="0.5" />
                             </Trigger>
-                            <Trigger Property="IsChecked" Value="true">
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}" Value="True" />
+                                    <Condition Binding="{Binding Path=IsSequenceBadgeVisible}" Value="False" />
+                                </MultiDataTrigger.Conditions>
                                 <Setter Property="Background" TargetName="checkBoxBorder" Value="{DynamicResource BasePrimaryBrush}" />
                                 <Setter Property="BorderBrush" TargetName="checkBoxBorder" Value="{DynamicResource BasePrimaryBrush}" />
-                                <Setter Property="Opacity" TargetName="checkMark" Value="1" />
-                            </Trigger>
-                            <DataTrigger Binding="{Binding IsSequenceBadgeVisible}" Value="True">
-                                <Setter Property="Opacity" TargetName="checkMark" Value="0" />
-                                <Setter Property="Opacity" TargetName="sequenceNumberBadge" Value="1" />
+                                <Setter Property="Visibility" TargetName="checkMark" Value="Visible" />
+                            </MultiDataTrigger>
+                            <DataTrigger Binding="{Binding Path=IsSequenceBadgeVisible}" Value="True">
                                 <Setter Property="Background" TargetName="checkBoxBorder" Value="{DynamicResource BasePrimaryBrush}" />
                                 <Setter Property="BorderBrush" TargetName="checkBoxBorder" Value="{DynamicResource BasePrimaryBrush}" />
+                                <Setter Property="Visibility" TargetName="checkMark" Value="Collapsed" />
+                                <Setter Property="Visibility" TargetName="sequenceNumberBadge" Value="Visible" />
                             </DataTrigger>
                             <Trigger Property="IsChecked" Value="{x:Null}">
                                 <Setter Property="Background" TargetName="checkBoxBorder" Value="{DynamicResource BasePrimaryBrush}" />
                                 <Setter Property="BorderBrush" TargetName="checkBoxBorder" Value="{DynamicResource BasePrimaryBrush}" />
-                                <Setter Property="Opacity" TargetName="indeterminateMark" Value="1" />
-                                <Setter Property="Opacity" TargetName="checkMark" Value="0" />
-                                <Setter Property="Opacity" TargetName="sequenceNumberBadge" Value="0" />
+                                <Setter Property="Visibility" TargetName="indeterminateMark" Value="Visible" />
+                                <Setter Property="Visibility" TargetName="checkMark" Value="Collapsed" />
+                                <Setter Property="Visibility" TargetName="sequenceNumberBadge" Value="Collapsed" />
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

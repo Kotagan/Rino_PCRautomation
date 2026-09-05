@@ -10,10 +10,10 @@ public static class DispatcherHelper
         RunOnUIThread(Application.Current, action);
     }
 
-    public static void RunOnUIThread(this DispatcherObject d, Action action)
+    public static void RunOnUIThread(this DispatcherObject? d, Action action)
     {
         var dispatcher = d?.Dispatcher;
-        if (dispatcher!=null)
+        if (dispatcher != null)
         {
             if (dispatcher.CheckAccess())
             {
@@ -23,6 +23,10 @@ public static class DispatcherHelper
             {
                 dispatcher.BeginInvoke(action);
             }
+        }
+        else
+        {
+            action();
         }
     }
 }

@@ -30,29 +30,75 @@ public partial class TaskQueueViewModel : ViewModel
     /// </summary>
     public void ApplyPresetSequence(IEnumerable<Models.TaskPresetItem> sequence, string? presetName = null)
     {
-        var orderMap = sequence
-            .Where(s => !string.IsNullOrWhiteSpace(s.TaskName) && s.Order > 0)
-            .ToDictionary(s => s.TaskName, s => s.Order, StringComparer.OrdinalIgnoreCase);
-
-        IsPresetMode = true;
-        ActivePresetName = presetName;
-
-        foreach (var item in TaskItemViewModels)
+        DispatcherHelper.RunOnMainThread(() =>
         {
-            var taskKey = item.InterfaceItem?.Name ?? item.Name;
-            if (orderMap.TryGetValue(taskKey, out var order) ||
-                (!string.IsNullOrWhiteSpace(item.Name) && orderMap.TryGetValue(item.Name, out order)) ||
-                (item.InterfaceItem?.Entry != null && orderMap.TryGetValue(item.InterfaceItem.Entry, out order)))
+            var orderedPresetItems = sequence
+                .Where(s => !string.IsNullOrWhiteSpace(s.TaskName) && s.Order > 0)
+                .OrderBy(s => s.Order)
+                .ToList();
+
+            if (orderedPresetItems.Count == 0)
             {
-                item.SequenceOrder = order;
-                item.IsCheckedWithNull = true;
+                return;
             }
-            else
+
+            IsPresetMode = true;
+            ActivePresetName = presetName;
+
+            var currentItems = TaskItemViewModels.ToList();
+            var allSourceItems = TasksSource.ToList();
+
+            var newOrderedList = new List<Tool.DragItemViewModel>();
+            var usedItems = new HashSet<Tool.DragItemViewModel>();
+
+            // 1. Add preset tasks in exact sequence order (1, 2, 3...)
+            foreach (var presetItem in orderedPresetItems)
             {
-                item.SequenceOrder = null;
-                item.IsCheckedWithNull = false;
+                var match = currentItems.FirstOrDefault(item =>
+                    !usedItems.Contains(item) && IsTaskMatch(item, presetItem.TaskName));
+
+                if (match == null)
+                {
+                    var sourceMatch = allSourceItems.FirstOrDefault(item =>
+                        !usedItems.Contains(item) && IsTaskMatch(item, presetItem.TaskName));
+                    if (sourceMatch != null)
+                    {
+                        match = sourceMatch.Clone();
+                    }
+                }
+
+                if (match != null)
+                {
+                    match.SequenceOrder = presetItem.Order;
+                    match.IsSequenceBadgeVisible = true;
+                    match.IsCheckedWithNull = true;
+                    newOrderedList.Add(match);
+                    usedItems.Add(match);
+                }
             }
-        }
+
+            // 2. Append remaining unassigned tasks that were already in the queue
+            foreach (var item in currentItems)
+            {
+                if (!usedItems.Contains(item))
+                {
+                    item.SequenceOrder = null;
+                    item.IsSequenceBadgeVisible = false;
+                    item.IsCheckedWithNull = false;
+                    newOrderedList.Add(item);
+                }
+            }
+
+            // 3. Update the observable collection so the UI re-renders in the new order
+            TaskItemViewModels = new ObservableCollection<Tool.DragItemViewModel>(newOrderedList);
+        });
+    }
+
+    private static bool IsTaskMatch(Tool.DragItemViewModel item, string taskName)
+    {
+        return string.Equals(item.InterfaceItem?.Name, taskName, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(item.Name, taskName, StringComparison.OrdinalIgnoreCase) ||
+               string.Equals(item.InterfaceItem?.Entry, taskName, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
