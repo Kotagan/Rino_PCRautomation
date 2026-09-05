@@ -18,30 +18,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:extensions="clr-namespace:MFAWPF.Extensions">
     <StackPanel HorizontalAlignment="Center" Width="440" Margin="0,4">
-        <!-- Row 1: Resource Package -->
-        <Grid Margin="0,6">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <userControl:CustomTextBlock
-                Grid.Column="0"
-                Text="{lex:Loc ResourceOption}"
-                VerticalAlignment="Center" />
-            <hc:ComboBox
-                DisplayMemberPath="Name" extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
-                Grid.Column="1"
-                HorizontalAlignment="Right"
-                IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
-                ItemsSource="{Binding ViewModel.CurrentResources}"
-                SelectedValue="{Binding ViewModel.CurrentResource}"
-                SelectedValuePath="Name"
-                VerticalAlignment="Center"
-                Width="260"
-                x:Name="ResourceComboBox" />
-        </Grid>
-
-        <!-- Row 2: Prescript -->
+        <!-- Row 1: Prescript -->
         <Grid Margin="0,6">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />

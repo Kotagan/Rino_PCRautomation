@@ -1309,4 +1309,12 @@
   <data name="HideMainWindow" xml:space="preserve"><value>隱藏主介面</value></data>
   <data name="StatusIdle" xml:space="preserve"><value>空閒中</value></data>
   <data name="StatusRunning" xml:space="preserve"><value>運行中</value></data>
+  <data name="SoftwareNotificationSettings" xml:space="preserve"><value>軟體通知</value></data>
+  <data name="EnableWindowsToastNotification" xml:space="preserve"><value>啟用 Windows 系統彈窗</value></data>
+  <data name="EnableWindowsToastNotificationDesc" xml:space="preserve"><value>開啟後，在任務執行完成或軟體檢測到更新時顯示 Windows 桌面通知彈窗。</value></data>
+  <data name="EnableNotificationSound" xml:space="preserve"><value>啟用通知提示音</value></data>
+  <data name="EnableNotificationFlashWindow" xml:space="preserve"><value>啟用工作列圖示閃爍</value></data>
+  <data name="SendNotificationTest" xml:space="preserve"><value>發送測試彈窗</value></data>
+  <data name="NotificationTestMessage" xml:space="preserve"><value>這是一條來自 Rino 的測試通知彈窗！</value></data>
+  <data name="NotificationDisabledTip" xml:space="preserve"><value>目前已關閉系統彈窗通知，開啟開關後可接收 Windows 桌面通知。</value></data>
 </root>

@@ -37,6 +37,7 @@ public partial class SettingsViewModel : ViewModel
         new("ConnectionSettings"),
         new("StartupSettings"),
         new("UiSettings"),
+        new("SoftwareNotificationSettings"),
         new("ExternalNotificationSettings"),
         new("HotKeySettings"),
         new("UpdateSettings"),

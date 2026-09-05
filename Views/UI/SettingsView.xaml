@@ -98,20 +98,27 @@
                     <Border Style="{StaticResource SettingsCardStyle}">
                         <StackPanel>
                             <hc:Divider Content="{Binding ViewModel.ListTitle[6].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
-                            <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:ExternalNotificationSettingsUserControl}}" HorizontalAlignment="Stretch" />
+                            <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:SoftwareNotificationSettingsUserControl}}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SettingsCardStyle}">
                         <StackPanel>
                             <hc:Divider Content="{Binding ViewModel.ListTitle[7].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
-                            <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:HotKeySettingsUserControl}}" HorizontalAlignment="Stretch" />
+                            <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:ExternalNotificationSettingsUserControl}}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Border>
 
                     <Border Style="{StaticResource SettingsCardStyle}">
                         <StackPanel>
                             <hc:Divider Content="{Binding ViewModel.ListTitle[8].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
+                            <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:HotKeySettingsUserControl}}" HorizontalAlignment="Stretch" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border Style="{StaticResource SettingsCardStyle}">
+                        <StackPanel>
+                            <hc:Divider Content="{Binding ViewModel.ListTitle[9].Name}" HorizontalContentAlignment="Left" Margin="0,0,0,12" />
                             <ContentPresenter Content="{helper:ServiceProvider ServiceType={x:Type settings:VersionUpdateSettingsUserControl}}" HorizontalAlignment="Stretch" />
                         </StackPanel>
                     </Border>

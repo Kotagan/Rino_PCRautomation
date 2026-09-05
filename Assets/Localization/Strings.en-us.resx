@@ -1316,4 +1316,12 @@
   <data name="HideMainWindow" xml:space="preserve"><value>Hide Window</value></data>
   <data name="StatusIdle" xml:space="preserve"><value>Idle</value></data>
   <data name="StatusRunning" xml:space="preserve"><value>Running</value></data>
+  <data name="SoftwareNotificationSettings" xml:space="preserve"><value>Software Notifications</value></data>
+  <data name="EnableWindowsToastNotification" xml:space="preserve"><value>Enable Windows Toast Notifications</value></data>
+  <data name="EnableWindowsToastNotificationDesc" xml:space="preserve"><value>When enabled, Windows desktop toast notifications will be shown when tasks finish or updates are detected.</value></data>
+  <data name="EnableNotificationSound" xml:space="preserve"><value>Enable Notification Sound</value></data>
+  <data name="EnableNotificationFlashWindow" xml:space="preserve"><value>Flash Taskbar on Notification</value></data>
+  <data name="SendNotificationTest" xml:space="preserve"><value>Send Test Notification</value></data>
+  <data name="NotificationTestMessage" xml:space="preserve"><value>This is a test notification from Rino!</value></data>
+  <data name="NotificationDisabledTip" xml:space="preserve"><value>Windows toast notifications are currently disabled. Enable the switch to receive notifications.</value></data>
 </root>

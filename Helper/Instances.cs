@@ -74,6 +74,8 @@ public static class Instances
     public static ConfigurationMgrUserControl ConfigurationMgrUserControl => Resolve<ConfigurationMgrUserControl>();
     public static ConnectSettingsUserControl ConnectSettingsUserControl => Resolve<ConnectSettingsUserControl>();
     public static ConnectSettingsUserControlModel ConnectSettingsUserControlModel => Resolve<ConnectSettingsUserControlModel>();
+    public static SoftwareNotificationSettingsUserControl SoftwareNotificationSettingsUserControl => Resolve<SoftwareNotificationSettingsUserControl>();
+    public static SoftwareNotificationSettingsUserControlModel SoftwareNotificationSettingsUserControlModel => Resolve<SoftwareNotificationSettingsUserControlModel>();
     public static ExternalNotificationSettingsUserControl ExternalNotificationSettingsUserControl => Resolve<ExternalNotificationSettingsUserControl>();
     public static ExternalNotificationSettingsUserControlModel ExternalNotificationSettingsUserControlModel => Resolve<ExternalNotificationSettingsUserControlModel>();
     public static HotKeySettingsUserControl HotKeySettingsUserControl => Resolve<HotKeySettingsUserControl>();

@@ -93,6 +93,8 @@ public partial class App
                 _ = services.AddTransient<ConfigurationMgrUserControl>();
                 _ = services.AddSingleton<ConnectSettingsUserControl>();
                 _ = services.AddSingleton<ConnectSettingsUserControlModel>();
+                _ = services.AddSingleton<SoftwareNotificationSettingsUserControl>();
+                _ = services.AddSingleton<SoftwareNotificationSettingsUserControlModel>();
                 _ = services.AddSingleton<ExternalNotificationSettingsUserControl>();
                 _ = services.AddSingleton<ExternalNotificationSettingsUserControlModel>();
                 _ = services.AddSingleton<GameSettingsUserControl>();

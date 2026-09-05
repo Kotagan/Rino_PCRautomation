@@ -76,6 +76,14 @@ public static class ConfigurationKeys
 
     #endregion
     
+    #region 软件通知
+
+    public const string EnableWindowsToastNotification = "EnableWindowsToastNotification";
+    public const string EnableNotificationSound = "EnableNotificationSound";
+    public const string EnableNotificationFlashWindow = "EnableNotificationFlashWindow";
+
+    #endregion
+
     #region 外部通知
 
     public const string ExternalNotificationEnabled = "ExternalNotificationEnabled";

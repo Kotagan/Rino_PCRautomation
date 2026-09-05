@@ -1,3 +1,4 @@
+using MFAWPF.Configuration;
 using MFAWPF.Helper.Notification;
 using Microsoft.Win32;
 using System.ComponentModel;
@@ -189,6 +190,11 @@ public class ToastNotification : IDisposable
         NotificationSounds sound = NotificationSounds.Notification,
         params NotificationHint[] hints)
     {
+        if (!ConfigurationHelper.GetValue(ConfigurationKeys.EnableWindowsToastNotification, true))
+        {
+            return;
+        }
+
         DispatcherHelper.RunOnMainThread(() =>
         {
 
@@ -223,10 +229,16 @@ public class ToastNotification : IDisposable
             _notificationPoster.ShowNotification(content);
 
             // 播放通知提示音
-            PlayNotificationSound(sound);
+            if (ConfigurationHelper.GetValue(ConfigurationKeys.EnableNotificationSound, true))
+            {
+                PlayNotificationSound(sound);
+            }
 
             // 任务栏闪烁
-            FlashWindowEx();
+            if (ConfigurationHelper.GetValue(ConfigurationKeys.EnableNotificationFlashWindow, true))
+            {
+                FlashWindowEx();
+            }
         });
     }
 

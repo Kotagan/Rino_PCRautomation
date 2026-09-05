@@ -1320,4 +1320,12 @@
   <data name="HideMainWindow" xml:space="preserve"><value>隐藏主界面</value></data>
   <data name="StatusIdle" xml:space="preserve"><value>空闲中</value></data>
   <data name="StatusRunning" xml:space="preserve"><value>运行中</value></data>
+  <data name="SoftwareNotificationSettings" xml:space="preserve"><value>软件通知</value></data>
+  <data name="EnableWindowsToastNotification" xml:space="preserve"><value>启用 Windows 系统弹窗</value></data>
+  <data name="EnableWindowsToastNotificationDesc" xml:space="preserve"><value>开启后，在任务执行完成或软件检测到更新时显示 Windows 桌面通知弹窗。</value></data>
+  <data name="EnableNotificationSound" xml:space="preserve"><value>启用通知提示音</value></data>
+  <data name="EnableNotificationFlashWindow" xml:space="preserve"><value>启用任务栏图标闪烁</value></data>
+  <data name="SendNotificationTest" xml:space="preserve"><value>发送测试弹窗</value></data>
+  <data name="NotificationTestMessage" xml:space="preserve"><value>这是一条来自 Rino 的测试通知弹窗！</value></data>
+  <data name="NotificationDisabledTip" xml:space="preserve"><value>当前已关闭系统弹窗通知，开启开关后可接收 Windows 桌面通知。</value></data>
 </root>
