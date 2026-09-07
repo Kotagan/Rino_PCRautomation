@@ -5,6 +5,7 @@ using HandyControl.Controls;
 using MFAWPF.Configuration;
 using MFAWPF.Extensions;
 using MFAWPF.Extensions.Maa;
+using MFAWPF.Services;
 using MFAWPF.Helper.Converters;
 using MFAWPF.ViewModels;
 using MFAWPF.ViewModels.UI;
@@ -1047,176 +1048,103 @@ public class VersionChecker
     private string GetDownloadUrlFromGitHubRelease(string version, string owner, string repo)
     {
         var releaseUrl = $"https://api.github.com/repos/{owner}/{repo}/releases/tags/{version}";
-        using var httpClient = new HttpClient();
-        httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd("request");
-        httpClient.DefaultRequestHeaders.Accept.TryParseAdd("application/json");
-
         try
         {
-            var response = httpClient.GetAsync(releaseUrl).Result;
-            if (response.IsSuccessStatusCode)
+            var jsonResponse = GitHubMirrorService.GetStringWithFallbackAsync(releaseUrl).GetAwaiter().GetResult();
+            if (string.IsNullOrWhiteSpace(jsonResponse))
+                return string.Empty;
+
+            var releaseData = JObject.Parse(jsonResponse);
+
+            if (releaseData["assets"] is JArray assets && assets.Count > 0)
             {
-                var read = response.Content.ReadAsStringAsync();
-                read.Wait();
-                var jsonResponse = read.Result;
-
-                var releaseData = JObject.Parse(jsonResponse);
-
-                if (releaseData["assets"] is JArray assets && assets.Count > 0)
+                var targetUrl = "";
+                foreach (var asset in assets)
                 {
-                    var targetUrl = "";
-                    foreach (var asset in assets)
+                    var browserDownloadUrl = asset["browser_download_url"]?.ToString();
+                    if (!string.IsNullOrEmpty(browserDownloadUrl))
                     {
-                        var browserDownloadUrl = asset["browser_download_url"]?.ToString();
-                        if (!string.IsNullOrEmpty(browserDownloadUrl))
+                        if (browserDownloadUrl.EndsWith(".zip", StringComparison.OrdinalIgnoreCase) ||
+                            browserDownloadUrl.EndsWith(".7z", StringComparison.OrdinalIgnoreCase) ||
+                            browserDownloadUrl.EndsWith(".rar", StringComparison.OrdinalIgnoreCase))
                         {
-                            if (browserDownloadUrl.EndsWith(".zip") || browserDownloadUrl.EndsWith(".7z") || browserDownloadUrl.EndsWith(".rar"))
-                            {
-                                targetUrl = browserDownloadUrl;
-                                break;
-                            }
+                            targetUrl = browserDownloadUrl;
+                            break;
                         }
                     }
-                    if (string.IsNullOrEmpty(targetUrl))
-                    {
-                        targetUrl = assets[0]["browser_downloadUrl"]?.ToString();
-                    }
-                    return targetUrl;
                 }
-
-            }
-            else if (response.StatusCode == HttpStatusCode.Forbidden && response.ReasonPhrase.Contains("403"))
-            {
-                LoggerService.LogError("GitHub API速率限制已超出，请稍后再试。");
-                throw new Exception("GitHub API速率限制已超出，请稍后再试。");
-            }
-            else
-            {
-                LoggerService.LogError($"请求GitHub时发生错误: {response.StatusCode} - {response.ReasonPhrase}");
-                throw new Exception($"{response.StatusCode} - {response.ReasonPhrase}");
+                if (string.IsNullOrEmpty(targetUrl))
+                {
+                    targetUrl = assets[0]["browser_download_url"]?.ToString() ?? assets[0]["browser_downloadUrl"]?.ToString() ?? string.Empty;
+                }
+                return targetUrl;
             }
         }
         catch (Exception e)
         {
             LoggerService.LogError($"处理GitHub响应时发生错误: {e.Message}");
-            throw new Exception($"{e.Message}");
+            throw;
         }
         return string.Empty;
     }
 
     async private Task<bool> DownloadFileAsync(string url, string filePath, MFAWPF.Views.UI.Dialog.DownloadDialog dialog, string key)
     {
-        try
-        {
-            using var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("request");
-            httpClient.DefaultRequestHeaders.Accept.ParseAdd("application/json");
-
-            using var response = await httpClient.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-            response.EnsureSuccessStatusCode();
-
-            var startTime = DateTime.Now;
-            long totalBytesRead = 0;
-            long bytesPerSecond = 0;
-            long? totalBytes = response.Content.Headers.ContentLength;
-
-            await using var contentStream = await response.Content.ReadAsStreamAsync();
-            await using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
-
-            var buffer = new byte[8192];
-            var stopwatch = Stopwatch.StartNew();
-            var lastSpeedUpdateTime = startTime;
-            long lastTotalBytesRead = 0;
-
-            while (true)
+        return await GitHubMirrorService.DownloadFileWithFallbackAsync(
+            url,
+            filePath,
+            progressCallback: (totalBytesRead, totalBytes, bytesPerSecond, elapsedSeconds) =>
             {
-                var bytesRead = await contentStream.ReadAsync(buffer);
-                if (bytesRead == 0) break;
-
-                await fileStream.WriteAsync(buffer.AsMemory(0, bytesRead));
-
-                totalBytesRead += bytesRead;
-                var currentTime = DateTime.Now;
-
-
-                var timeSinceLastUpdate = currentTime - lastSpeedUpdateTime;
-                if (timeSinceLastUpdate.TotalSeconds >= 1)
-                {
-                    bytesPerSecond = (long)((totalBytesRead - lastTotalBytesRead) / timeSinceLastUpdate.TotalSeconds);
-                    lastTotalBytesRead = totalBytesRead;
-                    lastSpeedUpdateTime = currentTime;
-                }
-
-
                 double progressPercentage;
                 if (totalBytes.HasValue && totalBytes.Value > 0)
                 {
                     progressPercentage = Math.Min((double)totalBytesRead / totalBytes.Value * 100, 100);
                 }
+                else if (bytesPerSecond > 0)
+                {
+                    double estimatedTotal = totalBytesRead + bytesPerSecond * 5;
+                    progressPercentage = Math.Min((double)totalBytesRead / estimatedTotal * 100, 99);
+                }
                 else
                 {
-                    if (bytesPerSecond > 0)
-                    {
-                        double estimatedTotal = totalBytesRead + bytesPerSecond * 5;
-                        progressPercentage = Math.Min((double)totalBytesRead / estimatedTotal * 100, 99);
-                    }
-                    else
-                    {
-                        progressPercentage = Math.Min((currentTime - startTime).TotalSeconds / 30 * 100, 99);
-                    }
+                    progressPercentage = Math.Min(elapsedSeconds / 30 * 100, 99);
                 }
 
                 dialog?.UpdateProgress(progressPercentage);
-
-                if (stopwatch.ElapsedMilliseconds >= 100)
+                DispatcherHelper.RunOnMainThread(() =>
+                    Instances.TaskQueueViewModel.OutputDownloadProgress(
+                        totalBytesRead,
+                        totalBytes ?? 0,
+                        bytesPerSecond,
+                        elapsedSeconds));
+            },
+            statusCallback: statusKey =>
+            {
+                dialog?.UpdateProgress(0);
+                var localizedText = statusKey.ToLocalization();
+                if (string.IsNullOrWhiteSpace(localizedText) || localizedText == statusKey)
                 {
-                    DispatcherHelper.RunOnMainThread(() =>
-                        Instances.TaskQueueViewModel.OutputDownloadProgress(
-                            totalBytesRead,
-                            totalBytes ?? 0,
-                            (int)bytesPerSecond,
-                            (currentTime - startTime).TotalSeconds));
-                    stopwatch.Restart();
+                    localizedText = "直连失败，正在尝试国内镜像加速下载...";
                 }
-            }
-
-            dialog?.UpdateProgress(100);
-            DispatcherHelper.RunOnMainThread(() =>
-                Instances.TaskQueueViewModel.OutputDownloadProgress(
-                    totalBytesRead,
-                    totalBytes ?? totalBytesRead,
-                    (int)bytesPerSecond,
-                    (DateTime.Now - startTime).TotalSeconds
-                ));
-
-            return true;
-        }
-        catch (HttpRequestException httpEx)
-        {
-            LoggerService.LogError($"HTTP请求失败: {httpEx.Message}");
-            return false;
-        }
-        catch (IOException ioEx)
-        {
-            LoggerService.LogError($"文件操作失败: {ioEx.Message}");
-            return false;
-        }
-        catch (Exception ex)
-        {
-            LoggerService.LogError($"未知错误: {ex.Message}");
-            return false;
-        }
+                dialog?.SetText(localizedText);
+                Instances.TaskQueueViewModel.OutputDownloadProgress(localizedText, false);
+            });
     }
+
 
     private static string[] GetRepoFromUrl(string githubUrl)
     {
-        var pattern = @"^https://github\.com/(?<owner>[^/]+)/(?<repo>[^/]+)$";
-        var match = Regex.Match(githubUrl, pattern);
+        var pattern = @"^https://github\.com/(?<owner>[^/]+)/(?<repo>[^/]+?)(?:\.git)?$";
+        var match = Regex.Match(githubUrl.Trim(), pattern, RegexOptions.IgnoreCase);
 
         if (match.Success)
         {
             string owner = match.Groups["owner"].Value;
             string repo = match.Groups["repo"].Value;
+            if (repo.EndsWith(".git", StringComparison.OrdinalIgnoreCase))
+            {
+                repo = repo[..^4];
+            }
 
             return
             [
@@ -1230,18 +1158,8 @@ public class VersionChecker
 
     private static string ConvertToApiUrl(string githubUrl)
     {
-        var pattern = @"^https://github\.com/(?<owner>[^/]+)/(?<repo>[^/]+)$";
-        var match = Regex.Match(githubUrl, pattern);
-
-        if (match.Success)
-        {
-            var owner = match.Groups["owner"].Value;
-            var repo = match.Groups["repo"].Value;
-
-            return $"https://api.github.com/repos/{owner}/{repo}/releases/latest";
-        }
-
-        throw new FormatException("输入的 GitHub URL 格式不正确: " + githubUrl);
+        var repoInfo = GetRepoFromUrl(githubUrl);
+        return $"https://api.github.com/repos/{repoInfo[0]}/{repoInfo[1]}/releases/latest";
     }
 
     public void CheckForResourceUpdates()
@@ -1292,59 +1210,45 @@ public class VersionChecker
     {
         if (string.IsNullOrWhiteSpace(owner) || string.IsNullOrWhiteSpace(repo))
             return string.Empty;
+
         var releaseUrl = $"https://api.github.com/repos/{owner}/{repo}/releases";
         int page = 1;
         const int perPage = 5;
-        using var httpClient = new HttpClient();
-        httpClient.DefaultRequestHeaders.UserAgent.TryParseAdd("request");
-        httpClient.DefaultRequestHeaders.Accept.TryParseAdd("application/json");
+
         while (page < 101)
         {
             var urlWithParams = $"{releaseUrl}?per_page={perPage}&page={page}";
             try
             {
-                var response = httpClient.GetAsync(urlWithParams).Result;
-                if (response.IsSuccessStatusCode)
+                var json = GitHubMirrorService.GetStringWithFallbackAsync(urlWithParams).GetAwaiter().GetResult();
+                if (string.IsNullOrWhiteSpace(json))
                 {
-                    var read = response.Content.ReadAsStringAsync();
-                    read.Wait();
-                    string json = read.Result;
-                    var tags = JArray.Parse(json);
-                    if (tags.Count == 0)
+                    break;
+                }
+
+                var tags = JArray.Parse(json);
+                if (tags.Count == 0)
+                {
+                    break;
+                }
+
+                foreach (var tag in tags)
+                {
+                    if ((bool)tag["prerelease"])
                     {
-                        break;
+                        continue;
                     }
-                    foreach (var tag in tags)
-                    {
-                        if ((bool)tag["prerelease"])
-                        {
-                            continue;
-                        }
-                        if (isDownload)
-                            SaveAnnouncement(tag, "body");
-                        return tag["tag_name"]?.ToString();
-                    }
-                }
-                else if (response.StatusCode == HttpStatusCode.Forbidden && response.ReasonPhrase.Contains("403"))
-                {
-                    LoggerService.LogError("GitHub API速率限制已超出，请稍后再试。");
-                    throw new Exception("GitHub API速率限制已超出，请稍后再试。");
-                }
-                else
-                {
-                    LoggerService.LogError($"请求GitHub时发生错误: {response.StatusCode} - {response.ReasonPhrase}");
-                    throw new Exception($"请求GitHub时发生错误: {response.StatusCode} - {response.ReasonPhrase}");
+                    if (isDownload)
+                        SaveAnnouncement(tag, "body");
+                    return tag["tag_name"]?.ToString() ?? string.Empty;
                 }
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                LoggerService.LogError($"处理GitHub响应时发生错误: {e.Message}");
-                throw new Exception($"处理GitHub响应时发生错误: {e.Message}");
+                LoggerService.LogError($"处理GitHub响应时发生错误: {ex.Message}");
+                throw;
             }
-            finally
-            {
-                httpClient.Dispose();
-            }
+
             page++;
         }
         return string.Empty;

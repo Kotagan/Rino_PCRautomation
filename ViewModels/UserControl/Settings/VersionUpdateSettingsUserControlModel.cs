@@ -34,10 +34,7 @@ public partial class VersionUpdateSettingsUserControlModel : ViewModel
 
     public ObservableCollection<Tool.LocalizationViewModel> DownloadSourceList =>
     [
-        new()
-        {
-            Name = "GitHub"
-        },
+        new("DownloadSourceGitHub"),
     ];
 
     [ObservableProperty] private int _downloadSourceIndex = Math.Clamp(ConfigurationHelper.GetValue(ConfigurationKeys.DownloadSourceIndex, 0), 0, 0);
@@ -45,6 +42,13 @@ public partial class VersionUpdateSettingsUserControlModel : ViewModel
     partial void OnDownloadSourceIndexChanged(int value)
     {
         ConfigurationHelper.SetValue(ConfigurationKeys.DownloadSourceIndex, Math.Clamp(value, 0, 0));
+    }
+
+    [ObservableProperty] private string _gitHubMirrorUrl = ConfigurationHelper.GetValue(ConfigurationKeys.GitHubMirrorUrl, string.Empty);
+
+    partial void OnGitHubMirrorUrlChanged(string value)
+    {
+        ConfigurationHelper.SetValue(ConfigurationKeys.GitHubMirrorUrl, value?.Trim() ?? string.Empty);
     }
 
     [ObservableProperty] private string _cdkPassword = SimpleEncryptionHelper.Decrypt(ConfigurationHelper.GetValue(ConfigurationKeys.DownloadCDK, string.Empty));

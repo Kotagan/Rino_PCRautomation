@@ -1317,4 +1317,9 @@
   <data name="SendNotificationTest" xml:space="preserve"><value>發送測試彈窗</value></data>
   <data name="NotificationTestMessage" xml:space="preserve"><value>這是一條來自 Rino 的測試通知彈窗！</value></data>
   <data name="NotificationDisabledTip" xml:space="preserve"><value>目前已關閉系統彈窗通知，開啟開關後可接收 Windows 桌面通知。</value></data>
+  <data name="DownloadSourceGitHub" xml:space="preserve"><value>GitHub (直連/鏡像加速)</value></data>
+  <data name="GitHubDownloadSourceToolTip" xml:space="preserve"><value>使用 GitHub 作為更新與資源下載源。直連失敗時自動使用國內鏡像加速。</value></data>
+  <data name="GitHubMirrorUrlTitle" xml:space="preserve"><value>GitHub 鏡像加速地址</value></data>
+  <data name="GitHubMirrorUrlWatermark" xml:space="preserve"><value>留空使用預設鏡像 (如 https://gh-proxy.com/)</value></data>
+  <data name="UsingMirrorFallback" xml:space="preserve"><value>直連 GitHub 失敗，已切換至國內加速鏡像重試...</value></data>
 </root>

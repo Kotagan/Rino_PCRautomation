@@ -64,11 +64,25 @@
                     ItemsSource="{Binding ViewModel.DownloadSourceList}"
                     Margin="10,5,5,5"
                     SelectedIndex="{Binding ViewModel.DownloadSourceIndex}"
+                    ToolTip="{lex:Loc GitHubDownloadSourceToolTip}"
                     Width="200"
                     hc:TitleElement.HorizontalAlignment="Left"
                     hc:TitleElement.Title="{lex:Loc ResourceDownloadSource}"
                     hc:TitleElement.TitlePlacement="Top"
                     x:Name="DownloadSourceCombox" />
+                <hc:TextBox
+                    HorizontalAlignment="Left"
+                    IsEnabled="{calcBinding:Binding Idle,
+                                                    Source={x:Static helper:Instances.RootViewModel}}"
+                    Margin="10,5,5,5"
+                    Text="{Binding ViewModel.GitHubMirrorUrl, UpdateSourceTrigger=PropertyChanged}"
+                    Width="200"
+                    hc:InfoElement.Placeholder="{lex:Loc GitHubMirrorUrlWatermark}"
+                    hc:TitleElement.HorizontalAlignment="Left"
+                    hc:TitleElement.Title="{lex:Loc GitHubMirrorUrlTitle}"
+                    hc:TitleElement.TitlePlacement="Top"
+                    ToolTip="{lex:Loc GitHubMirrorUrlWatermark}"
+                    x:Name="GitHubMirrorUrlTextBox" />
             </StackPanel>
             <StackPanel
                 Grid.Column="1"

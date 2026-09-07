@@ -127,6 +127,7 @@ public static class ConfigurationKeys
     public const string EnableCheckVersion = "EnableCheckVersion";
     public const string DownloadCDK = "DownloadCDK";
     public const string GitHubToken = "GitHubToken";
+    public const string GitHubMirrorUrl = "GitHubMirrorUrl";
     
     #endregion
 }
