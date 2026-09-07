@@ -1324,9 +1324,9 @@
   <data name="SendNotificationTest" xml:space="preserve"><value>Send Test Notification</value></data>
   <data name="NotificationTestMessage" xml:space="preserve"><value>This is a test notification from Rino!</value></data>
   <data name="NotificationDisabledTip" xml:space="preserve"><value>Windows toast notifications are currently disabled. Enable the switch to receive notifications.</value></data>
-  <data name="DownloadSourceGitHub" xml:space="preserve"><value>GitHub (Direct / Mirror)</value></data>
+  <data name="DownloadSourceGitHub" xml:space="preserve"><value>GitHub (Mirror)</value></data>
   <data name="GitHubDownloadSourceToolTip" xml:space="preserve"><value>Use GitHub as update and resource download source. Automatically falls back to domestic mirror if direct connection fails.</value></data>
   <data name="GitHubMirrorUrlTitle" xml:space="preserve"><value>GitHub Mirror URL</value></data>
-  <data name="GitHubMirrorUrlWatermark" xml:space="preserve"><value>Leave empty to use default (e.g. https://gh-proxy.com/)</value></data>
+  <data name="GitHubMirrorUrlWatermark" xml:space="preserve"><value>Default: https://gh-proxy.com/</value></data>
   <data name="UsingMirrorFallback" xml:space="preserve"><value>Direct GitHub failed. Switched to domestic mirror retry...</value></data>
 </root>
