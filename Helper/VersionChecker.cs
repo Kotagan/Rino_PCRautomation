@@ -147,13 +147,6 @@ public class VersionChecker
             dialog?.UpdateProgress(60);
 
             var latestVersion = await Task.Run(() => GetLatestVersionFromGithub(owner, repo, false));
-            if (string.IsNullOrWhiteSpace(latestVersion))
-            {
-                Instances.RootViewModel.SetUpdating(false);
-                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-                ToastNotification.ShowDirect("FailToGetLatestVersionInfo".ToLocalization());
-                return;
-            }
 
             var localVersion = GetLocalVersion();
             if (string.IsNullOrWhiteSpace(localVersion) || localVersion == "DEBUG")
@@ -168,7 +161,7 @@ public class VersionChecker
             dialog?.UpdateProgress(100);
             DispatcherHelper.RunOnMainThread(() => dialog?.Close());
 
-            if (IsNewVersionAvailable(latestVersion, localVersion))
+            if (!string.IsNullOrWhiteSpace(latestVersion) && IsNewVersionAvailable(latestVersion, localVersion))
             {
                 var message = string.Format("NewSoftwareVersionFound".ToLocalization(), latestVersion, localVersion);
                 MessageBoxResult result = MessageBoxResult.No;
@@ -628,10 +621,11 @@ public class VersionChecker
 
         if (string.IsNullOrWhiteSpace(latestVersion))
         {
-            ToastNotification.ShowDirect("FailToGetLatestVersionInfo".ToLocalization());
+            ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
             Instances.RootViewModel.SetUpdating(false);
             DispatcherHelper.RunOnMainThread(() => dialog?.Close());
             Instances.TaskQueueViewModel.ClearDownloadProgress();
+            action?.Invoke();
             return;
         }
 
