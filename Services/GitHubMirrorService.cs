@@ -14,7 +14,7 @@ public static class GitHubMirrorService
     public const string DefaultDownloadBackupMirror = "https://gh.ddlc.top/";
 
     private static readonly TimeSpan DefaultDirectApiTimeout = TimeSpan.FromSeconds(5);
-    private static readonly TimeSpan DefaultMirrorApiTimeout = TimeSpan.FromSeconds(15);
+    private static readonly TimeSpan DefaultMirrorApiTimeout = TimeSpan.FromSeconds(25);
     private static readonly TimeSpan DefaultDirectDownloadConnectTimeout = TimeSpan.FromSeconds(8);
 
     public static IReadOnlyList<string> GetCandidateMirrors(bool forApi = false)
@@ -79,7 +79,7 @@ public static class GitHubMirrorService
             using var directCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             directCts.CancelAfter(directTimeoutValue);
 
-            using var client = CreateHttpClient(directTimeoutValue);
+            using var client = CreateHttpClient();
             using var response = await client.GetAsync(originalUrl, directCts.Token);
             if (response.IsSuccessStatusCode)
             {
@@ -101,32 +101,43 @@ public static class GitHubMirrorService
         foreach (var mirror in candidateMirrors)
         {
             var mirrorUrl = ToMirrorUrl(originalUrl, mirror);
-            try
+            for (int attempt = 1; attempt <= 2; attempt++)
             {
-                using var mirrorCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-                mirrorCts.CancelAfter(mirrorTimeoutValue);
-
-                using var client = CreateHttpClient(mirrorTimeoutValue);
-                using var response = await client.GetAsync(mirrorUrl, mirrorCts.Token);
-                if (response.IsSuccessStatusCode)
+                try
                 {
-                    LoggerService.LogInfo($"通过国内镜像 {mirror} 请求成功: {originalUrl}");
-                    return await response.Content.ReadAsStringAsync(cancellationToken);
+                    using var mirrorCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    mirrorCts.CancelAfter(mirrorTimeoutValue);
+
+                    using var client = CreateHttpClient();
+                    using var response = await client.GetAsync(mirrorUrl, mirrorCts.Token);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        LoggerService.LogInfo($"通过国内镜像 {mirror} 请求成功: {originalUrl}");
+                        return await response.Content.ReadAsStringAsync(cancellationToken);
+                    }
+
+                    LoggerService.LogWarning($"镜像 {mirror} 返回非成功状态码: {(int)response.StatusCode} ({response.ReasonPhrase})");
+                }
+                catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException or TimeoutException)
+                {
+                    LoggerService.LogWarning($"通过镜像 {mirror} (第{attempt}次) 请求失败: {ex.Message}");
                 }
 
-                LoggerService.LogWarning($"镜像 {mirror} 返回非成功状态码: {(int)response.StatusCode} ({response.ReasonPhrase})");
-            }
-            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException or TimeoutException)
-            {
-                LoggerService.LogWarning($"通过镜像 {mirror} 请求失败: {ex.Message}");
+                if (attempt < 2)
+                {
+                    try
+                    {
+                        await Task.Delay(300, cancellationToken);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        break;
+                    }
+                }
             }
         }
 
-        if (directException != null)
-        {
-            throw new HttpRequestException($"直连与所有加速镜像均不可用，最后错误: {directException.Message}", directException);
-        }
-
+        LoggerService.LogWarning($"直连与所有加速镜像均不可用，最后直连错误: {directException?.Message ?? "无响应"}");
         return null;
     }
 
@@ -264,11 +275,11 @@ public static class GitHubMirrorService
         return true;
     }
 
-    private static HttpClient CreateHttpClient(TimeSpan timeout)
+    private static HttpClient CreateHttpClient(TimeSpan? timeout = null)
     {
         var client = new HttpClient
         {
-            Timeout = timeout
+            Timeout = timeout ?? Timeout.InfiniteTimeSpan
         };
         client.DefaultRequestHeaders.UserAgent.TryParseAdd("request");
         client.DefaultRequestHeaders.Accept.TryParseAdd("application/json");

@@ -127,26 +127,50 @@ public class VersionChecker
     public async Task CheckSoftwareUpdateWithDialogAsync(bool noDialog = false)
     {
         Instances.RootViewModel.SetUpdating(true);
-        MFAWPF.Views.UI.Dialog.DownloadDialog dialog = null;
-        DispatcherHelper.RunOnMainThread(() =>
+        MFAWPF.Views.UI.Dialog.DownloadDialog? dialog = null;
+        if (!noDialog)
         {
-            if (!noDialog)
+            Application.Current?.Dispatcher?.Invoke(() =>
             {
                 dialog = new MFAWPF.Views.UI.Dialog.DownloadDialog("SoftwareUpdate".ToLocalization());
                 dialog.SetText("CheckingForSoftwareUpdates".ToLocalization());
                 dialog.UpdateProgress(30);
                 dialog.Show();
-            }
-        });
+            });
+        }
 
         try
         {
             string owner = "miaoyu2233";
             string repo = "Rino_WFP";
 
-            dialog?.UpdateProgress(60);
+            dialog?.UpdateProgress(50);
 
-            var latestVersion = await Task.Run(() => GetLatestVersionFromGithub(owner, repo, false));
+            var latestVersion = await GetLatestVersionFromGithubAsync(owner, repo, false);
+
+            dialog?.UpdateProgress(100);
+            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+
+            if (latestVersion == null)
+            {
+                Instances.RootViewModel.SetUpdating(false);
+                if (!noDialog)
+                {
+                    DispatcherHelper.RunOnMainThread(() =>
+                    {
+                        MessageBoxHelper.Show(
+                            "CheckUpdateNetworkFailed".ToLocalization(),
+                            caption: "SoftwareUpdate".ToLocalization(),
+                            buttons: MessageBoxButton.OK,
+                            icon: MessageBoxImage.Warning);
+                    });
+                }
+                else
+                {
+                    ToastNotification.ShowDirect("CheckUpdateNetworkFailed".ToLocalization());
+                }
+                return;
+            }
 
             var localVersion = GetLocalVersion();
             if (string.IsNullOrWhiteSpace(localVersion) || localVersion == "DEBUG")
@@ -157,9 +181,6 @@ public class VersionChecker
             {
                 localVersion = "0.0.1";
             }
-
-            dialog?.UpdateProgress(100);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
 
             if (!string.IsNullOrWhiteSpace(latestVersion) && IsNewVersionAvailable(latestVersion, localVersion))
             {
@@ -211,8 +232,8 @@ public class VersionChecker
     public async Task UpdateSoftwarePackageAsync(string owner, string repo, string latestVersion)
     {
         Instances.RootViewModel.SetUpdating(true);
-        MFAWPF.Views.UI.Dialog.DownloadDialog dialog = null;
-        DispatcherHelper.RunOnMainThread(() =>
+        MFAWPF.Views.UI.Dialog.DownloadDialog? dialog = null;
+        Application.Current?.Dispatcher?.Invoke(() =>
         {
             dialog = new MFAWPF.Views.UI.Dialog.DownloadDialog("SoftwareUpdate".ToLocalization());
             dialog.SetText("GettingLatestResources".ToLocalization());
@@ -1077,7 +1098,7 @@ public class VersionChecker
         catch (Exception e)
         {
             LoggerService.LogError($"处理GitHub响应时发生错误: {e.Message}");
-            throw;
+            return string.Empty;
         }
         return string.Empty;
     }
@@ -1200,10 +1221,10 @@ public class VersionChecker
         }
     }
 
-    public string GetLatestVersionFromGithub(string owner = "miaoyu2233", string repo = "Rino_WFP", bool isDownload = false)
+    public async Task<string?> GetLatestVersionFromGithubAsync(string owner = "miaoyu2233", string repo = "Rino_WFP", bool isDownload = false)
     {
         if (string.IsNullOrWhiteSpace(owner) || string.IsNullOrWhiteSpace(repo))
-            return string.Empty;
+            return null;
 
         var releaseUrl = $"https://api.github.com/repos/{owner}/{repo}/releases";
         int page = 1;
@@ -1214,10 +1235,10 @@ public class VersionChecker
             var urlWithParams = $"{releaseUrl}?per_page={perPage}&page={page}";
             try
             {
-                var json = GitHubMirrorService.GetStringWithFallbackAsync(urlWithParams).GetAwaiter().GetResult();
+                var json = await GitHubMirrorService.GetStringWithFallbackAsync(urlWithParams);
                 if (string.IsNullOrWhiteSpace(json))
                 {
-                    break;
+                    return page == 1 ? null : string.Empty;
                 }
 
                 var tags = JArray.Parse(json);
@@ -1240,12 +1261,25 @@ public class VersionChecker
             catch (Exception ex)
             {
                 LoggerService.LogError($"处理GitHub响应时发生错误: {ex.Message}");
-                throw;
+                return page == 1 ? null : string.Empty;
             }
 
             page++;
         }
         return string.Empty;
+    }
+
+    public string GetLatestVersionFromGithub(string owner = "miaoyu2233", string repo = "Rino_WFP", bool isDownload = false)
+    {
+        try
+        {
+            return GetLatestVersionFromGithubAsync(owner, repo, isDownload).GetAwaiter().GetResult() ?? string.Empty;
+        }
+        catch (Exception ex)
+        {
+            LoggerService.LogError($"获取GitHub最新版本失败: {ex.Message}");
+            return string.Empty;
+        }
     }
 
     private string GetLocalVersion()

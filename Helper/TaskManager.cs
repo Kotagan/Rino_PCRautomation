@@ -42,6 +42,45 @@ public static class TaskManager
     /// <param name="action">要执行的动作</param>
     /// <param name="handleError">处理异常的方法</param>
     /// <param name="name">任务名称</param>
+    public async static Task RunTaskAsync(
+        Func<Task>? asyncAction,
+        Action? handleError = null,
+        string name = nameof(Func<Task>),
+        string prompt = ">>> ",
+        bool catchException = true,
+        bool shouldLog = true)
+    {
+        Console.WriteLine($"异步任务 {name} 开始.");
+        if (asyncAction == null)
+        {
+            return;
+        }
+
+        try
+        {
+            if (catchException)
+            {
+                await Task.Run(asyncAction);
+            }
+            else
+            {
+                await asyncAction();
+            }
+        }
+        catch (Exception ex) when (catchException && ex is not OperationCanceledException)
+        {
+            handleError?.Invoke();
+            if (shouldLog)
+            {
+                LoggerService.LogError(ex.GetBaseException());
+            }
+        }
+        finally
+        {
+            Console.WriteLine($"{prompt}异步任务 {name} 已完成.");
+        }
+    }
+
     /// <param name="prompt">日志提示</param>
     /// <param name="catchException">是否捕获异常</param>
     /// <param name="shouldLog">异常是否写入日志</param>

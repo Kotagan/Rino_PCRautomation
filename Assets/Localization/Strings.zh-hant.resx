@@ -599,6 +599,9 @@
   <data name="SoftwareIsLatestVersion" xml:space="preserve">
     <value>目前軟體已是最新版本（{0}）！</value>
   </data>
+  <data name="CheckUpdateNetworkFailed" xml:space="preserve">
+    <value>檢查更新失敗，直連與加速鏡像均未響應。請檢查網絡或在更新設置中配置自定義鏡像代理地址。</value>
+  </data>
   <data name="GettingLatestResources" xml:space="preserve">
     <value>正在獲取最新資源.....</value>
   </data>
