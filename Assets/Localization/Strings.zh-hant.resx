@@ -620,6 +620,12 @@
   <data name="UpdateCompleted" xml:space="preserve">
     <value>更新完成</value>
   </data>
+  <data name="ReadAlready" xml:space="preserve">
+    <value>已閱讀</value>
+  </data>
+  <data name="UpdatedToVersion" xml:space="preserve">
+    <value>已更新到 {0} 版本</value>
+  </data>
   <data name="ResourcesAreLatestVersion" xml:space="preserve">
     <value>資源已為最新版本！</value>
   </data>

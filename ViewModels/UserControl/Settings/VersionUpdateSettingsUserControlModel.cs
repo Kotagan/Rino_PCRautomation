@@ -60,7 +60,7 @@ public partial class VersionUpdateSettingsUserControlModel : ViewModel
 
     [ObservableProperty] private bool _enableCheckVersion = ConfigurationHelper.GetValue(ConfigurationKeys.EnableCheckVersion, true);
 
-    [ObservableProperty] private bool _enableAutoUpdateResource = ConfigurationHelper.GetValue(ConfigurationKeys.EnableAutoUpdateResource, false);
+    [ObservableProperty] private bool _enableAutoUpdateResource = ConfigurationHelper.GetValue(ConfigurationKeys.EnableAutoUpdateResource, true);
 
     partial void OnEnableCheckVersionChanged(bool value)
     {

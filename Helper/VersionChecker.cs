@@ -37,7 +37,7 @@ public class VersionChecker
     {
         var config = new
         {
-            AutoUpdateResource = ConfigurationHelper.GetValue(ConfigurationKeys.EnableAutoUpdateResource, false),
+            AutoUpdateResource = ConfigurationHelper.GetValue(ConfigurationKeys.EnableAutoUpdateResource, true),
             CheckVersion = ConfigurationHelper.GetValue(ConfigurationKeys.EnableCheckVersion, true),
         };
         
@@ -45,7 +45,7 @@ public class VersionChecker
         { 
             AddResourceUpdateTask(false);
         }
-        else if (config.CheckVersion)
+        if (config.CheckVersion)
         {
             AddSoftwareUpdateTask();
         }
@@ -184,6 +184,13 @@ public class VersionChecker
 
             if (!string.IsNullOrWhiteSpace(latestVersion) && IsNewVersionAvailable(latestVersion, localVersion))
             {
+                if (Instances.RootViewModel.IsRunning)
+                {
+                    Instances.RootViewModel.SetUpdating(false);
+                    ToastNotification.ShowDirect($"发现软件新版本: {latestVersion}，当前任务运行中，请在任务结束后更新。");
+                    return;
+                }
+
                 var message = string.Format("NewSoftwareVersionFound".ToLocalization(), latestVersion, localVersion);
                 MessageBoxResult result = MessageBoxResult.No;
                 DispatcherHelper.RunOnMainThread(() =>
@@ -297,6 +304,7 @@ public class VersionChecker
                 WindowStyle = ProcessWindowStyle.Hidden,
                 UseShellExecute = true
             };
+            GlobalConfiguration.SetValue("SoftwareUpdatedVersion", latestVersion);
             Process.Start(psi);
             Thread.Sleep(50);
             DispatcherHelper.RunOnMainThread(Application.Current.Shutdown);
@@ -545,18 +553,15 @@ public class VersionChecker
         DispatcherHelper.RunOnMainThread(() =>
         {
             if (closeDialog) dialog?.Close();
-            if (!noDialog)
-            {
-                if (MessageBoxHelper.Show("GameResourceUpdated".ToLocalization(), buttons: MessageBoxButton.YesNo, icon: MessageBoxImage.Question) == MessageBoxResult.Yes)
-                {
-                    Process.Start(Process.GetCurrentProcess().MainModule?.FileName ?? string.Empty);
-                    DispatcherHelper.RunOnMainThread(Application.Current.Shutdown);
-                }
-            }
+            AnnouncementView.ShowUpdateCompleted(latestVersion, string.Empty);
         });
-        DispatcherHelper.RunOnMainThread(() => Instances.TaskQueueViewModel.ConnectSettingChecked = true);
-        var tasks = Instances.TaskQueueViewModel.TaskItemViewModels;
-        Instances.RootView.ClearTasks(() => Instances.TaskQueueView.InitializeData(dragItem: tasks));
+
+        if (Instances.RootViewModel.Idle)
+        {
+            DispatcherHelper.RunOnMainThread(() => Instances.TaskQueueViewModel.ConnectSettingChecked = true);
+            var tasks = Instances.TaskQueueViewModel.TaskItemViewModels;
+            Instances.RootView.ClearTasks(() => Instances.TaskQueueView.InitializeData(dragItem: tasks));
+        }
         action?.Invoke();
     }
 
@@ -808,19 +813,15 @@ public class VersionChecker
         DispatcherHelper.RunOnMainThread(() =>
         {
             if (closeDialog) dialog?.Close();
-            if (!noDialog)
-            {
-                if (MessageBoxHelper.Show("GameResourceUpdated".ToLocalization(), buttons: MessageBoxButton.YesNo, icon: MessageBoxImage.Question) == MessageBoxResult.Yes)
-                {
-                    Process.Start(Process.GetCurrentProcess().MainModule?.FileName ?? string.Empty);
-                    DispatcherHelper.RunOnMainThread(Application.Current.Shutdown);
-                }
-            }
+            AnnouncementView.ShowUpdateCompleted(latestVersion, string.Empty);
         });
 
-        DispatcherHelper.RunOnMainThread(() => Instances.TaskQueueViewModel.ConnectSettingChecked = true);
-        var tasks = Instances.TaskQueueViewModel.TaskItemViewModels;
-        Instances.RootView.ClearTasks(() => Instances.TaskQueueView.InitializeData(dragItem: tasks));
+        if (Instances.RootViewModel.Idle)
+        {
+            DispatcherHelper.RunOnMainThread(() => Instances.TaskQueueViewModel.ConnectSettingChecked = true);
+            var tasks = Instances.TaskQueueViewModel.TaskItemViewModels;
+            Instances.RootView.ClearTasks(() => Instances.TaskQueueView.InitializeData(dragItem: tasks));
+        }
         action?.Invoke();
     }
 
@@ -1070,6 +1071,7 @@ public class VersionChecker
                 return string.Empty;
 
             var releaseData = JObject.Parse(jsonResponse);
+            SaveAnnouncement(releaseData, "body");
 
             if (releaseData["assets"] is JArray assets && assets.Count > 0)
             {
