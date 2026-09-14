@@ -327,6 +327,40 @@ namespace MFAWPF.Helper.Animations
             return Math.Clamp(offset, 0, Math.Max(0, scrollableHeight));
         }
 
+        private static DependencyObject? GetParent(DependencyObject? element)
+        {
+            if (element == null) return null;
+
+            if (element is Visual || element is System.Windows.Media.Media3D.Visual3D)
+            {
+                try
+                {
+                    var visualParent = VisualTreeHelper.GetParent(element);
+                    if (visualParent != null) return visualParent;
+                }
+                catch
+                {
+                }
+            }
+
+            if (element is FrameworkElement fe)
+            {
+                return fe.Parent ?? fe.TemplatedParent;
+            }
+
+            if (element is FrameworkContentElement fce)
+            {
+                return fce.Parent ?? fce.TemplatedParent ?? ContentOperations.GetParent(fce);
+            }
+
+            if (element is ContentElement ce)
+            {
+                return ContentOperations.GetParent(ce);
+            }
+
+            return null;
+        }
+
         private static ComboBox? FindOpenComboBox(DependencyObject? element)
         {
             DependencyObject? current = element;
@@ -336,17 +370,7 @@ namespace MFAWPF.Helper.Animations
                 {
                     return cb;
                 }
-
-                DependencyObject? parent = null;
-                if (current is Visual || current is System.Windows.Media.Media3D.Visual3D)
-                {
-                    parent = VisualTreeHelper.GetParent(current);
-                }
-                if (parent == null && current is FrameworkElement fe)
-                {
-                    parent = fe.Parent ?? fe.TemplatedParent;
-                }
-                current = parent;
+                current = GetParent(current);
             }
             return null;
         }
@@ -360,17 +384,7 @@ namespace MFAWPF.Helper.Animations
                 {
                     return sv;
                 }
-
-                DependencyObject? parent = null;
-                if (current is Visual || current is System.Windows.Media.Media3D.Visual3D)
-                {
-                    parent = VisualTreeHelper.GetParent(current);
-                }
-                if (parent == null && current is FrameworkElement fe)
-                {
-                    parent = fe.Parent ?? fe.TemplatedParent;
-                }
-                current = parent;
+                current = GetParent(current);
             }
             return null;
         }

@@ -722,17 +722,7 @@ public static class ApplePopupAnimationBehavior
         while (current != null)
         {
             if (current is Popup || current.GetType().Name == "PopupRoot") return true;
-
-            DependencyObject? parent = null;
-            if (current is Visual || current is System.Windows.Media.Media3D.Visual3D)
-            {
-                parent = VisualTreeHelper.GetParent(current);
-            }
-            if (parent == null && current is FrameworkElement fe)
-            {
-                parent = fe.Parent ?? fe.TemplatedParent;
-            }
-            current = parent;
+            current = GetParent(current);
         }
         return false;
     }
@@ -794,24 +784,76 @@ public static class ApplePopupAnimationBehavior
         }
     }
 
+    private static DependencyObject? GetParent(DependencyObject? element)
+    {
+        if (element == null) return null;
+
+        if (element is Visual || element is System.Windows.Media.Media3D.Visual3D)
+        {
+            try
+            {
+                var visualParent = VisualTreeHelper.GetParent(element);
+                if (visualParent != null) return visualParent;
+            }
+            catch
+            {
+            }
+        }
+
+        if (element is FrameworkElement fe)
+        {
+            return fe.Parent ?? fe.TemplatedParent;
+        }
+
+        if (element is FrameworkContentElement fce)
+        {
+            return fce.Parent ?? fce.TemplatedParent ?? ContentOperations.GetParent(fce);
+        }
+
+        if (element is ContentElement ce)
+        {
+            return ContentOperations.GetParent(ce);
+        }
+
+        return null;
+    }
+
     private static T? FindVisualParent<T>(DependencyObject? child) where T : DependencyObject
     {
         while (child != null)
         {
             if (child is T parent) return parent;
-            child = VisualTreeHelper.GetParent(child);
+            child = GetParent(child);
         }
         return null;
     }
 
     private static IEnumerable<T> FindVisualChildren<T>(DependencyObject parent) where T : DependencyObject
     {
-        if (parent == null) yield break;
+        if (parent is not Visual && parent is not System.Windows.Media.Media3D.Visual3D) yield break;
 
-        int childCount = VisualTreeHelper.GetChildrenCount(parent);
+        int childCount = 0;
+        try
+        {
+            childCount = VisualTreeHelper.GetChildrenCount(parent);
+        }
+        catch
+        {
+            yield break;
+        }
+
         for (int i = 0; i < childCount; i++)
         {
-            var child = VisualTreeHelper.GetChild(parent, i);
+            DependencyObject? child = null;
+            try
+            {
+                child = VisualTreeHelper.GetChild(parent, i);
+            }
+            catch
+            {
+                continue;
+            }
+
             if (child is T typedChild)
             {
                 yield return typedChild;
