@@ -46,7 +46,6 @@ public partial class AnnouncementViewModel : ViewModel
             AnnouncementView.ShowUpdateCompleted(softwareUpdatedVersion, content);
             return;
         }
-        if (DoNotRemindThisAnnouncementAgain) return;
         try
         {
             var resourcePath = Path.Combine(AppContext.BaseDirectory, "resource");
@@ -62,15 +61,6 @@ public partial class AnnouncementViewModel : ViewModel
         {
             LoggerService.LogError($"读取公告文件失败: {ex.Message}");
             AnnouncementInfo = "";
-        }
-        finally
-        {
-
-            if (!string.IsNullOrWhiteSpace(AnnouncementInfo) && !AnnouncementInfo.Trim().Equals("placeholder", StringComparison.OrdinalIgnoreCase))
-            {
-                var localVersion = Instances.VersionUpdateSettingsUserControlModel.RinoVersion;
-                AnnouncementView.ShowLatestVersion(localVersion, AnnouncementInfo);
-            }
         }
     }
 }
