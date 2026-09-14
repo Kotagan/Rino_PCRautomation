@@ -97,6 +97,75 @@ public partial class AnnouncementView : CustomWindow
         });
     }
 
+    public static void ShowLatestVersion(string version, string announcementContent, string? title = null)
+    {
+        DispatcherHelper.RunOnMainThread(() =>
+        {
+            try
+            {
+                var vm = Instances.AnnouncementViewModel;
+                var displayTitle = title ?? "SoftwareUpdate".ToLocalization();
+                vm.AnnouncementTitle = string.IsNullOrWhiteSpace(displayTitle) || displayTitle == "SoftwareUpdate"
+                    ? "软件更新"
+                    : displayTitle;
+
+                if (!string.IsNullOrWhiteSpace(version))
+                {
+                    var format = "CurrentVersionIsLatest".ToLocalization();
+                    vm.VersionText = string.IsNullOrWhiteSpace(format) || format == "CurrentVersionIsLatest"
+                        ? $"当前版本已是最新版（{version}）"
+                        : string.Format(format, version);
+                }
+                else
+                {
+                    var defaultText = "CurrentVersionIsLatest".ToLocalization();
+                    vm.VersionText = string.IsNullOrWhiteSpace(defaultText) || defaultText == "CurrentVersionIsLatest"
+                        ? "当前版本已是最新版"
+                        : defaultText;
+                }
+
+                if (!string.IsNullOrWhiteSpace(announcementContent) && !announcementContent.Trim().Equals("placeholder", StringComparison.OrdinalIgnoreCase))
+                {
+                    vm.AnnouncementInfo = announcementContent;
+                }
+                else
+                {
+                    var mdPath = Path.Combine(AppContext.BaseDirectory, "resource", AnnouncementViewModel.AnnouncementFileName);
+                    if (File.Exists(mdPath))
+                    {
+                        try { vm.AnnouncementInfo = File.ReadAllText(mdPath); } catch { }
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(vm.AnnouncementInfo) || vm.AnnouncementInfo.Trim().Equals("placeholder", StringComparison.OrdinalIgnoreCase))
+                {
+                    vm.AnnouncementInfo = $"### {vm.VersionText}\n\n当前已是最新版本。";
+                }
+
+                vm.DoNotRemindThisAnnouncementAgain = false;
+                GlobalConfiguration.SetValue(ConfigurationKeys.DoNotShowAgain, bool.FalseString);
+
+                if (_currentInstance != null && _currentInstance.IsLoaded)
+                {
+                    _currentInstance.Activate();
+                    if (_currentInstance.WindowState == WindowState.Minimized)
+                    {
+                        _currentInstance.WindowState = WindowState.Normal;
+                    }
+                    return;
+                }
+
+                var view = new AnnouncementView();
+                view.Show();
+                view.Activate();
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError($"显示最新版本公告弹窗失败: {ex.Message}");
+            }
+        });
+    }
+
     public void HandlePreviewMouseWheel(object sender, MouseWheelEventArgs e)
     {
         if (e.Handled)

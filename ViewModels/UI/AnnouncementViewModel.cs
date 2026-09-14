@@ -68,8 +68,8 @@ public partial class AnnouncementViewModel : ViewModel
 
             if (!string.IsNullOrWhiteSpace(AnnouncementInfo) && !AnnouncementInfo.Trim().Equals("placeholder", StringComparison.OrdinalIgnoreCase))
             {
-                var announcementView = new AnnouncementView();
-                announcementView.Show();
+                var localVersion = Instances.VersionUpdateSettingsUserControlModel.RinoVersion;
+                AnnouncementView.ShowLatestVersion(localVersion, AnnouncementInfo);
             }
         }
     }

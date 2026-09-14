@@ -633,6 +633,9 @@
     <data name="UpdatedToVersion" xml:space="preserve">
     <value>Updated to version {0}</value>
   </data>
+  <data name="CurrentVersionIsLatest" xml:space="preserve">
+    <value>Current version is the latest version ({0})</value>
+  </data>
     <data name="ResourcesAreLatestVersion" xml:space="preserve">
     <value>Resources are already in the latest version!</value>
   </data>

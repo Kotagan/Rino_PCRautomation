@@ -32,6 +32,7 @@ public class VersionChecker
 {
     private static readonly VersionChecker Checker = new();
     private static readonly ConcurrentQueue<ValueType.MFATask> Queue = new();
+    private string _latestReleaseNote = string.Empty;
 
     public static void Check()
     {
@@ -218,11 +219,7 @@ public class VersionChecker
                 {
                     DispatcherHelper.RunOnMainThread(() =>
                     {
-                        MessageBoxHelper.Show(
-                            string.Format("SoftwareIsLatestVersion".ToLocalization(), localVersion),
-                            caption: "SoftwareUpdate".ToLocalization(),
-                            buttons: MessageBoxButton.OK,
-                            icon: MessageBoxImage.Information);
+                        AnnouncementView.ShowLatestVersion(localVersion, _latestReleaseNote, "SoftwareUpdate".ToLocalization());
                     });
                 }
             }
@@ -412,7 +409,14 @@ public class VersionChecker
         {
             ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
             Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+            DispatcherHelper.RunOnMainThread(() =>
+            {
+                dialog?.Close();
+                if (!noDialog)
+                {
+                    AnnouncementView.ShowLatestVersion(currentVersion, _latestReleaseNote, "UpdateResource".ToLocalization());
+                }
+            });
             Instances.TaskQueueViewModel.ClearDownloadProgress();
             action?.Invoke();
             return;
@@ -588,6 +592,7 @@ public class VersionChecker
             else
             {
                 ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
+                AnnouncementView.ShowLatestVersion(currentVersion, _latestReleaseNote, "UpdateResource".ToLocalization());
             }
 
             Instances.RootViewModel.SetUpdating(false);
@@ -670,7 +675,14 @@ public class VersionChecker
         {
             ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
             Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+            DispatcherHelper.RunOnMainThread(() =>
+            {
+                dialog?.Close();
+                if (!noDialog)
+                {
+                    AnnouncementView.ShowLatestVersion(localVersion, _latestReleaseNote, "UpdateResource".ToLocalization());
+                }
+            });
             Instances.TaskQueueViewModel.ClearDownloadProgress();
             action?.Invoke();
             return;
@@ -1024,7 +1036,7 @@ public class VersionChecker
             else
             {
                 var data = responseData["data"];
-                if (!onlyCheck && !isUI)
+                if (!isUI)
                     SaveAnnouncement(data, "release_note");
                 var versionName = data["version_name"]?.ToString();
                 var downloadUrl = data["url"]?.ToString();
@@ -1047,12 +1059,17 @@ public class VersionChecker
             var bodyContent = releaseData?[from]?.ToString();
             if (!string.IsNullOrWhiteSpace(bodyContent) && bodyContent != "placeholder")
             {
+                _latestReleaseNote = bodyContent;
                 var resourceDirectory = Path.Combine(AppContext.BaseDirectory, "resource");
                 Directory.CreateDirectory(resourceDirectory);
                 var filePath = Path.Combine(resourceDirectory, AnnouncementViewModel.AnnouncementFileName);
-                File.WriteAllText(filePath, bodyContent);
-                LoggerService.LogInfo($"{AnnouncementViewModel.AnnouncementFileName} saved successfully.");
-                GlobalConfiguration.SetValue(ConfigurationKeys.DoNotShowAgain, bool.FalseString);
+                var existingContent = File.Exists(filePath) ? File.ReadAllText(filePath) : null;
+                if (existingContent != bodyContent)
+                {
+                    File.WriteAllText(filePath, bodyContent);
+                    LoggerService.LogInfo($"{AnnouncementViewModel.AnnouncementFileName} saved successfully.");
+                    GlobalConfiguration.SetValue(ConfigurationKeys.DoNotShowAgain, bool.FalseString);
+                }
             }
         }
         catch (Exception ex)
@@ -1212,6 +1229,7 @@ public class VersionChecker
             else
             {
                 ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
+                AnnouncementView.ShowLatestVersion(localVersion, _latestReleaseNote, "UpdateResource".ToLocalization());
             }
             Instances.RootViewModel.SetUpdating(false);
         }
@@ -1255,8 +1273,8 @@ public class VersionChecker
                     {
                         continue;
                     }
-                    if (isDownload)
-                        SaveAnnouncement(tag, "body");
+                    _latestReleaseNote = tag["body"]?.ToString() ?? string.Empty;
+                    SaveAnnouncement(tag, "body");
                     return tag["tag_name"]?.ToString() ?? string.Empty;
                 }
             }

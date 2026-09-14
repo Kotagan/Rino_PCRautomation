@@ -626,6 +626,9 @@
   <data name="UpdatedToVersion" xml:space="preserve">
     <value>已更新到 {0} 版本</value>
   </data>
+  <data name="CurrentVersionIsLatest" xml:space="preserve">
+    <value>目前版本已是最新版（{0}）</value>
+  </data>
   <data name="ResourcesAreLatestVersion" xml:space="preserve">
     <value>資源已為最新版本！</value>
   </data>
