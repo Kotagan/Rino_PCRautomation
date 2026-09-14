@@ -21,16 +21,16 @@
     <UserControl.Resources>
         <converters:NotNullToVisibilityConverter x:Key="NotNullToVisibilityConverter" />
         <Style x:Key="SequenceActionButtonStyle" TargetType="Button" BasedOn="{StaticResource DialogSecondaryButtonStyle}">
-            <Setter Property="FontSize" Value="13" />
+            <Setter Property="FontSize" Value="14" />
             <Setter Property="FontWeight" Value="Medium" />
             <Setter Property="Height" Value="34" />
             <Setter Property="MinHeight" Value="34" />
-            <Setter Property="Padding" Value="6,0" />
+            <Setter Property="Padding" Value="8,0" />
             <Setter Property="VerticalContentAlignment" Value="Center" />
             <Setter Property="HorizontalContentAlignment" Value="Center" />
         </Style>
         <Style x:Key="SequencePrimaryButtonStyle" TargetType="Button" BasedOn="{StaticResource DialogPrimaryButtonStyle}">
-            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontSize" Value="15" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Height" Value="36" />
             <Setter Property="MinHeight" Value="36" />
@@ -48,7 +48,7 @@
         </Style>
 
         <Style x:Key="SequenceSectionTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontSize" Value="17" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Foreground" Value="{DynamicResource PrimaryTextBrush}" />
             <Setter Property="VerticalAlignment" Value="Center" />
@@ -137,7 +137,7 @@
                         Grid.Row="0"
                         Text="{lex:Loc TaskSequence}" />
                     <TextBlock
-                        FontSize="13.5"
+                        FontSize="14"
                         Foreground="{DynamicResource SecondaryTextBrush}"
                         Grid.Row="1"
                         Margin="0,2,0,0"
@@ -196,7 +196,7 @@
 
                     <hc:ComboBox
                         extensions:ComboBoxExtensions.DisableNavigationOnLostFocus="True"
-                        FontSize="13.5"
+                        FontSize="14"
                         Grid.Row="1"
                         MinHeight="36"
                         ItemsSource="{Binding ViewModel.Presets}"
@@ -212,7 +212,7 @@
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
                                     <TextBlock
-                                        FontSize="13.5"
+                                        FontSize="14"
                                         Text="{Binding Name}"
                                         TextTrimming="CharacterEllipsis"
                                         VerticalAlignment="Center" />
@@ -293,7 +293,7 @@
                                 Style="{StaticResource SequenceSectionTitleStyle}"
                                 Text="{lex:Loc TaskListHeader}" />
                             <TextBlock
-                                FontSize="13"
+                                FontSize="13.5"
                                 Foreground="{DynamicResource SecondaryTextBrush}"
                                 Margin="0,3,0,0"
                                 Text="{lex:Loc TaskSequenceDescription}"
@@ -308,12 +308,12 @@
                                 Command="{Binding ViewModel.NumberAllCommand}"
                                 Content="{lex:Loc NumberAll}"
                                 Margin="0,0,8,0"
-                                MinWidth="86"
+                                MinWidth="88"
                                 Style="{StaticResource SequenceActionButtonStyle}" />
                             <Button
                                 Command="{Binding ViewModel.ClearAllCommand}"
                                 Content="{lex:Loc ClearAllOrders}"
-                                MinWidth="86"
+                                MinWidth="88"
                                 Style="{StaticResource SequenceActionButtonStyle}" />
                         </StackPanel>
                     </Grid>
@@ -364,7 +364,7 @@
                                                 VerticalAlignment="Center"
                                                 Visibility="{calcBinding:Binding IsAssigned}">
                                                 <TextBlock
-                                                    FontSize="13"
+                                                    FontSize="16"
                                                     FontWeight="Bold"
                                                     Foreground="#FFFFFF"
                                                     HorizontalAlignment="Center"
@@ -382,7 +382,8 @@
                                                 Visibility="{calcBinding:Binding '!IsAssigned'}"
                                                 Width="36">
                                                 <TextBlock
-                                                    FontSize="13"
+                                                    FontSize="16"
+                                                    FontWeight="SemiBold"
                                                     Foreground="{DynamicResource SecondaryTextBrush}"
                                                     HorizontalAlignment="Center"
                                                     Text="—"
@@ -390,7 +391,7 @@
                                             </Border>
 
                                             <TextBlock
-                                                FontSize="14.5"
+                                                FontSize="16"
                                                 FontWeight="Medium"
                                                 Foreground="{DynamicResource PrimaryTextBrush}"
                                                 Grid.Column="1"
@@ -411,13 +412,13 @@
                                                     Content="{lex:Loc AssignNext}"
                                                     IsEnabled="{calcBinding:Binding '!IsAssigned'}"
                                                     Margin="0,0,8,0"
-                                                    MinWidth="108"
+                                                    MinWidth="112"
                                                     Style="{StaticResource SequenceActionButtonStyle}" />
                                                 <Button
                                                     Command="{Binding ViewModel.ClearOrderCommand, RelativeSource={RelativeSource AncestorType=ui:TaskSequenceView}}"
                                                     CommandParameter="{Binding}"
                                                     Content="×"
-                                                    FontSize="16"
+                                                    FontSize="17"
                                                     Height="34"
                                                     Padding="0"
                                                     Style="{StaticResource SequenceActionButtonStyle}"
