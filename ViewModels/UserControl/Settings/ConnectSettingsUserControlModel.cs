@@ -100,4 +100,11 @@ public partial class ConnectSettingsUserControlModel : ViewModel
     {
         ConfigurationHelper.SetValue(ConfigurationKeys.AllowAdbHardRestart, value);
     }
+
+    [ObservableProperty] private double _connectWaitTime = ConfigurationHelper.GetValue(ConfigurationKeys.ConnectWaitTime, 30.0);
+
+    partial void OnConnectWaitTimeChanged(double value)
+    {
+        ConfigurationHelper.SetValue(ConfigurationKeys.ConnectWaitTime, value);
+    }
 }

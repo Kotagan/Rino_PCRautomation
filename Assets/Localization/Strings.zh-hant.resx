@@ -12,7 +12,7 @@
         <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
     </resheader>
     <data name="AppTitle" xml:space="preserve">
-    <value>Rino</value>
+    <value>Rino_PCRautomation</value>
   </data>
     <data name="TabADB" xml:space="preserve">
     <value>模擬器</value>
@@ -235,6 +235,15 @@
   </data>
     <data name="ConnectingTo" xml:space="preserve">
     <value>正在連接至{0}......</value>
+  </data>
+  <data name="ConnectingWithCountdown" xml:space="preserve">
+    <value>璃乃正在連線至{0}…… ({1}s)</value>
+  </data>
+  <data name="ConnectingSuccess" xml:space="preserve">
+    <value>璃乃已連線至{0}</value>
+  </data>
+  <data name="ConnectWaitTime" xml:space="preserve">
+    <value>連線等待超時時間(秒)</value>
   </data>
     <data name="InitInstanceFailed" xml:space="preserve">
     <value>初始化MAA實例失敗，發生連線錯誤或資源檔案損壞，請參閱記錄.</value>

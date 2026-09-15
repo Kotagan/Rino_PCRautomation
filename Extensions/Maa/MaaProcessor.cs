@@ -148,67 +148,134 @@ public class MaaProcessor
     {
         var controllerType = Instances.ConnectingViewModel.CurrentController;
         var isAdb = controllerType == MaaControllerTypes.Adb;
+        var targetKey = isAdb ? "Emulator" : "Window";
+        var targetName = targetKey.ToLocalization();
 
-        RootView.AddLogByKey("ConnectingTo", null, true, isAdb ? "Emulator" : "Window");
-        if (Instances.ConnectingViewModel.CurrentDevice == null)
-            Instances.ConnectingViewModel.TryReadAdbDeviceFromConfig();
-        var connected = await TryConnectAsync(token);
+        if (Instances.ConnectingViewModel.CurrentDevice == null && isAdb)
+            Instances.ConnectingViewModel.TryReadAdbDeviceFromConfig(false, true);
 
-        if (!connected && isAdb)
+        var waitTime = ConfigurationHelper.GetValue(ConfigurationKeys.ConnectWaitTime, 30.0);
+        if (waitTime <= 0) waitTime = 30.0;
+
+        var timeout = TimeSpan.FromSeconds(waitTime);
+        var stopwatch = Stopwatch.StartNew();
+
+        int initialSeconds = (int)Math.Ceiling(waitTime);
+        var logItem = RootView.AddCountdownLog(
+            string.Format("ConnectingWithCountdown".ToLocalization(), targetName, initialSeconds)
+        );
+
+        bool connected = false;
+        bool retrySoftwareTriggered = false;
+        bool reconnectAdbTriggered = false;
+        bool restartAdbTriggered = false;
+        bool hardRestartAdbTriggered = false;
+
+        while (stopwatch.Elapsed < timeout)
         {
-            connected = await HandleAdbConnectionAsync(token);
+            token.ThrowIfCancellationRequested();
+
+            var remainingSeconds = Math.Max(0, (int)Math.Ceiling((timeout - stopwatch.Elapsed).TotalSeconds));
+            if (logItem != null)
+            {
+                RootView.UpdateLog(
+                    logItem,
+                    string.Format("ConnectingWithCountdown".ToLocalization(), targetName, remainingSeconds)
+                );
+            }
+
+            SetCurrentTasker(null);
+            connected = await TryConnectAsync(token);
+            if (connected)
+            {
+                break;
+            }
+
+            if (isAdb)
+            {
+                if (Instances.ConnectingViewModel.CurrentDevice == null)
+                {
+                    Instances.ConnectingViewModel.TryReadAdbDeviceFromConfig(true, true);
+                }
+
+                var elapsed = stopwatch.Elapsed.TotalSeconds;
+
+                // 尝试启动模拟器（如果启用且尚未触发）
+                if (!retrySoftwareTriggered && Instances.ConnectSettingsUserControlModel.RetryOnDisconnected)
+                {
+                    retrySoftwareTriggered = true;
+                    LoggerService.LogInfo("TryToStartEmulator".ToLocalization());
+                    await StartSoftware();
+                    Instances.ConnectingViewModel.TryReadAdbDeviceFromConfig(true, true);
+                }
+                // 持续失败 3 秒后，尝试重连 ADB (重置连接状态)
+                else if (!reconnectAdbTriggered && elapsed >= 3.0)
+                {
+                    reconnectAdbTriggered = true;
+                    LoggerService.LogInfo("TryToReconnectByAdb".ToLocalization());
+                    await ReconnectByAdb();
+                }
+                // 持续失败 10 秒后，尝试重启 ADB Server
+                else if (!restartAdbTriggered && elapsed >= 10.0 && Instances.ConnectSettingsUserControlModel.AllowAdbRestart)
+                {
+                    restartAdbTriggered = true;
+                    LoggerService.LogInfo("RestartAdb".ToLocalization());
+                    await RestartAdb();
+                }
+                // 持续失败 18 秒后，尝试强制重启 ADB 进程
+                else if (!hardRestartAdbTriggered && elapsed >= 18.0 && Instances.ConnectSettingsUserControlModel.AllowAdbHardRestart)
+                {
+                    hardRestartAdbTriggered = true;
+                    LoggerService.LogInfo("HardRestartAdb".ToLocalization());
+                    await HardRestartAdb();
+                }
+            }
+
+            try
+            {
+                await Task.Delay(1000, token);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
         }
 
-        if (!connected)
+        token.ThrowIfCancellationRequested();
+
+        if (connected)
         {
-            await HandleConnectionFailureAsync(isAdb, token);
+            if (logItem != null)
+            {
+                RootView.UpdateLog(
+                    logItem,
+                    string.Format("ConnectingSuccess".ToLocalization(), targetName)
+                );
+            }
+            Instances.ConnectingViewModel.SetConnected(true);
+        }
+        else
+        {
+            if (logItem != null)
+            {
+                RootView.UpdateLog(
+                    logItem,
+                    "ConnectFailed".ToLocalization()
+                );
+            }
+            await HandleConnectionFailureAsync(isAdb, token, suppressLog: true);
             throw new Exception("Connection failed after all retries");
         }
-
-        Instances.ConnectingViewModel.SetConnected(true);
     }
 
-    async private Task<bool> HandleAdbConnectionAsync(CancellationToken token)
-    {
-        bool connected = false;
-        var retrySteps = new List<Func<CancellationToken, Task<bool>>>
-        {
-            async t => await RetryConnectionAsync(t, StartSoftware, "TryToStartEmulator", Instances.ConnectSettingsUserControlModel.RetryOnDisconnected, () => Instances.ConnectingViewModel.TryReadAdbDeviceFromConfig(true)),
-            async t => await RetryConnectionAsync(t, ReconnectByAdb, "TryToReconnectByAdb"),
-            async t => await RetryConnectionAsync(t, RestartAdb, "RestartAdb", Instances.ConnectSettingsUserControlModel.AllowAdbRestart),
-            async t => await RetryConnectionAsync(t, HardRestartAdb, "HardRestartAdb", Instances.ConnectSettingsUserControlModel.AllowAdbHardRestart)
-        };
-
-        foreach (var step in retrySteps)
-        {
-            if (token.IsCancellationRequested) break;
-            connected = await step(token);
-            if (connected) break;
-        }
-
-        return connected;
-    }
-
-    async private Task<bool> RetryConnectionAsync(CancellationToken token, Func<Task> action, string logKey, bool enable = true, Action? other = null)
-    {
-        if (!enable) return false;
-        token.ThrowIfCancellationRequested();
-        RootView.AddLog("ConnectFailed".ToLocalization() + "\n" + logKey.ToLocalization());
-        await action();
-        if (token.IsCancellationRequested)
-        {
-            Stop();
-            return false;
-        }
-        other?.Invoke();
-        return await TryConnectAsync(token);
-    }
-
-    async private Task HandleConnectionFailureAsync(bool isAdb, CancellationToken token)
+    async private Task HandleConnectionFailureAsync(bool isAdb, CancellationToken token, bool suppressLog = false)
     {
         token.ThrowIfCancellationRequested();
         LoggerService.LogWarning("ConnectFailed".ToLocalization());
-        RootView.AddLogByKey("ConnectFailed");
+        if (!suppressLog)
+        {
+            RootView.AddLogByKey("ConnectFailed");
+        }
         Instances.ConnectingViewModel.SetConnected(false);
         GrowlHelper.Warning("Warning_CannotConnect".ToLocalizationFormatted(true, isAdb ? "Emulator" : "Window"));
         Stop();
@@ -859,6 +926,14 @@ public class MaaProcessor
             _agentProcess?.Kill();
             _agentProcess?.Dispose();
             _agentProcess = null;
+            try
+            {
+                _currentTasker?.Dispose();
+            }
+            catch
+            {
+                // ignored
+            }
         }
         _currentTasker = tasker;
     }
@@ -1044,7 +1119,8 @@ public class MaaProcessor
                     .FormatWith(Instances.ConnectingViewModel.CurrentController == MaaControllerTypes.Adb
                         ? "Emulator".ToLocalization()
                         : "Window".ToLocalization()), true,
-                "InitControllerFailed".ToLocalization()));
+                "InitControllerFailed".ToLocalization(),
+                showGrowl: false));
         }
         catch (OperationCanceledException)
         {
@@ -1611,10 +1687,14 @@ public class MaaProcessor
     private void HandleInitializationError(Exception e,
         string message,
         bool hasWarning = false,
-        string waringMessage = "")
+        string waringMessage = "",
+        bool showGrowl = true)
     {
         Console.WriteLine(e);
-        GrowlHelper.Error(message);
+        if (showGrowl)
+        {
+            GrowlHelper.Error(message);
+        }
         if (hasWarning)
             LoggerService.LogWarning(waringMessage);
         LoggerService.LogError(e.ToString());

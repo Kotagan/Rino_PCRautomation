@@ -21,7 +21,7 @@
     WindowStyle="None"
     d:DataContext="{d:DesignInstance ui:RootView,
                                      IsDesignTimeCreatable=False}"
-    engine:ResxLocalizationProvider.DefaultAssembly="Rino"
+    engine:ResxLocalizationProvider.DefaultAssembly="Rino_PCRautomation"
     engine:ResxLocalizationProvider.DefaultDictionary="Strings"
     mc:Ignorable="d"
     x:Class="MFAWPF.Views.UI.RootView"

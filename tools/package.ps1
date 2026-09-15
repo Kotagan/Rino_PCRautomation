@@ -64,10 +64,13 @@ if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }
 
-$expectedExecutable = Join-Path $OutputDir "Rino.exe"
+$expectedExecutable = Join-Path $OutputDir "Rino_PCRautomation.exe"
+if (!(Test-Path -LiteralPath $expectedExecutable)) {
+    $expectedExecutable = Join-Path $OutputDir "Rino.exe"
+}
 $legacyExecutable = Join-Path $OutputDir "MFAWPF.exe"
 if (!(Test-Path -LiteralPath $expectedExecutable)) {
-    throw "Published package does not contain Rino.exe."
+    throw "Published package does not contain expected executable (Rino_PCRautomation.exe / Rino.exe)."
 }
 if (Test-Path -LiteralPath $legacyExecutable) {
     throw "Published package unexpectedly contains MFAWPF.exe."
@@ -135,6 +138,31 @@ foreach ($file in $essentialFiles) {
     }
 }
 
+# Ensure native runtime libraries required by MaaFramework and ONNX/OpenCV are present
+$binDirCandidates = @(
+    (Join-Path $repoRoot "runtimes\win-x64\native"),
+    (Join-Path $repoRoot "..\bin\AnyCPU\$Configuration"),
+    (Join-Path $repoRoot "..\bin\x64\$Configuration"),
+    (Join-Path $repoRoot "..\bin\AnyCPU\Debug"),
+    (Join-Path $env:USERPROFILE ".nuget\packages\maa.framework.runtime.win-x64\4.4.0-beta.2\runtimes\win-x64\native")
+)
+
+$nativePatterns = @("Maa*.dll", "*_maa.dll", "DirectML.dll", "ViGEmClient.dll")
+foreach ($pattern in $nativePatterns) {
+    foreach ($binDir in $binDirCandidates) {
+        if (Test-Path $binDir) {
+            $matchingFiles = Get-ChildItem -Path $binDir -Filter $pattern -File -ErrorAction SilentlyContinue
+            if ($matchingFiles) {
+                foreach ($f in $matchingFiles) {
+                    $destPath = Join-Path $OutputDir $f.Name
+                    Copy-Item -Path $f.FullName -Destination $destPath -Force
+                }
+                break
+            }
+        }
+    }
+}
+
 # Strict sanitization: remove all runtime logs, crash dumps, debug files, and user artifacts
 $sensitiveExtensions = @(".log", ".pdb", ".dmp", ".trace", ".etl", ".tmp", ".bak")
 Get-ChildItem -Path $OutputDir -Recurse -File -ErrorAction SilentlyContinue |
@@ -153,7 +181,7 @@ Get-ChildItem -Path $OutputDir | Select-Object Name, Length, Mode | Format-Table
 
 if ($CreateZip) {
     $zipParent = Split-Path -Parent $OutputDir
-    $zipPath = Join-Path $zipParent "Rino-$Configuration.zip"
+    $zipPath = Join-Path $zipParent "Rino_PCRautomation-$Configuration.zip"
     if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
     Write-Host "Creating archive: $zipPath ..." -ForegroundColor Yellow
     Compress-Archive -Path "$OutputDir\*" -DestinationPath $zipPath -Force
@@ -168,26 +196,33 @@ if ($CreateInstaller) {
 
     # Extract version from Rino_WFP.csproj
     $csprojContent = Get-Content -Path $projectPath -Raw
-    $versionMatch = [System.Text.RegularExpressions.Regex]::Match($csprojContent, "<Version>([^<]+)</Version>")
-    if ($versionMatch.Success) {
-        $version = $versionMatch.Groups[1].Value.Trim()
+    $infoVersionMatch = [System.Text.RegularExpressions.Regex]::Match($csprojContent, "<InformationalVersion>([^<]+)</InformationalVersion>")
+    if ($infoVersionMatch.Success -and -not [string]::IsNullOrWhiteSpace($infoVersionMatch.Groups[1].Value)) {
+        $version = $infoVersionMatch.Groups[1].Value.Trim()
     } else {
-        $version = "0.1.0"
+        $versionMatch = [System.Text.RegularExpressions.Regex]::Match($csprojContent, "<Version>([^<]+)</Version>")
+        if ($versionMatch.Success) {
+            $version = $versionMatch.Groups[1].Value.Trim()
+        } else {
+            $version = "0.00"
+        }
     }
 
-    $fileVersion = if ($version.Split('.').Count -eq 3) { "$version.0" } else { $version }
+    $cleanVersion = $version.TrimStart('v', 'V')
+    $verWithV = if ($version.StartsWith('V') -or $version.StartsWith('v')) { $version } else { "V$version" }
+    $fileVersion = if ($cleanVersion.Split('.').Count -eq 3) { "$cleanVersion.0" } elseif ($cleanVersion.Split('.').Count -eq 2) { "$cleanVersion.0.0" } else { $cleanVersion }
 
-    Write-Host "`nSyncing version ($version / $fileVersion) to $issPath ..." -ForegroundColor Yellow
-    $issContent = Get-Content $issPath -Raw
-    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "AppVersion=[0-9.]+", "AppVersion=$version")
+    Write-Host "`nSyncing version ($version / $verWithV / $fileVersion) to $issPath ..." -ForegroundColor Yellow
+    $issContent = [System.IO.File]::ReadAllText($issPath, [System.Text.Encoding]::UTF8)
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "AppName=[^\r\n]+", "AppName=Rino_PCRautomation_${verWithV}")
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "AppVersion=[0-9.]+", "AppVersion=$cleanVersion")
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoVersion=[0-9.]+", "VersionInfoVersion=$fileVersion")
-    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoTextVersion=[0-9.]+", "VersionInfoTextVersion=$version")
-    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoProductVersion=[0-9.]+", "VersionInfoProductVersion=$version")
-    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "OutputBaseFilename=Rino(?:_WFP)?_[0-9.]+_Setup", "OutputBaseFilename=Rino_WFP_${version}_Setup")
-    $currentIss = Get-Content $issPath -Raw
-    if ($currentIss -ne $issContent) {
-        Set-Content -Path $issPath -Value $issContent -Encoding utf8 -NoNewline
-    }
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoTextVersion=[^\r\n]+", "VersionInfoTextVersion=$verWithV")
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoProductVersion=[^\r\n]+", "VersionInfoProductVersion=$fileVersion")
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "OutputBaseFilename=[^\r\n]+", "OutputBaseFilename=Rino_PCRautomation_${verWithV}")
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "TitleLabel\.Caption\s*:=\s*'[^']+';", "TitleLabel.Caption := 'Rino_PCRautomation_${verWithV}';")
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "WizardForm\.Caption\s*:=\s*'[^']+';", "WizardForm.Caption := 'Rino_PCRautomation_${verWithV}';")
+    [System.IO.File]::WriteAllText($issPath, $issContent, [System.Text.Encoding]::UTF8)
 
     # Kill any running setup process before compilation
     Get-Process | Where-Object { $_.ProcessName -match "Rino.*Setup|Setup\.tmp" } | Stop-Process -Force -ErrorAction SilentlyContinue
@@ -224,6 +259,6 @@ if ($CreateInstaller) {
         throw "Inno Setup compilation failed with exit code $LASTEXITCODE"
     }
 
-    $setupExe = Join-Path $repoRoot "Rino_WFP_${version}_Setup.exe"
+    $setupExe = Join-Path $repoRoot "Rino_PCRautomation_${verWithV}.exe"
     Write-Host "Installer created successfully: $setupExe" -ForegroundColor Green
 }

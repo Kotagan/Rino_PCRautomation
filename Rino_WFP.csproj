@@ -53,12 +53,12 @@
     <PropertyGroup>
         <ApplicationIcon>logo.ico</ApplicationIcon>
         <RootNamespace>MFAWPF</RootNamespace>
-        <AssemblyName>Rino</AssemblyName>
-        <AssemblyTitle>Rino</AssemblyTitle>
-        <Product>Rino</Product>
-        <ProductName>Rino</ProductName>
+        <AssemblyName>Rino_PCRautomation</AssemblyName>
+        <AssemblyTitle>Rino_PCRautomation</AssemblyTitle>
+        <Product>Rino_PCRautomation</Product>
+        <ProductName>Rino_PCRautomation</ProductName>
         <PublisherName>SweetFox</PublisherName>
-        <SuiteName>Rino</SuiteName>
+        <SuiteName>Rino_PCRautomation</SuiteName>
     </PropertyGroup>
 
     <!-- Ignore Warnings -->
@@ -69,11 +69,11 @@
     <!-- Version -->
     <PropertyGroup>
         <ApplicationRevision>0</ApplicationRevision>
-        <ApplicationVersion>0.1.0</ApplicationVersion>
-        <Version>0.1.0</Version>
-        <FileVersion>0.1.0.0</FileVersion>
-        <AssemblyVersion>0.1.0.0</AssemblyVersion>
-        <InformationalVersion>0.1.0</InformationalVersion>
+        <ApplicationVersion>1.9.0</ApplicationVersion>
+        <Version>1.9.0</Version>
+        <FileVersion>1.9.0.0</FileVersion>
+        <AssemblyVersion>1.9.0.0</AssemblyVersion>
+        <InformationalVersion>V1.9.0</InformationalVersion>
     </PropertyGroup>
 
     <!-- Build and Publish -->

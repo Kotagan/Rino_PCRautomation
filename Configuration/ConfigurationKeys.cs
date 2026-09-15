@@ -52,6 +52,7 @@ public static class ConfigurationKeys
     public const string RetryOnDisconnected = "RetryOnDisconnected";
     public const string AdbDevice = "AdbDevice";
     public const string CurrentController = "CurrentController";
+    public const string ConnectWaitTime = "ConnectWaitTime";
 
     #endregion
 

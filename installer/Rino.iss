@@ -1,4 +1,4 @@
-; ========================================================
+﻿; ========================================================
 ; Rino Inno Setup 现代定制安装包配置文件 (Rino 暖白品牌主题版)
 ; ========================================================
 ; 1. 采用 Windows 原生 AnimateWindow 硬件加速接口，实现极速无卡顿的窗口淡入淡出动画。
@@ -12,16 +12,16 @@
 ; 7. 屏蔽系统底层所有向导按钮，无边框 18px 窗体圆角裁切全部保留。
 
 [Setup]
-AppName=Rino_WFP
-AppVersion=0.1.0
+AppName=Rino_PCRautomation_V1.9.0
+AppVersion=1.9.0
 AppPublisher=SweetFox
-DefaultDirName={localappdata}\Rino_WFP
-DefaultGroupName=Rino_WFP
-OutputBaseFilename=Rino_WFP_0.1.0_Setup
+DefaultDirName={localappdata}\Rino_PCRautomation
+DefaultGroupName=Rino_PCRautomation
+OutputBaseFilename=Rino_PCRautomation_V1.9.0
 Compression=lzma2/max
 SolidCompression=yes
 OutputDir=..
-UninstallDisplayIcon={app}\Rino.exe
+UninstallDisplayIcon={app}\Rino_PCRautomation.exe
 DisableProgramGroupPage=yes
 DisableDirPage=yes
 DisableReadyPage=yes
@@ -31,21 +31,21 @@ PrivilegesRequired=lowest
 SetupIconFile=..\logo.ico
 
 ; 版本信息配置（解决资源管理器中显示 0.0.0.0 的问题）
-VersionInfoVersion=0.1.0.0
+VersionInfoVersion=1.9.0.0
 VersionInfoCompany=SweetFox
-VersionInfoDescription=Rino_WFP Setup
-VersionInfoTextVersion=0.1.0
-VersionInfoProductName=Rino_WFP
-VersionInfoProductVersion=0.1.0
+VersionInfoDescription=Rino_PCRautomation_V1.9.0 Setup
+VersionInfoTextVersion=V1.9.0
+VersionInfoProductName=Rino_PCRautomation
+VersionInfoProductVersion=1.9.0.0
 
 [Messages]
-ConfirmUninstall=您确定要完全卸载 Rino_WFP 吗？
-UninstallAppFullTitle=卸载 Rino_WFP
-UninstallAppTitle=卸载 Rino_WFP
-UninstallStatusLabel=正在从您的电脑中安全移除 Rino_WFP，请稍候...
+ConfirmUninstall=您确定要完全卸载 Rino_PCRautomation 吗？
+UninstallAppFullTitle=卸载 Rino_PCRautomation
+UninstallAppTitle=卸载 Rino_PCRautomation
+UninstallStatusLabel=正在从您的电脑中安全移除 Rino_PCRautomation，请稍候...
 ButtonYes=是(&Y)
 ButtonNo=否(&N)
-ExitSetupMessage=安装尚未完成。如果您现在退出，将不会安装 Rino_WFP。#13#10#13#10您确定要退出安装程序吗？
+ExitSetupMessage=安装尚未完成。如果您现在退出，将不会安装 Rino_PCRautomation。#13#10#13#10您确定要退出安装程序吗？
 ExitSetupTitle=退出安装
 
 [Files]
@@ -53,11 +53,11 @@ Source: "..\distribution\output\Rino\*"; DestDir: "{app}"; Flags: ignoreversion 
 Source: "btn_border.bmp"; Flags: dontcopy
 
 [Icons]
-Name: "{group}\Rino_WFP"; Filename: "{app}\Rino.exe"; WorkingDir: "{app}"; IconFilename: "{app}\logo.ico"
-Name: "{userdesktop}\Rino_WFP"; Filename: "{app}\Rino.exe"; WorkingDir: "{app}"; IconFilename: "{app}\logo.ico"
+Name: "{group}\Rino_PCRautomation"; Filename: "{app}\Rino_PCRautomation.exe"; WorkingDir: "{app}"; IconFilename: "{app}\logo.ico"
+Name: "{userdesktop}\Rino_PCRautomation"; Filename: "{app}\Rino_PCRautomation.exe"; WorkingDir: "{app}"; IconFilename: "{app}\logo.ico"
 
 [Run]
-Filename: "{app}\Rino.exe"; Description: "运行 Rino_WFP"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Rino_PCRautomation.exe"; Description: "运行 Rino_PCRautomation"; Flags: nowait postinstall skipifsilent
 
 [Code]
 const
@@ -120,10 +120,10 @@ procedure StartInstall(Sender: TObject);
 var
   SelectedDir: string;
 begin
-  SelectedDir := ExpandConstant('{localappdata}\Rino_WFP'); // 获取默认推荐路径
+  SelectedDir := ExpandConstant('{localappdata}\Rino_PCRautomation'); // 获取默认推荐路径
 
   // 1. 弹出系统原生文件夹选择弹窗让用户自由选择路径
-  // 转义提示文字：“请选择 Rino_WFP 的安装目标文件夹：”
+  // 转义提示文字：“请选择 Rino_PCRautomation 的安装目标文件夹：”
   if BrowseForFolder(#35831#36873#25321#32#82#105#110#111#95#87#70#80#32#30340#23433#35013#30446#26631#25991#20214#22841#65306, SelectedDir, True) then
   begin
     // 将选择好的路径赋予向导引擎的默认安装路径
@@ -160,6 +160,7 @@ var
 begin
   // 1. 去除系统标题栏与边框，定义宽大舒适的 750x500 尺寸
   WizardForm.BorderStyle := bsNone;
+  WizardForm.Caption := 'Rino_PCRautomation_V1.9.0';
   WizardForm.Width := 750;
   WizardForm.Height := 500;
   WizardForm.Color := $F0F4FF; // 设为 Rino 标志性暖白背景 (RGB: #FFF4F0 -> BGR: $F0F4FF)
@@ -212,9 +213,9 @@ begin
   // 5. 写入软件名称 (大字号，SF Pro / 微软雅黑)
   TitleLabel := TLabel.Create(WizardForm);
   TitleLabel.Parent := WizardForm;
-  TitleLabel.Caption := 'Rino_WFP';
+  TitleLabel.Caption := 'Rino_PCRautomation_V1.9.0';
   TitleLabel.Font.Name := 'SF Pro';
-  TitleLabel.Font.Size := 32;
+  TitleLabel.Font.Size := 24;
   TitleLabel.Font.Style := [fsBold];
   TitleLabel.Font.Color := $383636; // Rino 主文本炭黑深色 (#363638)
   TitleLabel.Left := 80;

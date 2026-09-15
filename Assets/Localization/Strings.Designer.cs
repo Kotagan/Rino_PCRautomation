@@ -348,6 +348,33 @@ namespace MFAWPF.Res.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 璃乃正在连接至{0}…… ({1}s).
+        /// </summary>
+        internal static string ConnectingWithCountdown {
+            get {
+                return ResourceManager.GetString("ConnectingWithCountdown", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 璃乃已连接至{0}.
+        /// </summary>
+        internal static string ConnectingSuccess {
+            get {
+                return ResourceManager.GetString("ConnectingSuccess", resourceCulture);
+            }
+        }
+
+        /// <summary>
+        ///   Looks up a localized string similar to 连接等待超时时间(秒).
+        /// </summary>
+        internal static string ConnectWaitTime {
+            get {
+                return ResourceManager.GetString("ConnectWaitTime", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 已复制到剪切板.
         /// </summary>
         internal static string CopiedToClipboard {

@@ -12,6 +12,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
 using MFAWPF.Views.UI.Dialog;
+using MFAWPF.ViewModels.Tool;
 using MFATask = MFAWPF.Helper.ValueType.MFATask;
 using RootViewModel = MFAWPF.ViewModels.UI.RootViewModel;
 
@@ -485,6 +486,12 @@ public partial class RootView
 
     public static void AddLogByKey(string key, Brush? brush = null, bool transformKey = true, params string[] formatArgsKeys)
         => Instances.TaskQueueViewModel.AddLogByKey(key, brush, transformKey, formatArgsKeys);
+
+    public static LogItemViewModel AddCountdownLog(string content, Brush? brush = null)
+        => Instances.TaskQueueViewModel.AddCountdownLog(content, brush);
+
+    public static void UpdateLog(LogItemViewModel item, string newContent)
+        => Instances.TaskQueueViewModel.UpdateLog(item, newContent);
     public void RunScript(string str = "Prescript")
     {
         bool enable = str switch

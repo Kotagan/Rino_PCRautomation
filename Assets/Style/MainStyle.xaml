@@ -79,7 +79,7 @@
     </Style>
 
     <!--  Global Font Family Stack (Embedded TrueType 100% Free Commercial Open-Source Apple-Twin Font Stack)  -->
-    <FontFamily x:Key="AppFontFamily">pack://application:,,,/Rino;component/Assets/Fonts/#Inter, pack://application:,,,/Rino;component/Assets/Fonts/#HarmonyOS Sans SC, SF Pro Text, PingFang SC, Microsoft YaHei UI, sans-serif</FontFamily>
+    <FontFamily x:Key="AppFontFamily">pack://application:,,,/Rino_PCRautomation;component/Assets/Fonts/#Inter, pack://application:,,,/Rino_PCRautomation;component/Assets/Fonts/#HarmonyOS Sans SC, SF Pro Text, PingFang SC, Microsoft YaHei UI, sans-serif</FontFamily>
 
     <!--  Global Typography & Crisp Text Rendering Styles  -->
     <Style TargetType="{x:Type TextBlock}">

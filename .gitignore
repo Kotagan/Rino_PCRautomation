@@ -180,8 +180,10 @@ auth.txt
 *.etl
 
 # Generated publication and local test output
+/distribution/
 /distribution/output/
 /*_Setup.exe
+/Rino_PCRautomation*.exe
 /test.ps1
 /workflows/
 /.github/workflows/

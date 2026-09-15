@@ -1,0 +1,699 @@
+{
+    "小工具_装备强化": {
+        "timeout": 60000,
+        "threshold": 0.9,
+        "recognition": "TemplateMatch",
+        "template": [
+            "角色全部强化.png"
+        ],
+        "next": [
+            "选择EX装备"
+        ]
+    },
+    "选择EX装备": {
+        "timeout": 60000,
+        "action": "Click",
+        "target": [
+            927,
+            39
+        ],
+        "next": [
+            "选择EX装备2"
+        ]
+    },
+    "选择EX装备2": {
+        "timeout": 60000,
+        "action": "Click",
+        "target": [
+            690,
+            410
+        ],
+        "next": [
+            "选择EX装备3"
+        ]
+    },
+    "选择EX装备3": {
+        "timeout": 60000,
+        "action": "Click",
+        "target": [
+            791,
+            630
+        ],
+        "post_delay": 1500,
+        "next": [
+            "装备页面是否是升序",
+            "装备页面降序"
+        ]
+    },
+    "装备页面降序": {
+        "timeout": 60000,
+        "action": "Click",
+        "target": [
+            1060,
+            43
+        ],
+        "post_delay": 1500,
+        "next": [
+            "装备页面顺序"
+        ]
+    },
+    "装备页面是否是升序": {
+        "timeout": 60000,
+        "recognition": "OCR",
+        "expected": "升序",
+        "post_delay": 1500,
+        "next": [
+            "装备页面顺序"
+        ]
+    },
+    "装备页面顺序": {
+        "action": "Click",
+        "post_delay": 1500,
+        "target": [
+            262,
+            219
+        ],
+        "next": [
+            "选择装备"
+        ]
+    },
+    "选择装备": {
+        "timeout": 60000,
+        "action": "Click",
+        "target": [
+            1186,
+            104
+        ],
+        "post_delay": 1000,
+        "next": [
+            "自动装备"
+        ]
+    },
+    "自动装备": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "自动装备.png"
+        ],
+        "action": "Click",
+        "post_delay": 1500,
+        "next": [
+            "检查是否选择其他角色装备",
+            "确定自动装备"
+        ]
+    },
+    "检查是否选择其他角色装备": {
+        "timeout": 60000,
+        "threshold": 0.9,
+        "recognition": "TemplateMatch",
+        "template": [
+            "确定选择.png"
+        ],
+        "action": "Click",
+        "next": [
+            "确定自动装备"
+        ]
+    },
+    "确定自动装备": {
+        "timeout": 60000,
+        "action": "Click",
+        "target": [
+            787,
+            637
+        ],
+        "next": [
+            "确定自动装备2"
+        ]
+    },
+    "确定自动装备2": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "OK.png"
+        ],
+        "action": "Click",
+        "next": [
+            "检查装备"
+        ]
+    },
+    "检查装备": {
+        "timeout": 3000,
+        "threshold": 0.6,
+        "recognition": "TemplateMatch",
+        "template": [
+            "EX装备.png",
+            "EX装备空.png",
+            "战队装备.png"
+        ],
+        "roi": [
+            104,
+            169,
+            120,
+            120
+        ],
+        "pre_delay": 600,
+        "post_delay": 600,
+        "action": "Click",
+        "next": [
+            "未装备装备",
+            "解放上限"
+        ]
+    },
+    "未装备装备": {
+        "timeout": 3000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "未装备装备.png"
+        ],
+        "next": [
+            "检查装备2"
+        ]
+    },
+    "解放上限": {
+        "action": "Click",
+        "target": [
+            931,
+            576
+        ],
+        "post_delay": 600,
+        "next": [
+            "此装备无法再上限解放",
+            "没有可使用的素材",
+            "选择第一个装备"
+        ]
+    },
+    "没有可使用的素材": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "没有可使用的素材.png"
+        ],
+        "action": "Click",
+        "target": [
+            503,
+            637
+        ],
+        "next": [
+            "开始强化"
+        ]
+    },
+    "此装备无法再上限解放": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "此装备无法.png"
+        ],
+        "post_delay": 1000,
+        "next": [
+            "开始强化"
+        ]
+    },
+    "选择第一个装备": {
+        "action": "Click",
+        "target": [
+            122,
+            241
+        ],
+        "post_delay": 600,
+        "next": [
+            "无法选择装备",
+            "选择第二个装备"
+        ]
+    },
+    "选择第二个装备": {
+        "action": "Click",
+        "target": [
+            276,
+            244
+        ],
+        "post_delay": 600,
+        "next": [
+            "无法选择装备",
+            "开始解放上限"
+        ]
+    },
+    "开始解放上限": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "解放上限.png"
+        ],
+        "action": "Click",
+        "next": [
+            "开始强化"
+        ]
+    },
+    "无法选择装备": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "无法选择装备.png"
+        ],
+        "action": "Click",
+        "target": [
+            503,
+            630
+        ],
+        "post_delay": 1500,
+        "next": [
+            "开始强化"
+        ]
+    },
+    "开始强化": {
+        "recognition": "TemplateMatch",
+        "template": [
+            "装备强化.png"
+        ],
+        "action": "Click",
+        "pre_delay": 500,
+        "target": [
+            758,
+            583
+        ],
+        "post_delay": 600,
+        "next": [
+            "此装备无法再强化",
+            "一键强化"
+        ]
+    },
+    "一键强化": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "一键强化.png"
+        ],
+        "action": "Click",
+        "post_delay": 1000,
+        "next": [
+            "确定一键强化装备"
+        ]
+    },
+    "确定一键强化装备": {
+        "action": "Click",
+        "target": [
+            783,
+            633
+        ],
+        "next": [
+            "检查装备2"
+        ]
+    },
+    "此装备无法再强化": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "此装备无法.png"
+        ],
+        "next": [
+            "检查装备2"
+        ]
+    },
+    "下一个角色强化装备": {
+        "action": "Click",
+        "target": [
+            1229,
+            356
+        ],
+        "next": [
+            "检查装备2"
+        ]
+    },
+    "检查装备2": {
+        "timeout": 3000,
+        "threshold": 0.6,
+        "recognition": "TemplateMatch",
+        "template": [
+            "EX装备.png",
+            "EX装备空.png",
+            "战队装备.png"
+        ],
+        "roi": [
+            269,
+            79,
+            120,
+            120
+        ],
+        "pre_delay": 800,
+        "post_delay": 600,
+        "action": "Click",
+        "next": [
+            "未装备装备2",
+            "解放上限2"
+        ]
+    },
+    "未装备装备2": {
+        "timeout": 3000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "未装备装备.png"
+        ],
+        "next": [
+            "检查装备3"
+        ]
+    },
+    "解放上限2": {
+        "action": "Click",
+        "target": [
+            931,
+            576
+        ],
+        "post_delay": 600,
+        "next": [
+            "此装备无法再上限解放2",
+            "没有可使用的素材2",
+            "选择第一个装备2"
+        ]
+    },
+    "没有可使用的素材2": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "没有可使用的素材.png"
+        ],
+        "action": "Click",
+        "target": [
+            503,
+            637
+        ],
+        "next": [
+            "开始强化2"
+        ]
+    },
+    "此装备无法再上限解放2": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "此装备无法.png"
+        ],
+        "post_delay": 1000,
+        "next": [
+            "开始强化2"
+        ]
+    },
+    "选择第一个装备2": {
+        "action": "Click",
+        "target": [
+            122,
+            241
+        ],
+        "post_delay": 600,
+        "next": [
+            "无法选择装备2",
+            "选择第二个装备2"
+        ]
+    },
+    "选择第二个装备2": {
+        "action": "Click",
+        "target": [
+            276,
+            244
+        ],
+        "post_delay": 600,
+        "next": [
+            "无法选择装备2",
+            "开始解放上限2"
+        ]
+    },
+    "开始解放上限2": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "解放上限.png"
+        ],
+        "action": "Click",
+        "next": [
+            "开始强化2"
+        ]
+    },
+    "无法选择装备2": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "无法选择装备.png"
+        ],
+        "action": "Click",
+        "target": [
+            503,
+            630
+        ],
+        "post_delay": 1500,
+        "next": [
+            "开始强化2"
+        ]
+    },
+    "开始强化2": {
+        "recognition": "TemplateMatch",
+        "template": [
+            "装备强化.png"
+        ],
+        "action": "Click",
+        "pre_delay": 500,
+        "target": [
+            758,
+            583
+        ],
+        "post_delay": 600,
+        "next": [
+            "此装备无法再强化2",
+            "一键强化2"
+        ]
+    },
+    "一键强化2": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "一键强化.png"
+        ],
+        "action": "Click",
+        "post_delay": 1000,
+        "next": [
+            "确定一键强化装备2"
+        ]
+    },
+    "确定一键强化装备2": {
+        "action": "Click",
+        "target": [
+            783,
+            633
+        ],
+        "next": [
+            "检查装备3"
+        ]
+    },
+    "此装备无法再强化2": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "此装备无法.png"
+        ],
+        "next": [
+            "检查装备3"
+        ]
+    },
+    "下一个角色强化装备2": {
+        "action": "Click",
+        "target": [
+            1229,
+            356
+        ],
+        "next": [
+            "检查装备3"
+        ]
+    },
+    "检查装备3": {
+        "timeout": 3000,
+        "threshold": 0.6,
+        "recognition": "TemplateMatch",
+        "template": [
+            "EX装备.png",
+            "EX装备空.png",
+            "战队装备.png"
+        ],
+        "roi": [
+            438,
+            169,
+            120,
+            120
+        ],
+        "post_delay": 600,
+        "pre_delay": 800,
+        "action": "Click",
+        "next": [
+            "未装备装备3",
+            "解放上限3"
+        ]
+    },
+    "未装备装备3": {
+        "timeout": 3000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "未装备装备.png"
+        ],
+        "next": [
+            "选择下一个角色进行装备"
+        ]
+    },
+    "解放上限3": {
+        "action": "Click",
+        "target": [
+            931,
+            576
+        ],
+        "post_delay": 600,
+        "next": [
+            "此装备无法再上限解放3",
+            "没有可使用的素材3",
+            "选择第一个装备3"
+        ]
+    },
+    "没有可使用的素材3": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "没有可使用的素材.png"
+        ],
+        "action": "Click",
+        "target": [
+            503,
+            637
+        ],
+        "next": [
+            "开始强化3"
+        ]
+    },
+    "此装备无法再上限解放3": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "此装备无法.png"
+        ],
+        "post_delay": 1000,
+        "next": [
+            "开始强化3"
+        ]
+    },
+    "选择第一个装备3": {
+        "action": "Click",
+        "post_delay": 600,
+        "target": [
+            122,
+            241
+        ],
+        "next": [
+            "无法选择装备3",
+            "选择第二个装备3"
+        ]
+    },
+    "选择第二个装备3": {
+        "action": "Click",
+        "post_delay": 600,
+        "target": [
+            276,
+            244
+        ],
+        "next": [
+            "无法选择装备3",
+            "开始解放上限3"
+        ]
+    },
+    "开始解放上限3": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "解放上限.png"
+        ],
+        "action": "Click",
+        "next": [
+            "开始强化3"
+        ]
+    },
+    "无法选择装备3": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "无法选择装备.png"
+        ],
+        "action": "Click",
+        "target": [
+            503,
+            630
+        ],
+        "post_delay": 1500,
+        "next": [
+            "开始强化3"
+        ]
+    },
+    "开始强化3": {
+        "recognition": "TemplateMatch",
+        "template": [
+            "装备强化.png"
+        ],
+        "pre_delay": 500,
+        "action": "Click",
+        "target": [
+            758,
+            583
+        ],
+        "post_delay": 600,
+        "next": [
+            "此装备无法再强化3",
+            "一键强化3"
+        ]
+    },
+    "一键强化3": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "一键强化.png"
+        ],
+        "action": "Click",
+        "post_delay": 1000,
+        "next": [
+            "确定一键强化装备3"
+        ]
+    },
+    "确定一键强化装备3": {
+        "action": "Click",
+        "target": [
+            783,
+            633
+        ],
+        "next": [
+            "选择下一个角色进行装备"
+        ]
+    },
+    "此装备无法再强化3": {
+        "timeout": 60000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "此装备无法.png"
+        ],
+        "next": [
+            "选择下一个角色进行装备"
+        ]
+    },
+    "下一个角色强化装备3": {
+        "action": "Click",
+        "target": [
+            1229,
+            356
+        ],
+        "next": [
+            "选择下一个角色进行装备"
+        ]
+    },
+    "选择下一个角色进行装备": {
+        "recognition": "TemplateMatch",
+        "template": [
+            "自动装备.png"
+        ],
+        "action": "Click",
+        "target": [
+            1247,
+            370
+        ],
+        "next": [
+            "自动装备"
+        ]
+    }
+}

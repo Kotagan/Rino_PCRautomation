@@ -25,6 +25,23 @@ internal static class Program
 
     private static async Task<int> Main(string[] arguments)
     {
+        if (arguments.FirstOrDefault() == "--test-resource")
+        {
+            var resPath = arguments.Skip(1).FirstOrDefault() ?? @"c:\MY\Project\Rino_PCR\Rino_PCRautomation\Resource\base";
+            Console.WriteLine($"Testing MaaResource with path: {resPath}");
+            try
+            {
+                var res = new MaaFramework.Binding.MaaResource(new[] { resPath });
+                Console.WriteLine("SUCCESS loading resource!");
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"FAILED: {ex}");
+                return 1;
+            }
+        }
+
         if (arguments.FirstOrDefault() == "--fake-rino-sidecar")
         {
             return await RunFakeRinoSidecarAsync(arguments.Skip(1).FirstOrDefault() ?? "normal");

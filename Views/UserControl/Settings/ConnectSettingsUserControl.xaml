@@ -96,6 +96,22 @@
                 Width="260" />
         </Grid>
 
+        <Grid Margin="0,6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock VerticalAlignment="Center" Text="{lex:Loc ConnectWaitTime}" />
+            <hc:NumericUpDown
+                Grid.Column="1"
+                HorizontalAlignment="Right"
+                Minimum="5"
+                Maximum="300"
+                Style="{StaticResource NumericUpDownExtend}"
+                Value="{Binding ViewModel.ConnectWaitTime, UpdateSourceTrigger=PropertyChanged}"
+                Width="120" />
+        </Grid>
+
         <Grid Margin="0,6" Visibility="{calcBinding:Binding 'CurrentController == maa:MaaControllerTypes.Adb', Source={x:Static helper:Instances.ConnectingViewModel}}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />

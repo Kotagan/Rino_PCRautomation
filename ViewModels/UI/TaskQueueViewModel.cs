@@ -339,6 +339,26 @@ public partial class TaskQueueViewModel : ViewModel
         });
     }
 
+    public LogItemViewModel AddCountdownLog(string content, Brush? brush = null)
+    {
+        brush ??= Brushes.Gray;
+        var item = new LogItemViewModel(content, brush, "Regular", "HH':'mm':'ss", showTime: true);
+        DispatcherHelper.RunOnMainThread(() =>
+        {
+            LogItemViewModels.Add(item);
+            LoggerService.LogInfo(content);
+        });
+        return item;
+    }
+
+    public void UpdateLog(LogItemViewModel item, string newContent)
+    {
+        DispatcherHelper.RunOnMainThread(() =>
+        {
+            item.Content = newContent;
+        });
+    }
+
     public void AddLogByKey(string key, Brush? color = null, params string[] formatArgsKeys)
     {
         color ??= Brushes.Gray;

@@ -16,7 +16,7 @@
         </value>
     </resheader>
     <data name="AppTitle" xml:space="preserve">
-    <value>Rino</value>
+    <value>Rino_PCRautomation</value>
   </data>
     <data name="TabADB" xml:space="preserve">
     <value>ADB</value>
@@ -239,6 +239,15 @@
   </data>
     <data name="ConnectingTo" xml:space="preserve">
     <value>Connecting to {0}......</value>
+  </data>
+  <data name="ConnectingWithCountdown" xml:space="preserve">
+    <value>Rino is connecting to {0}... ({1}s)</value>
+  </data>
+  <data name="ConnectingSuccess" xml:space="preserve">
+    <value>Rino connected to {0}</value>
+  </data>
+  <data name="ConnectWaitTime" xml:space="preserve">
+    <value>Connection timeout (seconds)</value>
   </data>
     <data name="InitInstanceFailed" xml:space="preserve">
     <value>Failed to initialize MAA instance, a connection error or resource file corruption occurred, please refer to the logs.</value>

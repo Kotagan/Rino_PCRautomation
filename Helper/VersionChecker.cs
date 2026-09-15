@@ -32,7 +32,8 @@ public class VersionChecker
 {
     private static readonly VersionChecker Checker = new();
     private static readonly ConcurrentQueue<ValueType.MFATask> Queue = new();
-    private string _latestReleaseNote = string.Empty;
+    private string _latestSoftwareReleaseNote = string.Empty;
+    private string _latestResourceReleaseNote = string.Empty;
 
     public static void Check()
     {
@@ -143,32 +144,21 @@ public class VersionChecker
         try
         {
             string owner = "miaoyu2233";
-            string repo = "Rino_WFP";
+            string repo = "Rino_PCRautomation";
 
             dialog?.UpdateProgress(50);
 
-            var latestVersion = await GetLatestVersionFromGithubAsync(owner, repo, false);
+            var latestVersion = await GetLatestVersionFromGithubAsync(owner, repo, false, isSoftware: true);
 
             dialog?.UpdateProgress(100);
             DispatcherHelper.RunOnMainThread(() => dialog?.Close());
 
-            if (latestVersion == null)
+            if (string.IsNullOrWhiteSpace(latestVersion))
             {
                 Instances.RootViewModel.SetUpdating(false);
                 if (!noDialog)
                 {
-                    DispatcherHelper.RunOnMainThread(() =>
-                    {
-                        MessageBoxHelper.Show(
-                            "CheckUpdateNetworkFailed".ToLocalization(),
-                            caption: "SoftwareUpdate".ToLocalization(),
-                            buttons: MessageBoxButton.OK,
-                            icon: MessageBoxImage.Warning);
-                    });
-                }
-                else
-                {
-                    ToastNotification.ShowDirect("CheckUpdateNetworkFailed".ToLocalization());
+                    ToastNotification.ShowDirect("当前暂无软件新版本发布");
                 }
                 return;
             }
@@ -180,7 +170,7 @@ public class VersionChecker
             }
             if (string.IsNullOrWhiteSpace(localVersion))
             {
-                localVersion = "0.0.1";
+                localVersion = "0.00";
             }
 
             if (!string.IsNullOrWhiteSpace(latestVersion) && IsNewVersionAvailable(latestVersion, localVersion))
@@ -219,7 +209,14 @@ public class VersionChecker
                 {
                     DispatcherHelper.RunOnMainThread(() =>
                     {
-                        AnnouncementView.ShowLatestVersion(localVersion, _latestReleaseNote, "SoftwareUpdate".ToLocalization());
+                        if (!string.IsNullOrWhiteSpace(_latestSoftwareReleaseNote))
+                        {
+                            AnnouncementView.ShowLatestVersion(localVersion, _latestSoftwareReleaseNote, "SoftwareUpdate".ToLocalization());
+                        }
+                        else
+                        {
+                            ToastNotification.ShowDirect("软件已是最新版本");
+                        }
                     });
                 }
             }
@@ -414,7 +411,7 @@ public class VersionChecker
                 dialog?.Close();
                 if (!noDialog)
                 {
-                    AnnouncementView.ShowLatestVersion(currentVersion, _latestReleaseNote, "UpdateResource".ToLocalization());
+                    AnnouncementView.ShowLatestVersion(currentVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization());
                 }
             });
             Instances.TaskQueueViewModel.ClearDownloadProgress();
@@ -592,7 +589,7 @@ public class VersionChecker
             else
             {
                 ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
-                AnnouncementView.ShowLatestVersion(currentVersion, _latestReleaseNote, "UpdateResource".ToLocalization());
+                AnnouncementView.ShowLatestVersion(currentVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization());
             }
 
             Instances.RootViewModel.SetUpdating(false);
@@ -638,7 +635,7 @@ public class VersionChecker
         string latestVersion = string.Empty;
         try
         {
-            latestVersion = strings.Length > 1 ? GetLatestVersionFromGithub(strings[0], strings[1], true) : string.Empty;
+            latestVersion = strings.Length > 1 ? GetLatestVersionFromGithub(strings[0], strings[1], true, isSoftware: false) : string.Empty;
         }
         catch (Exception ex)
         {
@@ -680,7 +677,7 @@ public class VersionChecker
                 dialog?.Close();
                 if (!noDialog)
                 {
-                    AnnouncementView.ShowLatestVersion(localVersion, _latestReleaseNote, "UpdateResource".ToLocalization());
+                    AnnouncementView.ShowLatestVersion(localVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization());
                 }
             });
             Instances.TaskQueueViewModel.ClearDownloadProgress();
@@ -1052,14 +1049,21 @@ public class VersionChecker
         }
     }
 
-    private void SaveAnnouncement(JToken? releaseData, string from)
+    private void SaveAnnouncement(JToken? releaseData, string from, bool isSoftware = false)
     {
         try
         {
             var bodyContent = releaseData?[from]?.ToString();
             if (!string.IsNullOrWhiteSpace(bodyContent) && bodyContent != "placeholder")
             {
-                _latestReleaseNote = bodyContent;
+                if (isSoftware)
+                {
+                    _latestSoftwareReleaseNote = bodyContent;
+                }
+                else
+                {
+                    _latestResourceReleaseNote = bodyContent;
+                }
                 var resourceDirectory = Path.Combine(AppContext.BaseDirectory, "resource");
                 Directory.CreateDirectory(resourceDirectory);
                 var filePath = Path.Combine(resourceDirectory, AnnouncementViewModel.AnnouncementFileName);
@@ -1229,7 +1233,7 @@ public class VersionChecker
             else
             {
                 ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
-                AnnouncementView.ShowLatestVersion(localVersion, _latestReleaseNote, "UpdateResource".ToLocalization());
+                AnnouncementView.ShowLatestVersion(localVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization());
             }
             Instances.RootViewModel.SetUpdating(false);
         }
@@ -1241,7 +1245,7 @@ public class VersionChecker
         }
     }
 
-    public async Task<string?> GetLatestVersionFromGithubAsync(string owner = "miaoyu2233", string repo = "Rino_WFP", bool isDownload = false)
+    public async Task<string?> GetLatestVersionFromGithubAsync(string owner = "miaoyu2233", string repo = "Rino_PCRautomation", bool isDownload = false, bool isSoftware = false)
     {
         if (string.IsNullOrWhiteSpace(owner) || string.IsNullOrWhiteSpace(repo))
             return null;
@@ -1273,8 +1277,16 @@ public class VersionChecker
                     {
                         continue;
                     }
-                    _latestReleaseNote = tag["body"]?.ToString() ?? string.Empty;
-                    SaveAnnouncement(tag, "body");
+                    var note = tag["body"]?.ToString() ?? string.Empty;
+                    if (isSoftware)
+                    {
+                        _latestSoftwareReleaseNote = note;
+                    }
+                    else
+                    {
+                        _latestResourceReleaseNote = note;
+                    }
+                    SaveAnnouncement(tag, "body", isSoftware);
                     return tag["tag_name"]?.ToString() ?? string.Empty;
                 }
             }
@@ -1289,11 +1301,11 @@ public class VersionChecker
         return string.Empty;
     }
 
-    public string GetLatestVersionFromGithub(string owner = "miaoyu2233", string repo = "Rino_WFP", bool isDownload = false)
+    public string GetLatestVersionFromGithub(string owner = "miaoyu2233", string repo = "Rino_PCRautomation", bool isDownload = false, bool isSoftware = false)
     {
         try
         {
-            return GetLatestVersionFromGithubAsync(owner, repo, isDownload).GetAwaiter().GetResult() ?? string.Empty;
+            return GetLatestVersionFromGithubAsync(owner, repo, isDownload, isSoftware).GetAwaiter().GetResult() ?? string.Empty;
         }
         catch (Exception ex)
         {
@@ -1304,7 +1316,12 @@ public class VersionChecker
 
     private string GetLocalVersion()
     {
-        return Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "DEBUG";
+        var v = Assembly.GetExecutingAssembly().GetName().Version;
+        if (v == null || (v.Major == 0 && v.Minor == 0 && v.Build == 0))
+        {
+            return "0.00";
+        }
+        return v.ToString();
     }
 
     private string GetResourceVersion()
@@ -1349,7 +1366,7 @@ public class VersionChecker
         }
 
         var parts = versionString.Split('-');
-        var mainVersionPart = parts[0];
+        var mainVersionPart = System.Text.RegularExpressions.Regex.Replace(parts[0], @"[^\d\.]", "");
 
         var versionComponents = mainVersionPart.Split('.');
         while (versionComponents.Length < 4)

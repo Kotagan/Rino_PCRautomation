@@ -200,26 +200,29 @@ public partial class ConnectingViewModel : ViewModel
     [RelayCommand]
     private void Refresh()
     {
-        TaskManager.RunTaskAsync(AutoDetectDevice);
+        TaskManager.RunTaskAsync(() => AutoDetectDevice());
     }
 
-    public void AutoDetectDevice()
+    public void AutoDetectDevice(bool silent = false)
     {
         var isAdb = CurrentController == MaaControllerTypes.Adb;
         try
         {
-            GrowlHelper.Info(GetDetectionMessage(isAdb));
+            if (!silent)
+            {
+                GrowlHelper.Info(GetDetectionMessage(isAdb));
+            }
             SetConnected(false);
 
             var (devices, index) = isAdb ? DetectAdbDevices() : DetectWin32Windows();
 
             UpdateDeviceList(devices, index);
             HandleControllerSettings(isAdb);
-            UpdateConnectionStatus(devices.Count > 0, isAdb);
+            UpdateConnectionStatus(devices.Count > 0, isAdb, silent);
         }
         catch (Exception ex)
         {
-            HandleDetectionError(ex, isAdb);
+            HandleDetectionError(ex, isAdb, silent);
         }
     }
 
@@ -399,27 +402,30 @@ public partial class ConnectingViewModel : ViewModel
         }
     }
 
-    private void UpdateConnectionStatus(bool hasDevices, bool isAdb)
+    private void UpdateConnectionStatus(bool hasDevices, bool isAdb, bool silent = false)
     {
-        if (!hasDevices)
+        if (!hasDevices && !silent)
         {
             GrowlHelper.Info(LocExtension.GetLocalizedValue<string>(
                 isAdb ? "NoEmulatorFound" : "NoWindowFound"));
         }
     }
 
-    private void HandleDetectionError(Exception ex, bool isAdb)
+    private void HandleDetectionError(Exception ex, bool isAdb, bool silent = false)
     {
-        var targetType = isAdb ? "Emulator" : "Window";
-        GrowlHelper.Warning(string.Format(
-            LocExtension.GetLocalizedValue<string>("TaskStackError"),
-            targetType.ToLocalization(),
-            ex.Message));
-
         LoggerService.LogError(ex);
+        if (!silent)
+        {
+            var targetType = isAdb ? "Emulator" : "Window";
+            var format = LocExtension.GetLocalizedValue<string>("TaskStackError") ?? "{0}: {1}";
+            GrowlHelper.Warning(string.Format(
+                format,
+                targetType.ToLocalization(),
+                ex.Message));
+        }
     }
 
-    public void TryReadAdbDeviceFromConfig(bool refresh = false)
+    public void TryReadAdbDeviceFromConfig(bool refresh = false, bool silent = false)
     {
         if (refresh
             || CurrentController != MaaControllerTypes.Adb
@@ -428,7 +434,7 @@ public partial class ConnectingViewModel : ViewModel
                 new UniversalEnumConverter<AdbInputMethods>(), new UniversalEnumConverter<AdbScreencapMethods>())
             || string.IsNullOrWhiteSpace(device?.AdbSerial))
         {
-            DispatcherHelper.RunOnMainThread(AutoDetectDevice);
+            DispatcherHelper.RunOnMainThread(() => AutoDetectDevice(silent));
             return;
         }
 

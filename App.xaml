@@ -1,4 +1,4 @@
-﻿<Application
+<Application
     DispatcherUnhandledException="OnDispatcherUnhandledException"
     Exit="OnExit"
     Startup="OnStartup"
@@ -9,8 +9,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/HandyControl;component/themes/theme.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Rino;component/Assets/Theme.xaml" />
-                <ResourceDictionary Source="pack://application:,,,/Rino;component/Assets/Style.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Rino_PCRautomation;component/Assets/Theme.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/Rino_PCRautomation;component/Assets/Style.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

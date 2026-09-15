@@ -17,7 +17,7 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AppTitle" xml:space="preserve">
-    <value>Rino</value>
+    <value>Rino_PCRautomation</value>
   </data>
   <data name="TabADB" xml:space="preserve">
     <value>模拟器</value>
@@ -243,6 +243,15 @@
   </data>
   <data name="ConnectingTo" xml:space="preserve">
     <value>璃乃正在连接至{0}......</value>
+  </data>
+  <data name="ConnectingWithCountdown" xml:space="preserve">
+    <value>璃乃正在连接至{0}…… ({1}s)</value>
+  </data>
+  <data name="ConnectingSuccess" xml:space="preserve">
+    <value>璃乃已连接至{0}</value>
+  </data>
+  <data name="ConnectWaitTime" xml:space="preserve">
+    <value>连接等待超时时间(秒)</value>
   </data>
   <data name="InitInstanceFailed" xml:space="preserve">
     <value>璃乃初始化实例失败，发生连接错误或资源文件损坏，请参阅日志.</value>
