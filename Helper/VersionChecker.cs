@@ -244,7 +244,7 @@ public class VersionChecker
 
         try
         {
-            var downloadUrl = await Task.Run(() => GetDownloadUrlFromGitHubRelease(latestVersion, owner, repo));
+            var downloadUrl = await Task.Run(() => GetDownloadUrlFromGitHubRelease(latestVersion, owner, repo, isSoftware: true));
             if (string.IsNullOrWhiteSpace(downloadUrl))
             {
                 DispatcherHelper.RunOnMainThread(() => dialog?.Close());
@@ -255,14 +255,15 @@ public class VersionChecker
                 return;
             }
 
+            var isExe = downloadUrl.EndsWith(".exe", StringComparison.OrdinalIgnoreCase);
             var tempPath = Path.Combine(AppContext.BaseDirectory, "temp_app_update");
             Directory.CreateDirectory(tempPath);
-            var tempZipFilePath = Path.Combine(tempPath, $"app_{latestVersion}.zip");
+            var tempDownloadedFile = Path.Combine(tempPath, isExe ? $"installer_{latestVersion}.exe" : $"app_{latestVersion}.zip");
 
             dialog?.SetText("Downloading".ToLocalization());
             dialog?.UpdateProgress(0);
 
-            if (!await DownloadFileAsync(downloadUrl, tempZipFilePath, dialog, "SoftwareUpdate"))
+            if (!await DownloadFileAsync(downloadUrl, tempDownloadedFile, dialog, "SoftwareUpdate"))
             {
                 dialog?.SetText("DownloadFailed".ToLocalization());
                 DispatcherHelper.RunOnMainThread(() => dialog?.Close());
@@ -273,11 +274,33 @@ public class VersionChecker
             dialog?.SetText("ApplyingUpdate".ToLocalization());
             dialog?.UpdateProgress(50);
 
+            if (isExe)
+            {
+                dialog?.UpdateProgress(100);
+                dialog?.SetText("UpdateCompleted".ToLocalization());
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                Instances.RootViewModel.SetUpdating(false);
+
+                DispatcherHelper.RunOnMainThread(() =>
+                {
+                    AnnouncementView.ShowUpdateCompleted(latestVersion, _latestSoftwareReleaseNote, "SoftwareUpdate".ToLocalization(), isRestartNeeded: true, restartBatPath: null, installerExePath: tempDownloadedFile);
+                });
+                return;
+            }
+
             var tempExtractDir = Path.Combine(tempPath, $"app_{latestVersion}_extracted");
             if (Directory.Exists(tempExtractDir)) Directory.Delete(tempExtractDir, true);
-            ZipFile.ExtractToDirectory(tempZipFilePath, tempExtractDir);
+            ZipFile.ExtractToDirectory(tempDownloadedFile, tempExtractDir);
 
-            var currentExeFileName = Process.GetCurrentProcess().MainModule?.ModuleName ?? "Rino.exe";
+            var sourceDir = tempExtractDir;
+            var subDirs = Directory.GetDirectories(tempExtractDir);
+            var rootFiles = Directory.GetFiles(tempExtractDir);
+            if (subDirs.Length == 1 && rootFiles.Length == 0)
+            {
+                sourceDir = subDirs[0];
+            }
+
+            var currentExeFileName = Process.GetCurrentProcess().MainModule?.ModuleName ?? "Rino_PCRautomation.exe";
             var utf8BaseDirectory = AppContext.BaseDirectory;
             var batFilePath = Path.Combine(tempPath, "update_app.bat");
 
@@ -286,22 +309,23 @@ public class VersionChecker
                 await sw.WriteLineAsync("@echo off");
                 await sw.WriteLineAsync("chcp 65001 > nul");
                 await sw.WriteLineAsync("ping 127.0.0.1 -n 3 > nul");
-                await sw.WriteLineAsync($"xcopy /E /Y \"{tempExtractDir}\\*.*\" \"{utf8BaseDirectory}\"");
+                await sw.WriteLineAsync($"xcopy /E /Y \"{sourceDir}\\*.*\" \"{utf8BaseDirectory}\"");
                 await sw.WriteLineAsync("ping 127.0.0.1 -n 1 > nul");
                 await sw.WriteLineAsync($"start \"\" /d \"{utf8BaseDirectory}\" \"{currentExeFileName}\"");
                 await sw.WriteLineAsync($"rd /S /Q \"{tempPath}\"");
             }
 
-            var psi = new ProcessStartInfo(batFilePath)
-            {
-                CreateNoWindow = true,
-                WindowStyle = ProcessWindowStyle.Hidden,
-                UseShellExecute = true
-            };
+            dialog?.UpdateProgress(100);
+            dialog?.SetText("UpdateCompleted".ToLocalization());
+            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+            Instances.RootViewModel.SetUpdating(false);
+
             GlobalConfiguration.SetValue("SoftwareUpdatedVersion", latestVersion);
-            Process.Start(psi);
-            Thread.Sleep(50);
-            DispatcherHelper.RunOnMainThread(Application.Current.Shutdown);
+
+            DispatcherHelper.RunOnMainThread(() =>
+            {
+                AnnouncementView.ShowUpdateCompleted(latestVersion, _latestSoftwareReleaseNote, "SoftwareUpdate".ToLocalization(), isRestartNeeded: true, restartBatPath: batFilePath);
+            });
         }
         catch (Exception ex)
         {
@@ -345,225 +369,241 @@ public class VersionChecker
             dialog?.Show();
         });
 
-        var resid = MaaInterface.Instance?.Name ?? string.Empty;
-        if (string.IsNullOrEmpty(resid))
-        {
-            Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            return;
-        }
-
-        SetText("GettingLatestResources", dialog, noDialog);
-
-        var resId = GetResourceID();
-        var currentVersion = GetResourceVersion();
-        var cdk = SimpleEncryptionHelper.Decrypt(ConfigurationHelper.GetValue(ConfigurationKeys.DownloadCDK, string.Empty));
-        dialog?.UpdateProgress(10);
-        if (string.IsNullOrWhiteSpace(resId))
-        {
-            ToastNotification.ShowDirect("CurrentResourcesNotSupportMirror".ToLocalization());
-            Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            return;
-        }
-        if (string.IsNullOrWhiteSpace(currentVersion))
-        {
-            ToastNotification.ShowDirect("FailToGetCurrentVersionInfo".ToLocalization());
-            Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            return;
-        }
-
-        string downloadUrl, latestVersion;
         try
         {
-            GetDownloadUrlFromMirror(currentVersion, resId, cdk, out downloadUrl, out latestVersion);
+            var resid = MaaInterface.Instance?.Name ?? string.Empty;
+            if (string.IsNullOrEmpty(resid))
+            {
+                Instances.RootViewModel.SetUpdating(false);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                return;
+            }
+
+            SetText("GettingLatestResources", dialog, noDialog);
+
+            var resId = GetResourceID();
+            var currentVersion = GetResourceVersion();
+            var cdk = SimpleEncryptionHelper.Decrypt(ConfigurationHelper.GetValue(ConfigurationKeys.DownloadCDK, string.Empty));
+            dialog?.UpdateProgress(10);
+            if (string.IsNullOrWhiteSpace(resId))
+            {
+                ToastNotification.ShowDirect("CurrentResourcesNotSupportMirror".ToLocalization());
+                Instances.RootViewModel.SetUpdating(false);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                return;
+            }
+            if (string.IsNullOrWhiteSpace(currentVersion))
+            {
+                ToastNotification.ShowDirect("FailToGetCurrentVersionInfo".ToLocalization());
+                Instances.RootViewModel.SetUpdating(false);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                return;
+            }
+
+            string downloadUrl, latestVersion;
+            try
+            {
+                GetDownloadUrlFromMirror(currentVersion, resId, cdk, out downloadUrl, out latestVersion);
+            }
+            catch (Exception ex)
+            {
+                Instances.RootViewModel.SetUpdating(false);
+                ToastNotification.ShowDirect(ex.Message);
+                LoggerService.LogError(ex);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                return;
+            }
+
+            dialog?.UpdateProgress(50);
+
+            if (string.IsNullOrWhiteSpace(latestVersion))
+            {
+                ToastNotification.ShowDirect("FailToGetLatestVersionInfo".ToLocalization());
+                Instances.RootViewModel.SetUpdating(false);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                return;
+            }
+
+            if (!IsNewVersionAvailable(latestVersion, currentVersion))
+            {
+                ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
+                Instances.RootViewModel.SetUpdating(false);
+                DispatcherHelper.RunOnMainThread(() =>
+                {
+                    dialog?.Close();
+                    if (!noDialog)
+                    {
+                        AnnouncementView.ShowLatestVersion(currentVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization());
+                    }
+                });
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                action?.Invoke();
+                return;
+            }
+
+            dialog?.UpdateProgress(100);
+
+            if (string.IsNullOrWhiteSpace(downloadUrl))
+            {
+                ToastNotification.ShowDirect("FailToGetDownloadUrl".ToLocalization());
+                Instances.RootViewModel.SetUpdating(false);
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                return;
+            }
+
+            LoggerService.LogInfo(downloadUrl);
+            var tempPath = Path.Combine(AppContext.BaseDirectory, "temp_res");
+            Directory.CreateDirectory(tempPath);
+
+            var tempZipFilePath = Path.Combine(tempPath, $"resource_{latestVersion}.zip");
+            dialog?.SetText("Downloading".ToLocalization());
+            dialog?.UpdateProgress(0);
+
+            if (!await DownloadFileAsync(downloadUrl, tempZipFilePath, dialog, "GameResourceUpdated"))
+            {
+                SetText("DownloadFailed", dialog, noDialog);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                return;
+            }
+
+            dialog?.SetText("ApplyingUpdate".ToLocalization());
+            dialog?.UpdateProgress(5);
+
+            var tempExtractDir = Path.Combine(tempPath, $"resource_{latestVersion}_extracted");
+            if (Directory.Exists(tempExtractDir)) Directory.Delete(tempExtractDir, true);
+            if (!File.Exists(tempZipFilePath))
+            {
+                SetText("DownloadFailed", dialog, noDialog);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                return;
+            }
+
+            ZipFile.ExtractToDirectory(tempZipFilePath, tempExtractDir);
+            dialog?.UpdateProgress(50);
+            var originPath = tempExtractDir;
+            var interfacePath = Path.Combine(tempExtractDir, "interface.json");
+            var resourceDirPath = Path.Combine(tempExtractDir, "resource");
+            if (!File.Exists(interfacePath))
+            {
+                originPath = Path.Combine(tempExtractDir, "assets");
+                interfacePath = Path.Combine(tempExtractDir, "assets", "interface.json");
+                resourceDirPath = Path.Combine(tempExtractDir, "assets", "resource");
+            }
+
+            var wpfDir = AppContext.BaseDirectory;
+            var changesPath = Path.Combine(tempExtractDir, "changes.json");
+            if (File.Exists(changesPath))
+            {
+                var changes = await File.ReadAllTextAsync(changesPath);
+                try
+                {
+                    var changesJson = JsonConvert.DeserializeObject<MirrorChangesJson>(changes);
+                    if (changesJson?.Deleted != null)
+                    {
+                        var delPaths = changesJson.Deleted
+                            .Select(del => Path.Combine(AppContext.BaseDirectory, del))
+                            .Where(File.Exists);
+
+                        foreach (var delPath in delPaths)
+                        {
+                            File.Delete(delPath);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    LoggerService.LogError(e);
+                }
+            }
+
+            var file = new FileInfo(interfacePath);
+            if (file.Exists)
+            {
+                var targetPath = Path.Combine(wpfDir, "interface.json");
+                file.CopyTo(targetPath, true);
+            }
+
+            dialog?.UpdateProgress(60);
+
+            var di = new DirectoryInfo(resourceDirPath);
+            if (di.Exists)
+            {
+                DirectoryMerge(originPath, wpfDir);
+            }
+
+            dialog?.UpdateProgress(70);
+            try
+            {
+                if (File.Exists(tempZipFilePath))
+                    File.Delete(tempZipFilePath);
+                if (Directory.Exists(tempExtractDir))
+                    Directory.Delete(tempExtractDir, true);
+                if (Directory.Exists(tempPath))
+                    Directory.Delete(tempPath, true);
+            }
+            catch { }
+            dialog?.UpdateProgress(80);
+
+            var newInterfacePath = Path.Combine(wpfDir, "interface.json");
+
+            if (File.Exists(newInterfacePath))
+            {
+                var jsonContent = await File.ReadAllTextAsync(newInterfacePath);
+                var settings = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    NullValueHandling = NullValueHandling.Ignore,
+                    DefaultValueHandling = DefaultValueHandling.Ignore
+                };
+
+                settings.Converters.Add(new MaaInterfaceSelectOptionConverter(true));
+                settings.Converters.Add(new MaaInterfaceSelectAdvancedConverter(true));
+                var @interface = JsonConvert.DeserializeObject<MaaInterface>(jsonContent, settings);
+                if (@interface != null)
+                {
+                    @interface.RID = GetResourceID();
+                    @interface.Version = latestVersion;
+                }
+                var updatedJsonContent = JsonConvert.SerializeObject(@interface, settings);
+
+                await File.WriteAllTextAsync(newInterfacePath, updatedJsonContent);
+            }
+
+            dialog?.UpdateProgress(100);
+
+            dialog?.SetText("UpdateCompleted".ToLocalization());
+
+            Instances.RootViewModel.SetUpdating(false);
+
+            DispatcherHelper.RunOnMainThread(() =>
+            {
+                dialog?.Close();
+                AnnouncementView.ShowUpdateCompleted(latestVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization(), isRestartNeeded: true);
+            });
+
+            if (Instances.RootViewModel.Idle)
+            {
+                DispatcherHelper.RunOnMainThread(() => Instances.TaskQueueViewModel.ConnectSettingChecked = true);
+                var tasks = Instances.TaskQueueViewModel.TaskItemViewModels;
+                Instances.RootView.ClearTasks(() => Instances.TaskQueueView.InitializeData(dragItem: tasks));
+            }
+            action?.Invoke();
         }
         catch (Exception ex)
         {
             Instances.RootViewModel.SetUpdating(false);
-            ToastNotification.ShowDirect(ex.Message);
+            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+            ToastNotification.ShowDirect($"更新资源失败: {ex.Message}");
             LoggerService.LogError(ex);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            return;
         }
-
-        dialog?.UpdateProgress(50);
-
-        if (string.IsNullOrWhiteSpace(latestVersion))
+        finally
         {
-            ToastNotification.ShowDirect("FailToGetLatestVersionInfo".ToLocalization());
             Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            return;
         }
-
-
-        if (!IsNewVersionAvailable(latestVersion, currentVersion))
-        {
-            ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
-            Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() =>
-            {
-                dialog?.Close();
-                if (!noDialog)
-                {
-                    AnnouncementView.ShowLatestVersion(currentVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization());
-                }
-            });
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            action?.Invoke();
-            return;
-        }
-
-        dialog?.UpdateProgress(100);
-
-        if (string.IsNullOrWhiteSpace(downloadUrl))
-        {
-            ToastNotification.ShowDirect("FailToGetDownloadUrl".ToLocalization());
-            Instances.RootViewModel.SetUpdating(false);
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            return;
-        }
-
-        LoggerService.LogInfo(downloadUrl);
-        var tempPath = Path.Combine(AppContext.BaseDirectory, "temp_res");
-        Directory.CreateDirectory(tempPath);
-
-        var tempZipFilePath = Path.Combine(tempPath, $"resource_{latestVersion}.zip");
-        dialog?.SetText("Downloading".ToLocalization());
-        dialog?.UpdateProgress(0);
-
-        if (!await DownloadFileAsync(downloadUrl, tempZipFilePath, dialog, "GameResourceUpdated"))
-        {
-            SetText("DownloadFailed", dialog, noDialog);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            return;
-        }
-
-        dialog?.SetText("ApplyingUpdate".ToLocalization());
-        dialog?.UpdateProgress(5);
-
-        var tempExtractDir = Path.Combine(tempPath, $"resource_{latestVersion}_extracted");
-        if (Directory.Exists(tempExtractDir)) Directory.Delete(tempExtractDir, true);
-        if (!File.Exists(tempZipFilePath))
-        {
-            SetText("DownloadFailed", dialog, noDialog);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            return;
-        }
-
-        ZipFile.ExtractToDirectory(tempZipFilePath, tempExtractDir);
-        dialog?.UpdateProgress(50);
-        var originPath = tempExtractDir;
-        var interfacePath = Path.Combine(tempExtractDir, "interface.json");
-        var resourceDirPath = Path.Combine(tempExtractDir, "resource");
-        if (!File.Exists(interfacePath))
-        {
-            originPath = Path.Combine(tempExtractDir, "assets");
-            interfacePath = Path.Combine(tempExtractDir, "assets", "interface.json");
-            resourceDirPath = Path.Combine(tempExtractDir, "assets", "resource");
-        }
-
-        var wpfDir = AppContext.BaseDirectory;
-        var changesPath = Path.Combine(tempExtractDir, "changes.json");
-        if (File.Exists(changesPath))
-        {
-            var changes = await File.ReadAllTextAsync(changesPath);
-            try
-            {
-                var changesJson = JsonConvert.DeserializeObject<MirrorChangesJson>(changes);
-                if (changesJson?.Deleted != null)
-                {
-                    var delPaths = changesJson.Deleted
-                        .Select(del => Path.Combine(AppContext.BaseDirectory, del))
-                        .Where(File.Exists);
-
-                    foreach (var delPath in delPaths)
-                    {
-                        File.Delete(delPath);
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                LoggerService.LogError(e);
-            }
-        }
-
-        var file = new FileInfo(interfacePath);
-        if (file.Exists)
-        {
-            var targetPath = Path.Combine(wpfDir, "interface.json");
-            file.CopyTo(targetPath, true);
-        }
-
-        dialog?.UpdateProgress(60);
-
-        var di = new DirectoryInfo(resourceDirPath);
-        if (di.Exists)
-        {
-            DirectoryMerge(originPath, wpfDir);
-        }
-
-        dialog?.UpdateProgress(70);
-        if (Directory.Exists(tempZipFilePath))
-            File.Delete(tempZipFilePath);
-        if (Directory.Exists(tempExtractDir))
-            Directory.Delete(tempExtractDir, true);
-        if (Directory.Exists(tempPath))
-            Directory.Delete(tempPath, true);
-        dialog?.UpdateProgress(80);
-
-        var newInterfacePath = Path.Combine(wpfDir, "interface.json");
-
-        if (File.Exists(newInterfacePath))
-        {
-            var jsonContent = await File.ReadAllTextAsync(newInterfacePath);
-            var settings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                NullValueHandling = NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore
-            };
-
-            settings.Converters.Add(new MaaInterfaceSelectOptionConverter(true));
-            settings.Converters.Add(new MaaInterfaceSelectAdvancedConverter(true));
-            var @interface = JsonConvert.DeserializeObject<MaaInterface>(jsonContent, settings);
-            if (@interface != null)
-            {
-                @interface.RID = GetResourceID();
-                @interface.Version = latestVersion;
-            }
-            var updatedJsonContent = JsonConvert.SerializeObject(@interface, settings);
-
-            await File.WriteAllTextAsync(newInterfacePath, updatedJsonContent);
-        }
-
-        dialog?.UpdateProgress(100);
-
-        dialog?.SetText("UpdateCompleted".ToLocalization());
-        dialog?.SetRestartButtonVisibility(true);
-
-        Instances.RootViewModel.SetUpdating(false);
-
-
-        DispatcherHelper.RunOnMainThread(() =>
-        {
-            if (closeDialog) dialog?.Close();
-            AnnouncementView.ShowUpdateCompleted(latestVersion, string.Empty);
-        });
-
-        if (Instances.RootViewModel.Idle)
-        {
-            DispatcherHelper.RunOnMainThread(() => Instances.TaskQueueViewModel.ConnectSettingChecked = true);
-            var tasks = Instances.TaskQueueViewModel.TaskItemViewModels;
-            Instances.RootView.ClearTasks(() => Instances.TaskQueueView.InitializeData(dragItem: tasks));
-        }
-        action?.Invoke();
     }
 
     public void CheckResourceVersionWithMirrorApi()
@@ -619,219 +659,239 @@ public class VersionChecker
             dialog?.Show();
         });
 
-        var url = MaaInterface.Instance?.Url ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(url))
-        {
-            Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            ToastNotification.ShowDirect("CurrentResourcesNotSupportGitHub".ToLocalization());
-            return;
-        }
-
-        SetText("GettingLatestResources", dialog, noDialog);
-
-        dialog?.UpdateProgress(10);
-        var strings = GetRepoFromUrl(url);
-        string latestVersion = string.Empty;
         try
         {
-            latestVersion = strings.Length > 1 ? GetLatestVersionFromGithub(strings[0], strings[1], true, isSoftware: false) : string.Empty;
-        }
-        catch (Exception ex)
-        {
-            SetText($"{"FailToGetLatestVersionInfo".ToLocalization()}: {ex.Message}", dialog, noDialog);
+            var url = MaaInterface.Instance?.Url ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(url))
+            {
+                Instances.RootViewModel.SetUpdating(false);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                ToastNotification.ShowDirect("CurrentResourcesNotSupportGitHub".ToLocalization());
+                return;
+            }
+
+            SetText("GettingLatestResources", dialog, noDialog);
+
+            dialog?.UpdateProgress(10);
+            var strings = GetRepoFromUrl(url);
+            string latestVersion = string.Empty;
+            try
+            {
+                latestVersion = strings.Length > 1 ? GetLatestVersionFromGithub(strings[0], strings[1], true, isSoftware: false) : string.Empty;
+            }
+            catch (Exception ex)
+            {
+                SetText($"{"FailToGetLatestVersionInfo".ToLocalization()}: {ex.Message}", dialog, noDialog);
+                Instances.RootViewModel.SetUpdating(false);
+                LoggerService.LogError(ex);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                return;
+            }
+
+            dialog?.UpdateProgress(50);
+
+            if (string.IsNullOrWhiteSpace(latestVersion))
+            {
+                ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
+                Instances.RootViewModel.SetUpdating(false);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                action?.Invoke();
+                return;
+            }
+
+            var localVersion = MaaInterface.Instance?.Version ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(localVersion))
+            {
+                ToastNotification.ShowDirect("FailToGetCurrentVersionInfo".ToLocalization());
+                Instances.RootViewModel.SetUpdating(false);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                return;
+            }
+
+            if (!IsNewVersionAvailable(latestVersion, localVersion))
+            {
+                ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
+                Instances.RootViewModel.SetUpdating(false);
+                DispatcherHelper.RunOnMainThread(() =>
+                {
+                    dialog?.Close();
+                    if (!noDialog)
+                    {
+                        AnnouncementView.ShowLatestVersion(localVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization());
+                    }
+                });
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                action?.Invoke();
+                return;
+            }
+
+            string downloadUrl = string.Empty;
+            try
+            {
+                downloadUrl = GetDownloadUrlFromGitHubRelease(latestVersion, strings[0], strings[1], isSoftware: false);
+            }
+            catch (Exception ex)
+            {
+                SetText($"{"FailToGetDownloadUrl".ToLocalization()}: {ex.Message}", dialog, noDialog);
+                Instances.RootViewModel.SetUpdating(false);
+                LoggerService.LogError(ex);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                return;
+            }
+
+            dialog?.UpdateProgress(100);
+
+            if (string.IsNullOrWhiteSpace(downloadUrl))
+            {
+                ToastNotification.ShowDirect("FailToGetDownloadUrl".ToLocalization());
+                Instances.RootViewModel.SetUpdating(false);
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                return;
+            }
+
+            var tempPath = Path.Combine(AppContext.BaseDirectory, "temp_res");
+            Directory.CreateDirectory(tempPath);
+
+            var tempZipFilePath = Path.Combine(tempPath, $"resource_{latestVersion}.zip");
+            dialog?.SetText("Downloading".ToLocalization());
+            dialog?.UpdateProgress(0);
+            if (!await DownloadFileAsync(downloadUrl, tempZipFilePath, dialog, "GameResourceUpdated"))
+            {
+                SetText("DownloadFailed", dialog, noDialog);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                return;
+            }
+
+            dialog?.SetText("ApplyingUpdate".ToLocalization());
+            dialog?.UpdateProgress(5);
+
+            var tempExtractDir = Path.Combine(tempPath, $"resource_{latestVersion}_extracted");
+            if (Directory.Exists(tempExtractDir)) Directory.Delete(tempExtractDir, true);
+            if (!File.Exists(tempZipFilePath))
+            {
+                SetText("DownloadFailed", dialog, noDialog);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                return;
+            }
+
+            ZipFile.ExtractToDirectory(tempZipFilePath, tempExtractDir);
+            dialog?.UpdateProgress(50);
+            var resourcePath = Path.Combine(AppContext.BaseDirectory, "resource");
+            if (Directory.Exists(resourcePath))
+            {
+                foreach (var rfile in Directory.EnumerateFiles(resourcePath, "*", SearchOption.AllDirectories))
+                {
+                    var fileName = Path.GetFileName(rfile);
+                    if (fileName.Equals(AnnouncementViewModel.AnnouncementFileName, StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    try
+                    {
+                        File.SetAttributes(rfile, FileAttributes.Normal);
+                        File.Delete(rfile);
+                    }
+                    catch (Exception ex)
+                    {
+                        LoggerService.LogWarning($"文件删除失败: {rfile} - {ex.Message}");
+                    }
+                }
+            }
+            var originPath = tempExtractDir;
+            var interfacePath = Path.Combine(tempExtractDir, "interface.json");
+            var resourceDirPath = Path.Combine(tempExtractDir, "resource");
+
+            string wpfDir = AppContext.BaseDirectory;
+            if (!File.Exists(interfacePath))
+            {
+                originPath = Path.Combine(tempExtractDir, "assets");
+                interfacePath = Path.Combine(tempExtractDir, "assets", "interface.json");
+                resourceDirPath = Path.Combine(tempExtractDir, "assets", "resource");
+            }
+
+            var file = new FileInfo(interfacePath);
+            if (file.Exists)
+            {
+                var targetPath = Path.Combine(wpfDir, "interface.json");
+                file.CopyTo(targetPath, true);
+            }
+
+            dialog?.UpdateProgress(60);
+
+            var di = new DirectoryInfo(resourceDirPath);
+            if (di.Exists)
+            {
+                DirectoryMerge(originPath, wpfDir);
+            }
+
+            dialog?.UpdateProgress(70);
+
+            try
+            {
+                if (File.Exists(tempZipFilePath)) File.Delete(tempZipFilePath);
+                if (Directory.Exists(tempExtractDir)) Directory.Delete(tempExtractDir, true);
+            }
+            catch { }
+            dialog?.UpdateProgress(80);
+
+            var newInterfacePath = Path.Combine(wpfDir, "interface.json");
+            if (File.Exists(newInterfacePath))
+            {
+                var jsonContent = await File.ReadAllTextAsync(newInterfacePath);
+                var settings = new JsonSerializerSettings
+                {
+                    Formatting = Formatting.Indented,
+                    NullValueHandling = NullValueHandling.Ignore,
+                    DefaultValueHandling = DefaultValueHandling.Ignore
+                };
+
+                settings.Converters.Add(new MaaInterfaceSelectOptionConverter(true));
+                settings.Converters.Add(new MaaInterfaceSelectAdvancedConverter(true));
+                var @interface = JsonConvert.DeserializeObject<MaaInterface>(jsonContent, settings);
+                if (@interface != null)
+                {
+                    @interface.Url = MaaInterface.Instance?.Url;
+                    @interface.Version = latestVersion;
+                }
+                var updatedJsonContent = JsonConvert.SerializeObject(@interface, settings);
+
+                await File.WriteAllTextAsync(newInterfacePath, updatedJsonContent);
+            }
+
+            dialog?.UpdateProgress(100);
+
+            dialog?.SetText("UpdateCompleted".ToLocalization());
+
             Instances.RootViewModel.SetUpdating(false);
-            LoggerService.LogError(ex);
-            return;
-        }
 
-        dialog?.UpdateProgress(50);
-
-        if (string.IsNullOrWhiteSpace(latestVersion))
-        {
-            ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
-            Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            action?.Invoke();
-            return;
-        }
-
-        var localVersion = MaaInterface.Instance?.Version ?? string.Empty;
-
-        if (string.IsNullOrWhiteSpace(localVersion))
-        {
-            ToastNotification.ShowDirect("FailToGetCurrentVersionInfo".ToLocalization());
-            Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            return;
-        }
-
-        if (!IsNewVersionAvailable(latestVersion, localVersion))
-        {
-            ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
-            Instances.RootViewModel.SetUpdating(false);
             DispatcherHelper.RunOnMainThread(() =>
             {
                 dialog?.Close();
-                if (!noDialog)
-                {
-                    AnnouncementView.ShowLatestVersion(localVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization());
-                }
+                AnnouncementView.ShowUpdateCompleted(latestVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization(), isRestartNeeded: true);
             });
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            action?.Invoke();
-            return;
-        }
 
-        string downloadUrl = string.Empty;
-        try
-        {
-            downloadUrl = GetDownloadUrlFromGitHubRelease(latestVersion, strings[0], strings[1]);
+            if (Instances.RootViewModel.Idle)
+            {
+                DispatcherHelper.RunOnMainThread(() => Instances.TaskQueueViewModel.ConnectSettingChecked = true);
+                var tasks = Instances.TaskQueueViewModel.TaskItemViewModels;
+                Instances.RootView.ClearTasks(() => Instances.TaskQueueView.InitializeData(dragItem: tasks));
+            }
+            action?.Invoke();
         }
         catch (Exception ex)
         {
-            SetText($"{"FailToGetDownloadUrl".ToLocalization()}: {ex.Message}", dialog, noDialog);
             Instances.RootViewModel.SetUpdating(false);
+            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+            ToastNotification.ShowDirect($"更新资源失败: {ex.Message}");
             LoggerService.LogError(ex);
-            return;
         }
-
-        dialog?.UpdateProgress(100);
-
-        if (string.IsNullOrWhiteSpace(downloadUrl))
+        finally
         {
-            ToastNotification.ShowDirect("FailToGetDownloadUrl".ToLocalization());
             Instances.RootViewModel.SetUpdating(false);
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            return;
         }
-
-        var tempPath = Path.Combine(AppContext.BaseDirectory, "temp_res");
-        Directory.CreateDirectory(tempPath);
-
-        var tempZipFilePath = Path.Combine(tempPath, $"resource_{latestVersion}.zip");
-        dialog?.SetText("Downloading".ToLocalization());
-        dialog?.UpdateProgress(0);
-        if (!await DownloadFileAsync(downloadUrl, tempZipFilePath, dialog, "GameResourceUpdated"))
-        {
-            SetText("DownloadFailed", dialog, noDialog);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            return;
-        }
-
-        dialog?.SetText("ApplyingUpdate".ToLocalization());
-        dialog?.UpdateProgress(5);
-
-        var tempExtractDir = Path.Combine(tempPath, $"resource_{latestVersion}_extracted");
-        if (Directory.Exists(tempExtractDir)) Directory.Delete(tempExtractDir, true);
-        if (!File.Exists(tempZipFilePath))
-        {
-            SetText("DownloadFailed", dialog, noDialog);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            return;
-        }
-
-        ZipFile.ExtractToDirectory(tempZipFilePath, tempExtractDir);
-        dialog?.UpdateProgress(50);
-        var resourcePath = Path.Combine(AppContext.BaseDirectory, "resource");
-        if (Directory.Exists(resourcePath))
-        {
-            foreach (var rfile in Directory.EnumerateFiles(resourcePath, "*", SearchOption.AllDirectories))
-            {
-                var fileName = Path.GetFileName(rfile);
-                if (fileName.Equals(AnnouncementViewModel.AnnouncementFileName, StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                try
-                {
-                    File.SetAttributes(rfile, FileAttributes.Normal);
-                    File.Delete(rfile);
-                }
-                catch (Exception ex)
-                {
-                    LoggerService.LogWarning($"文件删除失败: {rfile} - {ex.Message}");
-                }
-            }
-        }
-        var originPath = tempExtractDir;
-        var interfacePath = Path.Combine(tempExtractDir, "interface.json");
-        var resourceDirPath = Path.Combine(tempExtractDir, "resource");
-
-        string wpfDir = AppContext.BaseDirectory;
-        if (!File.Exists(interfacePath))
-        {
-            originPath = Path.Combine(tempExtractDir, "assets");
-            interfacePath = Path.Combine(tempExtractDir, "assets", "interface.json");
-            resourceDirPath = Path.Combine(tempExtractDir, "assets", "resource");
-        }
-
-        var file = new FileInfo(interfacePath);
-        if (file.Exists)
-        {
-            var targetPath = Path.Combine(wpfDir, "interface.json");
-            file.CopyTo(targetPath, true);
-        }
-
-        dialog?.UpdateProgress(60);
-
-        var di = new DirectoryInfo(resourceDirPath);
-        if (di.Exists)
-        {
-            DirectoryMerge(originPath, wpfDir);
-        }
-
-        dialog?.UpdateProgress(70);
-
-        File.Delete(tempZipFilePath);
-        Directory.Delete(tempExtractDir, true);
-        dialog?.UpdateProgress(80);
-
-        var newInterfacePath = Path.Combine(wpfDir, "interface.json");
-        if (File.Exists(newInterfacePath))
-        {
-            var jsonContent = await File.ReadAllTextAsync(newInterfacePath);
-            var settings = new JsonSerializerSettings
-            {
-                Formatting = Formatting.Indented,
-                NullValueHandling = NullValueHandling.Ignore,
-                DefaultValueHandling = DefaultValueHandling.Ignore
-            };
-
-            settings.Converters.Add(new MaaInterfaceSelectOptionConverter(true));
-            settings.Converters.Add(new MaaInterfaceSelectAdvancedConverter(true));
-            var @interface = JsonConvert.DeserializeObject<MaaInterface>(jsonContent, settings);
-            if (@interface != null)
-            {
-                @interface.Url = MaaInterface.Instance?.Url;
-                @interface.Version = latestVersion;
-            }
-            var updatedJsonContent = JsonConvert.SerializeObject(@interface, settings);
-
-            await File.WriteAllTextAsync(newInterfacePath, updatedJsonContent);
-        }
-
-        dialog?.UpdateProgress(100);
-
-        dialog?.SetText("UpdateCompleted".ToLocalization());
-        dialog?.SetRestartButtonVisibility(true);
-
-        Instances.RootViewModel.SetUpdating(false);
-
-        DispatcherHelper.RunOnMainThread(() =>
-        {
-            if (closeDialog) dialog?.Close();
-            AnnouncementView.ShowUpdateCompleted(latestVersion, string.Empty);
-        });
-
-        if (Instances.RootViewModel.Idle)
-        {
-            DispatcherHelper.RunOnMainThread(() => Instances.TaskQueueViewModel.ConnectSettingChecked = true);
-            var tasks = Instances.TaskQueueViewModel.TaskItemViewModels;
-            Instances.RootView.ClearTasks(() => Instances.TaskQueueView.InitializeData(dragItem: tasks));
-        }
-        action?.Invoke();
     }
 
     public async Task UpdateMaaFwWithMirrorApi(bool noDialog = false)
@@ -845,125 +905,139 @@ public class VersionChecker
             dialog?.Show();
         });
 
-        SetText("GettingLatestMaaFW", dialog, noDialog);
-
-
-        dialog?.UpdateProgress(10);
-
-        var resId = "MaaFramework";
-        var currentVersion = MaaProcessor.MaaUtility.Version;
-        var cdk = SimpleEncryptionHelper.Decrypt(ConfigurationHelper.GetValue(ConfigurationKeys.DownloadCDK, string.Empty));
-        Instances.RootViewModel.SetUpdating(true);
-        string downloadUrl = string.Empty, latestVersion = string.Empty;
         try
         {
-            GetDownloadUrlFromMirror(currentVersion, resId, cdk, out downloadUrl, out latestVersion, "MFA", true);
+            SetText("GettingLatestMaaFW", dialog, noDialog);
+
+            dialog?.UpdateProgress(10);
+
+            var resId = "MaaFramework";
+            var currentVersion = MaaProcessor.MaaUtility.Version;
+            var cdk = SimpleEncryptionHelper.Decrypt(ConfigurationHelper.GetValue(ConfigurationKeys.DownloadCDK, string.Empty));
+            Instances.RootViewModel.SetUpdating(true);
+            string downloadUrl = string.Empty, latestVersion = string.Empty;
+            try
+            {
+                GetDownloadUrlFromMirror(currentVersion, resId, cdk, out downloadUrl, out latestVersion, "MFA", true);
+            }
+            catch (Exception ex)
+            {
+                SetText($"{"FailToGetLatestVersionInfo".ToLocalization()}: {ex.Message}", dialog, noDialog);
+                Instances.RootViewModel.SetUpdating(false);
+                LoggerService.LogError(ex);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                return;
+            }
+
+            dialog?.UpdateProgress(50);
+
+            if (string.IsNullOrWhiteSpace(latestVersion))
+            {
+                ToastNotification.ShowDirect("FailToGetLatestVersionInfo".ToLocalization());
+                Instances.RootViewModel.SetUpdating(false);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(currentVersion))
+            {
+                ToastNotification.ShowDirect("FailToGetCurrentVersionInfo".ToLocalization());
+                Instances.RootViewModel.SetUpdating(false);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                return;
+            }
+
+            LoggerService.LogInfo($"latestVersion, localVersion: {latestVersion}, {currentVersion}");
+            if (!IsNewVersionAvailable(latestVersion, currentVersion))
+            {
+                ToastNotification.ShowDirect("MaaFwIsLatestVersion".ToLocalization());
+                Instances.RootViewModel.SetUpdating(false);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                return;
+            }
+
+            dialog?.UpdateProgress(100);
+
+            if (string.IsNullOrWhiteSpace(downloadUrl))
+            {
+                ToastNotification.ShowDirect("FailToGetDownloadUrl".ToLocalization());
+                Instances.RootViewModel.SetUpdating(false);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                return;
+            }
+
+            var tempPath = Path.Combine(AppContext.BaseDirectory, "temp_maafw");
+            Directory.CreateDirectory(tempPath);
+
+            var tempZipFilePath = Path.Combine(tempPath, $"maafw_{latestVersion}.zip");
+            dialog?.SetText("Downloading".ToLocalization());
+            dialog?.UpdateProgress(0);
+
+            if (!await DownloadFileAsync(downloadUrl, tempZipFilePath, dialog, "GameResourceUpdated"))
+            {
+                SetText("DownloadFailed", dialog, noDialog);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                return;
+            }
+
+            var tempExtractDir = Path.Combine(tempPath, $"maafw_{latestVersion}_extracted");
+            if (Directory.Exists(tempExtractDir)) Directory.Delete(tempExtractDir, true);
+            if (!File.Exists(tempZipFilePath))
+            {
+                SetText("DownloadFailed", dialog, noDialog);
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+                Instances.TaskQueueViewModel.ClearDownloadProgress();
+                return;
+            }
+
+            ZipFile.ExtractToDirectory(tempZipFilePath, tempExtractDir);
+
+            var currentExeFileName = Process.GetCurrentProcess().MainModule?.ModuleName ?? "Rino_PCRautomation.exe";
+
+            var utf8Bytes = Encoding.UTF8.GetBytes(AppContext.BaseDirectory);
+            var utf8BaseDirectory = Encoding.UTF8.GetString(utf8Bytes);
+            var batFilePath = Path.Combine(utf8BaseDirectory, "temp_maafw", "update_maafw.bat");
+            await using (var sw = new StreamWriter(batFilePath, false, Encoding.UTF8))
+            {
+                await sw.WriteLineAsync("@echo off");
+                await sw.WriteLineAsync("chcp 65001 > nul");
+
+                await sw.WriteLineAsync("ping 127.0.0.1 -n 3 > nul");
+                var extractedPath = $"\"{utf8BaseDirectory}temp_maafw\\maafw_{latestVersion}_extracted\\bin\\*.*\"";
+                var targetPath = $"\"{utf8BaseDirectory}\"";
+                await sw.WriteLineAsync("ping 127.0.0.1 -n 1 > nul");
+                await sw.WriteLineAsync($"xcopy /E /Y {extractedPath} {targetPath}");
+                await sw.WriteLineAsync("ping 127.0.0.1 -n 1 > nul");
+                await sw.WriteLineAsync($"start \"\" /d \"{utf8BaseDirectory}\" \"{currentExeFileName}\"");
+                await sw.WriteLineAsync($"rd /S /Q \"{utf8BaseDirectory}temp_maafw\"");
+            }
+
+            dialog?.UpdateProgress(100);
+            dialog?.SetText("UpdateCompleted".ToLocalization());
+            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+            Instances.RootViewModel.SetUpdating(false);
+
+            DispatcherHelper.RunOnMainThread(() =>
+            {
+                AnnouncementView.ShowUpdateCompleted(latestVersion, string.Empty, "UpdateMaaFW".ToLocalization(), isRestartNeeded: true, restartBatPath: batFilePath);
+            });
         }
         catch (Exception ex)
         {
-            SetText($"{"FailToGetLatestVersionInfo".ToLocalization()}: {ex.Message}", dialog, noDialog);
             Instances.RootViewModel.SetUpdating(false);
+            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
+            ToastNotification.ShowDirect($"更新MaaFramework失败: {ex.Message}");
             LoggerService.LogError(ex);
-            return;
         }
-
-        dialog?.UpdateProgress(50);
-
-        if (string.IsNullOrWhiteSpace(latestVersion))
+        finally
         {
-            ToastNotification.ShowDirect("FailToGetLatestVersionInfo".ToLocalization());
             Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            return;
         }
-
-
-        if (string.IsNullOrWhiteSpace(currentVersion))
-        {
-            ToastNotification.ShowDirect("FailToGetCurrentVersionInfo".ToLocalization());
-            Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            return;
-        }
-
-        LoggerService.LogInfo($"latestVersion, localVersion: {latestVersion}, {currentVersion}");
-        if (!IsNewVersionAvailable(latestVersion, currentVersion))
-        {
-            ToastNotification.ShowDirect("MaaFwIsLatestVersion".ToLocalization());
-            Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            return;
-        }
-
-        dialog?.UpdateProgress(100);
-
-        if (string.IsNullOrWhiteSpace(downloadUrl))
-        {
-            ToastNotification.ShowDirect("FailToGetDownloadUrl".ToLocalization());
-            Instances.RootViewModel.SetUpdating(false);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            return;
-        }
-
-        var tempPath = Path.Combine(AppContext.BaseDirectory, "temp_maafw");
-        Directory.CreateDirectory(tempPath);
-
-        var tempZipFilePath = Path.Combine(tempPath, $"maafw_{latestVersion}.zip");
-        dialog?.SetText("Downloading".ToLocalization());
-        dialog?.UpdateProgress(0);
-
-        if (!await DownloadFileAsync(downloadUrl, tempZipFilePath, dialog, "GameResourceUpdated"))
-        {
-            SetText("DownloadFailed", dialog, noDialog);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            return;
-        }
-
-        var tempExtractDir = Path.Combine(tempPath, $"maafw_{latestVersion}_extracted");
-        if (Directory.Exists(tempExtractDir)) Directory.Delete(tempExtractDir, true);
-        if (!File.Exists(tempZipFilePath))
-        {
-            SetText("DownloadFailed", dialog, noDialog);
-            DispatcherHelper.RunOnMainThread(() => dialog?.Close());
-            Instances.TaskQueueViewModel.ClearDownloadProgress();
-            return;
-        }
-
-        ZipFile.ExtractToDirectory(tempZipFilePath, tempExtractDir);
-
-        var currentExeFileName = Process.GetCurrentProcess().MainModule.ModuleName;
-
-        var utf8Bytes = Encoding.UTF8.GetBytes(AppContext.BaseDirectory);
-        var utf8BaseDirectory = Encoding.UTF8.GetString(utf8Bytes);
-        var batFilePath = Path.Combine(utf8BaseDirectory, "temp_maafw", "update_maafw.bat");
-        await using (var sw = new StreamWriter(batFilePath))
-        {
-            await sw.WriteLineAsync("@echo off");
-            await sw.WriteLineAsync("chcp 65001");
-
-            await sw.WriteLineAsync("ping 127.0.0.1 -n 3 > nul");
-            var extractedPath = $"\"{utf8BaseDirectory}temp_maafw\\maafw_{latestVersion}_extracted\\bin\\*.*\"";
-            var targetPath = $"\"{utf8BaseDirectory}\"";
-            await sw.WriteLineAsync("ping 127.0.0.1 -n 1 > nul");
-            await sw.WriteLineAsync($"xcopy /E /Y {extractedPath} {targetPath}");
-            await sw.WriteLineAsync("ping 127.0.0.1 -n 1 > nul");
-            await sw.WriteLineAsync($"start /d \"{utf8BaseDirectory}\" {currentExeFileName}");
-            await sw.WriteLineAsync($"rd /S /Q \"{utf8BaseDirectory}temp_maafw\"");
-        }
-
-        var psi = new ProcessStartInfo(batFilePath)
-        {
-            CreateNoWindow = true,
-            WindowStyle = ProcessWindowStyle.Hidden
-        };
-        Process.Start(psi);
-        Thread.Sleep(50);
-        DispatcherHelper.RunOnMainThread(Application.Current.Shutdown);
     }
 
     private static void CopyFolder(string sourceFolder, string destinationFolder)
@@ -1082,7 +1156,7 @@ public class VersionChecker
         }
     }
 
-    private string GetDownloadUrlFromGitHubRelease(string version, string owner, string repo)
+    private string GetDownloadUrlFromGitHubRelease(string version, string owner, string repo, bool isSoftware = false)
     {
         var releaseUrl = $"https://api.github.com/repos/{owner}/{repo}/releases/tags/{version}";
         try
@@ -1092,11 +1166,12 @@ public class VersionChecker
                 return string.Empty;
 
             var releaseData = JObject.Parse(jsonResponse);
-            SaveAnnouncement(releaseData, "body");
+            SaveAnnouncement(releaseData, "body", isSoftware);
 
             if (releaseData["assets"] is JArray assets && assets.Count > 0)
             {
                 var targetUrl = "";
+                // 优先查找压缩包 (zip / 7z / rar)
                 foreach (var asset in assets)
                 {
                     var browserDownloadUrl = asset["browser_download_url"]?.ToString();
@@ -1111,10 +1186,27 @@ public class VersionChecker
                         }
                     }
                 }
-                if (string.IsNullOrEmpty(targetUrl))
+
+                // 如果是软件更新且没有找到压缩包，则寻找 exe 安装包
+                if (string.IsNullOrEmpty(targetUrl) && isSoftware)
+                {
+                    foreach (var asset in assets)
+                    {
+                        var browserDownloadUrl = asset["browser_download_url"]?.ToString();
+                        if (!string.IsNullOrEmpty(browserDownloadUrl) && browserDownloadUrl.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                        {
+                            targetUrl = browserDownloadUrl;
+                            break;
+                        }
+                    }
+                }
+
+                // 如果依然未找到，且是软件更新，则回退到第一个 asset
+                if (string.IsNullOrEmpty(targetUrl) && isSoftware)
                 {
                     targetUrl = assets[0]["browser_download_url"]?.ToString() ?? assets[0]["browser_downloadUrl"]?.ToString() ?? string.Empty;
                 }
+
                 return targetUrl;
             }
         }
@@ -1316,12 +1408,18 @@ public class VersionChecker
 
     private string GetLocalVersion()
     {
-        var v = Assembly.GetExecutingAssembly().GetName().Version;
+        var asm = Assembly.GetExecutingAssembly();
+        var infoVer = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+        if (!string.IsNullOrWhiteSpace(infoVer) && infoVer != "DEBUG")
+        {
+            return infoVer;
+        }
+        var v = asm.GetName().Version;
         if (v == null || (v.Major == 0 && v.Minor == 0 && v.Build == 0))
         {
-            return "0.00";
+            return Instances.VersionUpdateSettingsUserControlModel?.SoftwareVersion ?? "1.9.0";
         }
-        return v.ToString();
+        return $"{v.Major}.{v.Minor}.{v.Build}";
     }
 
     private string GetResourceVersion()

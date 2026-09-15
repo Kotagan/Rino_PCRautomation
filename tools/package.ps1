@@ -179,9 +179,35 @@ Write-Host "`nPackage created successfully in: $OutputDir" -ForegroundColor Gree
 Write-Host "Root contents:" -ForegroundColor Green
 Get-ChildItem -Path $OutputDir | Select-Object Name, Length, Mode | Format-Table -AutoSize
 
+# Extract version from Rino_WFP.csproj
+$csprojContent = Get-Content -Path $projectPath -Raw
+$infoVersionMatch = [System.Text.RegularExpressions.Regex]::Match($csprojContent, "<InformationalVersion>([^<]+)</InformationalVersion>")
+if ($infoVersionMatch.Success -and -not [string]::IsNullOrWhiteSpace($infoVersionMatch.Groups[1].Value)) {
+    $version = $infoVersionMatch.Groups[1].Value.Trim()
+} else {
+    $versionMatch = [System.Text.RegularExpressions.Regex]::Match($csprojContent, "<Version>([^<]+)</Version>")
+    if ($versionMatch.Success) {
+        $version = $versionMatch.Groups[1].Value.Trim()
+    } else {
+        $version = "0.00"
+    }
+}
+
+$cleanVersion = $version.TrimStart('v', 'V')
+$verWithV = if ($version.StartsWith('V') -or $version.StartsWith('v')) { $version } else { "V$version" }
+$fileVersion = if ($cleanVersion.Split('.').Count -eq 3) { "$cleanVersion.0" } elseif ($cleanVersion.Split('.').Count -eq 2) { "$cleanVersion.0.0" } else { $cleanVersion }
+
+# Sync interface.json version
+$interfaceJsonPath = Join-Path $repoRoot "interface.json"
+if (Test-Path $interfaceJsonPath) {
+    $interfaceContent = [System.IO.File]::ReadAllText($interfaceJsonPath, [System.Text.Encoding]::UTF8)
+    $interfaceContent = [System.Text.RegularExpressions.Regex]::Replace($interfaceContent, '("version"\s*:\s*")[^"]+(")', "`${1}$cleanVersion`${2}")
+    [System.IO.File]::WriteAllText($interfaceJsonPath, $interfaceContent, [System.Text.Encoding]::UTF8)
+    Copy-Item -Path $interfaceJsonPath -Destination (Join-Path $OutputDir "interface.json") -Force
+}
+
 if ($CreateZip) {
-    $zipParent = Split-Path -Parent $OutputDir
-    $zipPath = Join-Path $zipParent "Rino_PCRautomation-$Configuration.zip"
+    $zipPath = Join-Path $repoRoot "Rino_PCRautomation_${verWithV}.zip"
     if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
     Write-Host "Creating archive: $zipPath ..." -ForegroundColor Yellow
     Compress-Archive -Path "$OutputDir\*" -DestinationPath $zipPath -Force
@@ -193,24 +219,6 @@ if ($CreateInstaller) {
     if (!(Test-Path $issPath)) {
         throw "Inno Setup script not found at: $issPath"
     }
-
-    # Extract version from Rino_WFP.csproj
-    $csprojContent = Get-Content -Path $projectPath -Raw
-    $infoVersionMatch = [System.Text.RegularExpressions.Regex]::Match($csprojContent, "<InformationalVersion>([^<]+)</InformationalVersion>")
-    if ($infoVersionMatch.Success -and -not [string]::IsNullOrWhiteSpace($infoVersionMatch.Groups[1].Value)) {
-        $version = $infoVersionMatch.Groups[1].Value.Trim()
-    } else {
-        $versionMatch = [System.Text.RegularExpressions.Regex]::Match($csprojContent, "<Version>([^<]+)</Version>")
-        if ($versionMatch.Success) {
-            $version = $versionMatch.Groups[1].Value.Trim()
-        } else {
-            $version = "0.00"
-        }
-    }
-
-    $cleanVersion = $version.TrimStart('v', 'V')
-    $verWithV = if ($version.StartsWith('V') -or $version.StartsWith('v')) { $version } else { "V$version" }
-    $fileVersion = if ($cleanVersion.Split('.').Count -eq 3) { "$cleanVersion.0" } elseif ($cleanVersion.Split('.').Count -eq 2) { "$cleanVersion.0.0" } else { $cleanVersion }
 
     Write-Host "`nSyncing version ($version / $verWithV / $fileVersion) to $issPath ..." -ForegroundColor Yellow
     $issContent = [System.IO.File]::ReadAllText($issPath, [System.Text.Encoding]::UTF8)

@@ -184,6 +184,7 @@ auth.txt
 /distribution/output/
 /*_Setup.exe
 /Rino_PCRautomation*.exe
+/Rino_PCRautomation*.zip
 /test.ps1
 /workflows/
 /.github/workflows/

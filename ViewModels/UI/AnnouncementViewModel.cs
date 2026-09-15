@@ -24,6 +24,21 @@ public partial class AnnouncementViewModel : ViewModel
 
     public Visibility VersionBannerVisibility => string.IsNullOrWhiteSpace(VersionText) ? Visibility.Collapsed : Visibility.Visible;
 
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(RestartButtonVisibility))]
+    private bool _isRestartMode = false;
+
+    public Visibility RestartButtonVisibility => IsRestartMode ? Visibility.Visible : Visibility.Collapsed;
+
+    [ObservableProperty]
+    private string _confirmButtonText = "ReadAlready".ToLocalization();
+
+    [ObservableProperty]
+    private string? _restartBatPath = null;
+
+    [ObservableProperty]
+    private string? _installerExePath = null;
+
     [ObservableProperty] private bool _doNotRemindThisAnnouncementAgain = Convert.ToBoolean(GlobalConfiguration.GetValue(ConfigurationKeys.DoNotShowAgain, bool.FalseString));
     partial void OnDoNotRemindThisAnnouncementAgainChanged(bool value)
     {

@@ -25,6 +25,26 @@ public partial class VersionUpdateSettingsUserControlModel : ViewModel
         ShowRinoVersion = !string.IsNullOrWhiteSpace(value);
     }
 
+    public VersionUpdateSettingsUserControlModel()
+    {
+        try
+        {
+            var asm = Assembly.GetExecutingAssembly();
+            var infoVer = asm.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion;
+            var ver = asm.GetName().Version;
+            var versionStr = !string.IsNullOrWhiteSpace(infoVer) && infoVer != "DEBUG"
+                ? (infoVer.StartsWith("V", StringComparison.OrdinalIgnoreCase) ? infoVer : $"V{infoVer}")
+                : (ver != null && ver.Major > 0 ? $"V{ver.Major}.{ver.Minor}.{ver.Build}" : "V1.9.0");
+            _softwareVersion = versionStr;
+            _rinoVersion = versionStr;
+        }
+        catch
+        {
+            _softwareVersion = "V1.9.0";
+            _rinoVersion = "V1.9.0";
+        }
+    }
+
     [ObservableProperty] private string _resourceVersion = string.Empty;
     [ObservableProperty] private bool _showResourceVersion;
     partial void OnResourceVersionChanged(string value)

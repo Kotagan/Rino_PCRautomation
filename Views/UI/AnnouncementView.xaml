@@ -115,17 +115,27 @@
                 </ScrollViewer>
             </Border>
 
-            <!-- Bottom Button (Row 3) -->
+            <!-- Bottom Buttons (Row 3) -->
             <StackPanel
                 Grid.Row="3"
+                Orientation="Horizontal"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center">
                 <Button
                     Click="AcknowledgeButton_Click"
-                    Content="{lex:Loc ReadAlready}"
+                    Content="{Binding ViewModel.ConfirmButtonText, Mode=OneWay}"
                     Style="{StaticResource DialogPrimaryButtonStyle}"
                     MinWidth="130"
-                    Height="32" />
+                    Height="32"
+                    Margin="8,0" />
+                <Button
+                    Click="CloseButton_Click"
+                    Content="稍后重启"
+                    Visibility="{Binding ViewModel.RestartButtonVisibility, Mode=OneWay}"
+                    Style="{StaticResource DialogSecondaryButtonStyle}"
+                    MinWidth="100"
+                    Height="32"
+                    Margin="8,0" />
             </StackPanel>
         </Grid>
     </Border>
