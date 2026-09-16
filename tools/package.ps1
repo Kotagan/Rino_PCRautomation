@@ -222,14 +222,14 @@ if ($CreateInstaller) {
 
     Write-Host "`nSyncing version ($version / $verWithV / $fileVersion) to $issPath ..." -ForegroundColor Yellow
     $issContent = [System.IO.File]::ReadAllText($issPath, [System.Text.Encoding]::UTF8)
-    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "AppName=[^\r\n]+", "AppName=Rino_PCRautomation_${verWithV}")
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "AppName=[^\r\n]+", "AppName=Rino_PCRautomation")
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "AppVersion=[0-9.]+", "AppVersion=$cleanVersion")
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoVersion=[0-9.]+", "VersionInfoVersion=$fileVersion")
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoTextVersion=[^\r\n]+", "VersionInfoTextVersion=$verWithV")
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "VersionInfoProductVersion=[^\r\n]+", "VersionInfoProductVersion=$fileVersion")
     $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "OutputBaseFilename=[^\r\n]+", "OutputBaseFilename=Rino_PCRautomation_${verWithV}")
-    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "TitleLabel\.Caption\s*:=\s*'[^']+';", "TitleLabel.Caption := 'Rino_PCRautomation_${verWithV}';")
-    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "WizardForm\.Caption\s*:=\s*'[^']+';", "WizardForm.Caption := 'Rino_PCRautomation_${verWithV}';")
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "TitleLabel\.Caption\s*:=\s*'[^']+';", "TitleLabel.Caption := 'Rino_PCRautomation';")
+    $issContent = [System.Text.RegularExpressions.Regex]::Replace($issContent, "WizardForm\.Caption\s*:=\s*'[^']+';", "WizardForm.Caption := 'Rino_PCRautomation';")
     [System.IO.File]::WriteAllText($issPath, $issContent, [System.Text.Encoding]::UTF8)
 
     # Kill any running setup process before compilation

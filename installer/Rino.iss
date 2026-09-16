@@ -12,7 +12,7 @@
 ; 7. 屏蔽系统底层所有向导按钮，无边框 18px 窗体圆角裁切全部保留。
 
 [Setup]
-AppName=Rino_PCRautomation_V1.9.0
+AppName=Rino_PCRautomation
 AppVersion=1.9.0
 AppPublisher=SweetFox
 DefaultDirName={localappdata}\Rino_PCRautomation
@@ -33,7 +33,7 @@ SetupIconFile=..\logo.ico
 ; 版本信息配置（解决资源管理器中显示 0.0.0.0 的问题）
 VersionInfoVersion=1.9.0.0
 VersionInfoCompany=SweetFox
-VersionInfoDescription=Rino_PCRautomation_V1.9.0 Setup
+VersionInfoDescription=Rino_PCRautomation Setup
 VersionInfoTextVersion=V1.9.0
 VersionInfoProductName=Rino_PCRautomation
 VersionInfoProductVersion=1.9.0.0
@@ -160,7 +160,7 @@ var
 begin
   // 1. 去除系统标题栏与边框，定义宽大舒适的 750x500 尺寸
   WizardForm.BorderStyle := bsNone;
-  WizardForm.Caption := 'Rino_PCRautomation_V1.9.0';
+  WizardForm.Caption := 'Rino_PCRautomation';
   WizardForm.Width := 750;
   WizardForm.Height := 500;
   WizardForm.Color := $F0F4FF; // 设为 Rino 标志性暖白背景 (RGB: #FFF4F0 -> BGR: $F0F4FF)
@@ -213,7 +213,7 @@ begin
   // 5. 写入软件名称 (大字号，SF Pro / 微软雅黑)
   TitleLabel := TLabel.Create(WizardForm);
   TitleLabel.Parent := WizardForm;
-  TitleLabel.Caption := 'Rino_PCRautomation_V1.9.0';
+  TitleLabel.Caption := 'Rino_PCRautomation';
   TitleLabel.Font.Name := 'SF Pro';
   TitleLabel.Font.Size := 24;
   TitleLabel.Font.Style := [fsBold];
