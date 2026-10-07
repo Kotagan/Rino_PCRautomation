@@ -7,6 +7,11 @@
 # Rino公主连结璃乃助手
 </div>
 
+> [!WARNING]
+> ### ⚠️ 本项目已停止维护并归档 (Archived)
+> 开发者已停止后续更新与维护，本仓库现已设置为只读归档状态。  
+> 感谢大家一直以来的支持！历史版本仍可在 Releases 页面下载，但后续将不再提供新功能支持、Bug 修复或 Issue/PR 处理。
+
 PCR 公主连结（PrincessConnect）**图像识别自动化小助手**  ***Rino_PCRautomation*** <kbd>璃乃版</kbd>  
 **禁止将Rino用于任何性质盈利行为**  
 **Rino不会有任何性质盈利行为,本助手只在GitHub上发布,其他版本及其行为均与本人无关**  
