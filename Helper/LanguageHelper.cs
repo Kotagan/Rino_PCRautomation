@@ -22,10 +22,11 @@ public static class LanguageHelper
         }
     }
 
+    // 台服版默认繁體中文（索引 0）
     public static readonly ObservableCollection<SupportedLanguage> SupportedLanguages =
     [
-        new("zh-hans", "简体中文"),
         new("zh-hant", "繁體中文"),
+        new("zh-hans", "简体中文"),
         new("en-us", "English"),
     ];
 
@@ -54,7 +55,7 @@ public static class LanguageHelper
 
     // 存储语言的字典
     private static readonly Dictionary<string, Dictionary<string, string>> Langs = new();
-    private static string _currentLanguage = SupportedLanguages[0].Key;
+    private static string _currentLanguage = "zh-hant";
     public static void Initialize()
     {
         Console.WriteLine("Initializing LanguageManager...");

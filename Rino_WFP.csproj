@@ -12,7 +12,7 @@
         <Platforms>ARM64;x64</Platforms>
         <EnableWindowsTargeting>true</EnableWindowsTargeting>
         <XamlDebuggingInformation>True</XamlDebuggingInformation>
-        <Authors>SweetFox</Authors>
+        <Authors>Kotagan</Authors>
         <WindowsSdkPackageVersion>10.0.17763.53</WindowsSdkPackageVersion>
         <ApplicationManifest>app.manifest</ApplicationManifest>
     </PropertyGroup>
@@ -54,11 +54,12 @@
         <ApplicationIcon>logo.ico</ApplicationIcon>
         <RootNamespace>MFAWPF</RootNamespace>
         <AssemblyName>Rino_PCRautomation</AssemblyName>
-        <AssemblyTitle>Rino_PCRautomation</AssemblyTitle>
-        <Product>Rino_PCRautomation</Product>
-        <ProductName>Rino_PCRautomation</ProductName>
-        <PublisherName>SweetFox</PublisherName>
-        <SuiteName>Rino_PCRautomation</SuiteName>
+        <AssemblyTitle>Rino 台服版</AssemblyTitle>
+        <Product>Rino_PCRautomation_TW</Product>
+        <ProductName>Rino_PCRautomation_TW</ProductName>
+        <PublisherName>Kotagan</PublisherName>
+        <SuiteName>Rino_PCRautomation_TW</SuiteName>
+        <Description>公主連結台灣繁中服專用自動化助手（基於 Rino Fork）</Description>
     </PropertyGroup>
 
     <!-- Ignore Warnings -->
@@ -69,11 +70,11 @@
     <!-- Version -->
     <PropertyGroup>
         <ApplicationRevision>0</ApplicationRevision>
-        <ApplicationVersion>1.9.0</ApplicationVersion>
-        <Version>1.9.0</Version>
-        <FileVersion>1.9.0.0</FileVersion>
-        <AssemblyVersion>1.9.0.0</AssemblyVersion>
-        <InformationalVersion>V1.9.0</InformationalVersion>
+        <ApplicationVersion>1.9.1</ApplicationVersion>
+        <Version>1.9.1</Version>
+        <FileVersion>1.9.1.0</FileVersion>
+        <AssemblyVersion>1.9.1.0</AssemblyVersion>
+        <InformationalVersion>V1.9.1-TW</InformationalVersion>
     </PropertyGroup>
 
     <!-- Build and Publish -->

@@ -1,7 +1,9 @@
 ﻿{
-    "name": "Rino_PCRautomation",
-    "version": "1.9.0",
-    "url": "https://github.com/miaoyu2233/Rino_PCRautomation.git",
+    "name": "Rino_PCRautomation_TW",
+    "version": "1.9.1-tw",
+    "custom_title": "Rino 台服版",
+    "message": "台灣繁中服專用 · 基於已歸檔上游 Rino 的 Fork",
+    "url": "https://github.com/Kotagan/Rino_PCRautomation.git",
         "task": [
             {
                 "name": "行程表/日程表",

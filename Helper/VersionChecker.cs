@@ -143,7 +143,7 @@ public class VersionChecker
 
         try
         {
-            string owner = "miaoyu2233";
+            string owner = "Kotagan";
             string repo = "Rino_PCRautomation";
 
             dialog?.UpdateProgress(50);
@@ -1337,7 +1337,7 @@ public class VersionChecker
         }
     }
 
-    public async Task<string?> GetLatestVersionFromGithubAsync(string owner = "miaoyu2233", string repo = "Rino_PCRautomation", bool isDownload = false, bool isSoftware = false)
+    public async Task<string?> GetLatestVersionFromGithubAsync(string owner = "Kotagan", string repo = "Rino_PCRautomation", bool isDownload = false, bool isSoftware = false)
     {
         if (string.IsNullOrWhiteSpace(owner) || string.IsNullOrWhiteSpace(repo))
             return null;
@@ -1393,7 +1393,7 @@ public class VersionChecker
         return string.Empty;
     }
 
-    public string GetLatestVersionFromGithub(string owner = "miaoyu2233", string repo = "Rino_PCRautomation", bool isDownload = false, bool isSoftware = false)
+    public string GetLatestVersionFromGithub(string owner = "Kotagan", string repo = "Rino_PCRautomation", bool isDownload = false, bool isSoftware = false)
     {
         try
         {
