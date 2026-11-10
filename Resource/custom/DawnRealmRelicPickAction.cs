@@ -9,7 +9,7 @@ using MFAWPF.Helper;
 namespace MFAWPF.CustomRuntime;
 
 /// <summary>
-/// 遗物选择：优先守护、会心（可配置列表）。
+/// 遗物选择：难度&lt;5 偏好弱体4/9/15；难度≥5 优先守护、会心。
 /// </summary>
 public class DawnRealmRelicPickAction : MaaCustomAction
 {
@@ -24,8 +24,12 @@ public class DawnRealmRelicPickAction : MaaCustomAction
     {
         DawnRealmConfig.ApplyParam(DawnRealmConfig.ReadActionParam(args));
         var image = context.GetImage();
+        var priorities = DawnRealmConfig.GetRelicPriority();
+        LoggerService.LogInfo(
+            $"[DawnRealm] relic policy diff={DawnRealmConfig.Difficulty} " +
+            $"mode={(DawnRealmConfig.Difficulty < 5 ? "weakness-4/9/15" : "guard-crit")}");
 
-        foreach (var key in DawnRealmConfig.RelicPriority)
+        foreach (var key in priorities)
         {
             if (context.OCR(key, image, out var detail, 80, 120, 1120, 420) && detail.HitBox != null)
             {
