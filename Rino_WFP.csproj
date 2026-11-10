@@ -274,6 +274,8 @@
         <None Include="Resource\**\*">
           <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <!-- Resource/custom 下的脚本供运行时动态编译注册，勿编入主程序集 -->
+        <Compile Remove="Resource\custom\**\*.cs" />
     </ItemGroup>
 
 </Project>

@@ -188,3 +188,7 @@ auth.txt
 /test.ps1
 /workflows/
 /.github/workflows/
+
+# local dawnrealm screenshot dumps
+docs/dawnrealm-captures/
+

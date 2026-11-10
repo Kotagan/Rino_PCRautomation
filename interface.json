@@ -99,9 +99,311 @@
             {
                 "name": "小屋Like(需小屋页面)",
                 "entry": "公会小屋Like"
+            },
+            {
+                "name": "黎明界肉鸽",
+                "entry": "黎明界肉鸽",
+                "option": [
+                    "黎明界策略模式",
+                    "黎明界同行公会",
+                    "黎明界目标难度",
+                    "黎明界通行证用量"
+                ]
             }
         ],
         "option": {
+            "黎明界策略模式": {
+                "cases": [
+                    {
+                        "name": "稳定通关",
+                        "pipeline_override": {
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "美食殿堂",
+                                    "difficulty": 5,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "凹分",
+                        "pipeline_override": {
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "score",
+                                    "guild": "美食殿堂",
+                                    "difficulty": 5,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "黎明界同行公会": {
+                "cases": [
+                    {
+                        "name": "美食殿堂",
+                        "pipeline_override": {
+                            "黎明界选择公会": {
+                                "expected": ["美食殿堂"]
+                            },
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "美食殿堂",
+                                    "difficulty": 5,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "破晓之星",
+                        "pipeline_override": {
+                            "黎明界选择公会": {
+                                "expected": ["破曉之星", "破晓之星"]
+                            },
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "破曉之星",
+                                    "difficulty": 5,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "咲恋育幼院",
+                        "pipeline_override": {
+                            "黎明界选择公会": {
+                                "expected": ["咲戀育幼院", "咲恋育幼院"]
+                            },
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "咲戀育幼院",
+                                    "difficulty": 5,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "王宫骑士团",
+                        "pipeline_override": {
+                            "黎明界选择公会": {
+                                "expected": ["王宮騎士團", "王宫骑士团"]
+                            },
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "王宮騎士團",
+                                    "difficulty": 5,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "拉比林斯",
+                        "pipeline_override": {
+                            "黎明界选择公会": {
+                                "expected": ["拉比林斯"]
+                            },
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "拉比林斯",
+                                    "difficulty": 5,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "伊丽莎白牧场",
+                        "pipeline_override": {
+                            "黎明界选择公会": {
+                                "expected": ["伊麗莎白牧場", "伊丽莎白牧场"]
+                            },
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "伊麗莎白牧場",
+                                    "difficulty": 5,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "墨丘利财团",
+                        "pipeline_override": {
+                            "黎明界选择公会": {
+                                "expected": ["墨丘利財團", "墨丘利财团"]
+                            },
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "墨丘利財團",
+                                    "difficulty": 5,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "暮光流星群",
+                        "pipeline_override": {
+                            "黎明界选择公会": {
+                                "expected": ["暮光流星群"]
+                            },
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "暮光流星群",
+                                    "difficulty": 5,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "黎明界目标难度": {
+                "cases": [
+                    {
+                        "name": "难度1",
+                        "pipeline_override": {
+                            "黎明界点目标难度": {
+                                "expected": ["1"]
+                            },
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "美食殿堂",
+                                    "difficulty": 1,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "难度2",
+                        "pipeline_override": {
+                            "黎明界点目标难度": {
+                                "expected": ["2"]
+                            },
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "美食殿堂",
+                                    "difficulty": 2,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "难度3",
+                        "pipeline_override": {
+                            "黎明界点目标难度": {
+                                "expected": ["3"]
+                            },
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "美食殿堂",
+                                    "difficulty": 3,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "难度4",
+                        "pipeline_override": {
+                            "黎明界点目标难度": {
+                                "expected": ["4"]
+                            },
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "美食殿堂",
+                                    "difficulty": 4,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "难度5",
+                        "pipeline_override": {
+                            "黎明界点目标难度": {
+                                "expected": ["5"]
+                            },
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "美食殿堂",
+                                    "difficulty": 5,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            "黎明界通行证用量": {
+                "cases": [
+                    {
+                        "name": "用完为止",
+                        "pipeline_override": {
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "美食殿堂",
+                                    "difficulty": 5,
+                                    "max_runs": 0
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "name": "固定1次",
+                        "pipeline_override": {
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "美食殿堂",
+                                    "difficulty": 5,
+                                    "max_runs": 1
+                                }
+                            },
+                            "黎明界再来一次判断": {
+                                "next": ["黎明界回主页"]
+                            }
+                        }
+                    },
+                    {
+                        "name": "固定3次",
+                        "pipeline_override": {
+                            "黎明界应用配置": {
+                                "custom_action_param": {
+                                    "strategy": "stable",
+                                    "guild": "美食殿堂",
+                                    "difficulty": 5,
+                                    "max_runs": 3
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
             "选择加速器": {
                 "cases": [
                     {
