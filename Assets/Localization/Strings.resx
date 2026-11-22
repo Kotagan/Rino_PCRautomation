@@ -52,6 +52,12 @@
   <data name="StopTask" xml:space="preserve">
     <value>停止任务</value>
   </data>
+  <data name="RunSingleTask" xml:space="preserve">
+    <value>单独执行此任务</value>
+  </data>
+  <data name="TaskAlreadyRunning" xml:space="preserve">
+    <value>已有任务在运行，请先停止</value>
+  </data>
   <data name="TooltipDragLabel" xml:space="preserve">
     <value>标签顺序可拖动</value>
   </data>
@@ -1354,4 +1360,7 @@
   <data name="GitHubMirrorUrlTitle" xml:space="preserve"><value>GitHub 镜像加速地址</value></data>
   <data name="GitHubMirrorUrlWatermark" xml:space="preserve"><value>留空默认: https://gh-proxy.com/</value></data>
   <data name="UsingMirrorFallback" xml:space="preserve"><value>直连 GitHub 失败，已切换至国内加速镜像重试...</value></data>
+  <data name="MultiSelectEmptyTip" xml:space="preserve"><value>请至少勾选一个选项，否则将按默认流程执行。</value></data>
+  <data name="MultiSelectRequiredTip" xml:space="preserve"><value>「{0}」未勾选任何项，已跳过预设覆盖；请在任务选项中多选后再启动。</value></data>
+  <data name="OptionPanelOverflowTip" xml:space="preserve"><value>任务选项内容超出当前面板宽度，已尽量自适应；请拉宽窗口或减少同时展开的选项。</value></data>
 </root>

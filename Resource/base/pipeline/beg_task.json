@@ -13,7 +13,9 @@
         "action": "Click",
         "target": [
             632,
-            500
+            500,
+            0,
+            0
         ]
     },
     "进入公会乞讨": {
@@ -39,7 +41,9 @@
         "action": "Click",
         "target": [
             992,
-            115
+            115,
+            0,
+            0
         ],
         "post_delay": 1810,
         "next": [
@@ -50,7 +54,9 @@
         "action": "Click",
         "target": [
             391,
-            414
+            414,
+            0,
+            0
         ],
         "post_delay": 1410,
         "next": [
@@ -61,7 +67,9 @@
         "action": "Click",
         "target": [
             798,
-            496
+            496,
+            0,
+            0
         ],
         "post_delay": 1810,
         "next": [
@@ -90,7 +98,9 @@
         "action": "Click",
         "target": [
             801,
-            633
+            633,
+            0,
+            0
         ],
         "post_delay": 1710,
         "next": [
@@ -101,7 +111,9 @@
         "action": "Click",
         "target": [
             801,
-            586
+            586,
+            0,
+            0
         ],
         "post_delay": 1610,
         "next": [
@@ -112,7 +124,9 @@
         "action": "Click",
         "target": [
             801,
-            633
+            633,
+            0,
+            0
         ],
         "post_delay": 2210,
         "next": [
@@ -123,7 +137,9 @@
         "action": "Click",
         "target": [
             115,
-            673
+            673,
+            0,
+            0
         ],
         "post_delay": 1710,
         "pre_delay": 3100

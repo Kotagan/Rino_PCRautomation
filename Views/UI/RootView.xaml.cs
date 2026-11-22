@@ -358,7 +358,15 @@ public partial class RootView
 
     public void RestartMFA()
     {
-        Process.Start(Process.GetCurrentProcess().MainModule?.FileName ?? string.Empty);
+        var exe = Process.GetCurrentProcess().MainModule?.FileName ?? string.Empty;
+        // 自重启默认静默，避免窗口反复弹到前台
+        Process.Start(new ProcessStartInfo
+        {
+            FileName = exe,
+            Arguments = "--silent",
+            UseShellExecute = true,
+            WindowStyle = ProcessWindowStyle.Minimized,
+        });
         DispatcherHelper.RunOnMainThread(Application.Current.Shutdown);
     }
 
@@ -422,11 +430,21 @@ public partial class RootView
         });
         TaskManager.RunTaskAsync(async () =>
         {
-            await Task.Delay(1000);
+            // 静默启动：尽快最小化，避免启动动画闪到前台
+            if (AppLaunchOptions.Silent || ConfigurationHelper.GetValue(ConfigurationKeys.AutoMinimize, false))
+            {
+                DispatcherHelper.RunOnMainThread(Collapse);
+            }
+
+            await Task.Delay(AppLaunchOptions.Silent ? 200 : 1000);
             DispatcherHelper.RunOnMainThread(() =>
             {
-                Instances.AnnouncementViewModel.CheckAnnouncement();
-                if (ConfigurationHelper.GetValue(ConfigurationKeys.AutoMinimize, false))
+                if (!AppLaunchOptions.Silent)
+                {
+                    Instances.AnnouncementViewModel.CheckAnnouncement();
+                }
+
+                if (AppLaunchOptions.Silent || ConfigurationHelper.GetValue(ConfigurationKeys.AutoMinimize, false))
                 {
                     Collapse();
                 }

@@ -24,6 +24,21 @@ public class DawnRealmRelicPickAction : MaaCustomAction
     {
         DawnRealmConfig.ApplyParam(DawnRealmConfig.ReadActionParam(args));
         var image = context.GetImage();
+
+        // 遗物效果结算弹窗，不是三选一
+        if (context.OCR("遺物效果", image, out _, 200, 20, 880, 200) ||
+            context.OCR("已透過", image, out _, 200, 60, 880, 200) ||
+            context.OCR("已透过", image, out _, 200, 60, 880, 200))
+        {
+            LoggerService.LogInfo("[DawnRealm] relic effect popup -> close");
+            context.Click(640, 560);
+            Thread.Sleep(200);
+            context.Click(640, 600);
+            Thread.Sleep(400);
+            context.OverrideNext(args.NodeName, ["黎明界地图循环"]);
+            return true;
+        }
+
         var priorities = DawnRealmConfig.GetRelicPriority();
         LoggerService.LogInfo(
             $"[DawnRealm] relic policy diff={DawnRealmConfig.Difficulty} " +

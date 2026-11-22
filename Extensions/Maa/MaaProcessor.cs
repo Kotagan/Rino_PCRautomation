@@ -105,7 +105,7 @@ public class MaaProcessor
         var token = CancellationTokenSource.Token;
         if (!onlyStart)
         {
-            var taskAndParams = tasks.Select(CreateTaskAndParam).ToList();
+            var taskAndParams = tasks.SelectMany(ExpandTaskAndParams).ToList();
             InitializeConnectionTasksAsync(token);
             AddCoreTasksAsync(taskAndParams, token);
         }
@@ -663,7 +663,75 @@ public class MaaProcessor
         RestartMFA();
     }
 
-    private TaskAndParam CreateTaskAndParam(DragItemViewModel task)
+    private IEnumerable<TaskAndParam> ExpandTaskAndParams(DragItemViewModel task)
+    {
+        var options = task.InterfaceItem?.Option;
+        if (options == null || options.Count == 0 || MaaInterface.Instance?.Option == null)
+        {
+            yield return CreateTaskAndParam(task);
+            yield break;
+        }
+
+        var multiDimensions = new List<List<(string Name, int Index, string CaseName)>>();
+        foreach (var selectOption in options)
+        {
+            if (MaaInterface.Instance.Option.TryGetValue(selectOption.Name ?? string.Empty, out var interfaceOption)
+                != true
+                || !interfaceOption.Multi
+                || interfaceOption.Cases == null)
+                continue;
+
+            var selected = selectOption.GetSelectedIndexes()
+                .Where(i => i >= 0 && i < interfaceOption.Cases.Count)
+                .Select(i => (selectOption.Name ?? string.Empty, i, interfaceOption.Cases[i].Name ?? $"#{i + 1}"))
+                .ToList();
+            if (selected.Count > 0)
+            {
+                multiDimensions.Add(selected);
+            }
+            else
+            {
+                // 多选未勾选：明确报错，避免静默按无预设跑一遍
+                var optionName = LanguageHelper.GetLocalizedString(selectOption.Name);
+                var tip = string.Format(
+                    LanguageHelper.GetLocalizedString("MultiSelectRequiredTip"),
+                    optionName);
+                Growl.Warning(tip);
+                RootView.AddLog(tip, BrushConverterHelper.ConvertToBrush("DarkGoldenrod"));
+            }
+        }
+
+        if (multiDimensions.Count == 0)
+        {
+            yield return CreateTaskAndParam(task);
+            yield break;
+        }
+
+        foreach (var combo in CartesianProduct(multiDimensions))
+        {
+            var overrides = combo.ToDictionary(c => c.Name, c => c.Index);
+            var suffix = string.Join("+", combo.Select(c => c.CaseName));
+            var baseName = task.InterfaceItem?.Name ?? "任务";
+            yield return CreateTaskAndParam(task, overrides, $"{baseName}({suffix})");
+        }
+    }
+
+    private static IEnumerable<List<(string Name, int Index, string CaseName)>> CartesianProduct(
+        List<List<(string Name, int Index, string CaseName)>> dimensions)
+    {
+        IEnumerable<List<(string Name, int Index, string CaseName)>> seed = [[]];
+        return dimensions.Aggregate(seed, (acc, dim) =>
+            acc.SelectMany(prefix => dim.Select(item =>
+            {
+                var next = new List<(string Name, int Index, string CaseName)>(prefix) { item };
+                return next;
+            })));
+    }
+
+    private TaskAndParam CreateTaskAndParam(
+        DragItemViewModel task,
+        Dictionary<string, int>? indexOverrides = null,
+        string? displayName = null)
     {
         var taskModels = JsonConvert.DeserializeObject<Dictionary<string, TaskModel>>(JsonConvert.SerializeObject(task.InterfaceItem?.PipelineOverride ?? new Dictionary<string, TaskModel>(), new JsonSerializerSettings()
         {
@@ -672,13 +740,13 @@ public class MaaProcessor
             DefaultValueHandling = DefaultValueHandling.Ignore
         }));
 
-        UpdateTaskDictionary(ref taskModels, task.InterfaceItem?.Option, task.InterfaceItem?.Advanced);
+        UpdateTaskDictionary(ref taskModels, task.InterfaceItem?.Option, task.InterfaceItem?.Advanced, indexOverrides);
 
         var taskParams = SerializeTaskParams(taskModels);
 
         return new TaskAndParam
         {
-            Name = task.InterfaceItem?.Name,
+            Name = displayName ?? task.InterfaceItem?.Name,
             Entry = task.InterfaceItem?.Entry,
             Count = task.InterfaceItem?.Repeatable == true ? (task.InterfaceItem?.RepeatCount ?? 1) : 1,
             Param = taskParams
@@ -687,24 +755,10 @@ public class MaaProcessor
 
     private void UpdateTaskDictionary(ref Dictionary<string, TaskModel> taskModels,
         List<MaaInterface.MaaInterfaceSelectOption>? options,
-        List<MaaInterface.MaaInterfaceSelectAdvanced>? advanceds)
+        List<MaaInterface.MaaInterfaceSelectAdvanced>? advanceds,
+        Dictionary<string, int>? indexOverrides = null)
     {
-        if (options != null)
-        {
-            foreach (var selectOption in options)
-            {
-                if (MaaInterface.Instance?.Option?.TryGetValue(selectOption.Name ?? string.Empty,
-                        out var interfaceOption)
-                    == true
-                    && selectOption.Index is int index
-                    && interfaceOption.Cases is { } cases
-                    && cases[index]?.PipelineOverride != null)
-                {
-                    var param = interfaceOption.Cases[selectOption.Index.Value].PipelineOverride;
-                    taskModels = taskModels.MergeTaskModels(param);
-                }
-            }
-        }
+        ApplySelectOptions(ref taskModels, options, indexOverrides);
 
         if (advanceds != null)
         {
@@ -723,19 +777,36 @@ public class MaaProcessor
                 }
             }
         }
+
+        ApplySelectOptions(ref taskModels, options, indexOverrides);
+    }
+
+    private void ApplySelectOptions(
+        ref Dictionary<string, TaskModel> taskModels,
+        List<MaaInterface.MaaInterfaceSelectOption>? options,
+        Dictionary<string, int>? indexOverrides)
+    {
         if (options == null) return;
 
         foreach (var selectOption in options)
         {
-            if (MaaInterface.Instance?.Option?.TryGetValue(selectOption.Name ?? string.Empty,
-                    out var interfaceOption)
-                == true
-                && selectOption.Index is int index
-                && interfaceOption.Cases is { } cases
-                && cases[index]?.PipelineOverride != null)
+            var name = selectOption.Name ?? string.Empty;
+            if (MaaInterface.Instance?.Option?.TryGetValue(name, out var interfaceOption) != true
+                || interfaceOption.Cases == null)
+                continue;
+
+            int? index = null;
+            if (indexOverrides != null && indexOverrides.TryGetValue(name, out var overridden))
+                index = overridden;
+            else if (!interfaceOption.Multi)
+                index = selectOption.Index;
+
+            if (index is int i
+                && i >= 0
+                && i < interfaceOption.Cases.Count
+                && interfaceOption.Cases[i]?.PipelineOverride != null)
             {
-                var param = interfaceOption.Cases[selectOption.Index.Value].PipelineOverride;
-                taskModels = taskModels.MergeTaskModels(param);
+                taskModels = taskModels.MergeTaskModels(interfaceOption.Cases[i].PipelineOverride);
             }
         }
     }
@@ -1425,57 +1496,56 @@ public class MaaProcessor
             }
 
             var csFiles = Directory.GetFiles(directory, "*.cs");
-
             var references = GetMetadataReferences();
 
+            // 同一目录下全部 .cs 一起编译，便于共享 helper（如 DawnRealmCharCatalog）
+            var trees = new List<SyntaxTree>();
+            var codeByPath = new Dictionary<string, string[]>(StringComparer.OrdinalIgnoreCase);
             foreach (var filePath in csFiles)
             {
                 var name = Path.GetFileNameWithoutExtension(filePath);
                 LoggerService.LogInfo("Trying to parse " + name);
                 var code = File.ReadAllText(filePath);
-
-                var codeLines = code.Split([
-                    '\n'
-                ], StringSplitOptions.RemoveEmptyEntries).ToList();
-
-                var syntaxTree = CSharpSyntaxTree.ParseText(code);
-                var compilation = CSharpCompilation.Create("DynamicAssembly")
-                    .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-                    .AddSyntaxTrees(syntaxTree)
-                    .AddReferences(references);
-
-                using var ms = new MemoryStream();
-
-                var result = compilation.Emit(ms);
-                if (!result.Success)
-                {
-                    var failures = result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error);
-                    foreach (var diagnostic in failures)
-                    {
-                        // 尝试从错误诊断信息中提取行号相关内容，这里假设格式类似 "(行号, 列号)"，不同环境格式可能不同，需按需调整
-                        var lineInfo = diagnostic.Location.GetLineSpan().StartLinePosition;
-                        var lineNumber = lineInfo.Line + 1; // 通常行号从1开始计数，所以加1
-                        // 根据行号获取对应的代码行内容
-                        var errorLine = lineNumber <= codeLines.Count ? codeLines[lineNumber - 1].Trim() : "无法获取对应代码行（行号超出范围）";
-                        LoggerService.LogError($"{diagnostic.Id}: {diagnostic.GetMessage()}  [错误行号: {lineNumber}]  [错误代码行: {errorLine}]");
-                    }
-                    continue;
-                }
-
-                ms.Seek(0, SeekOrigin.Begin);
-                var assembly = Assembly.Load(ms.ToArray());
-
-                var instances =
-                    from type in assembly.GetTypes()
-                    from iface in interfacesToImplement
-                    where type.GetInterfaces().Any(i => i.Name == iface)
-                    let instance = Activator.CreateInstance(type)
-                    where instance != null
-                    select new CustomValue<object>(name, instance);
-
-                customClasses.AddRange(instances);
-
+                codeByPath[filePath] = code.Split(['\n'], StringSplitOptions.RemoveEmptyEntries);
+                trees.Add(CSharpSyntaxTree.ParseText(code, path: filePath));
             }
+
+            if (trees.Count == 0)
+                return customClasses;
+
+            var compilation = CSharpCompilation.Create("DynamicAssembly")
+                .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
+                .AddSyntaxTrees(trees)
+                .AddReferences(references);
+
+            using var ms = new MemoryStream();
+            var result = compilation.Emit(ms);
+            if (!result.Success)
+            {
+                var failures = result.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error);
+                foreach (var diagnostic in failures)
+                {
+                    var lineInfo = diagnostic.Location.GetLineSpan().StartLinePosition;
+                    var lineNumber = lineInfo.Line + 1;
+                    var filePath = diagnostic.Location.SourceTree?.FilePath ?? "";
+                    var lines = codeByPath.TryGetValue(filePath, out var arr) ? arr : [];
+                    var errorLine = lineNumber <= lines.Length ? lines[lineNumber - 1].Trim() : "无法获取对应代码行（行号超出范围）";
+                    var fileName = string.IsNullOrEmpty(filePath) ? "?" : Path.GetFileName(filePath);
+                    LoggerService.LogError($"{diagnostic.Id}: {diagnostic.GetMessage()}  [{fileName}:{lineNumber}]  [错误代码行: {errorLine}]");
+                }
+                return customClasses;
+            }
+
+            ms.Seek(0, SeekOrigin.Begin);
+            var assembly = Assembly.Load(ms.ToArray());
+            var instances =
+                from type in assembly.GetTypes()
+                from iface in interfacesToImplement
+                where type.GetInterfaces().Any(i => i.Name == iface)
+                let instance = Activator.CreateInstance(type)
+                where instance != null
+                select new CustomValue<object>(type.Name, instance);
+            customClasses.AddRange(instances);
         }
         _shouldLoadCustomClasses = false;
         return customClasses;

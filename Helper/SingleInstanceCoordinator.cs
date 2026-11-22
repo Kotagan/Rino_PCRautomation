@@ -4,8 +4,8 @@ namespace MFAWPF.Helper;
 
 internal static class SingleInstanceCoordinator
 {
-    private const string MutexName = @"Local\Rino.Desktop.SingleInstance";
-    private const string ActivationEventName = @"Local\Rino.Desktop.Activate";
+    private const string MutexNameBase = @"Local\Rino.Desktop.SingleInstance";
+    private const string ActivationEventNameBase = @"Local\Rino.Desktop.Activate";
     private static readonly TimeSpan RestartHandoffTimeout = TimeSpan.FromSeconds(3);
 
     private static Mutex? _instanceMutex;
@@ -14,7 +14,15 @@ internal static class SingleInstanceCoordinator
     private static Task? _listenerTask;
     private static bool _ownsMutex;
 
-    public static bool TryAcquire()
+    // 按设备归组：同一设备互斥/唤起同一个窗口；不同设备互不影响
+    private static string MutexName => $"{MutexNameBase}.{DeviceIdentity.DeviceKey}";
+
+    private static string ActivationEventName => $"{ActivationEventNameBase}.{DeviceIdentity.DeviceKey}";
+
+    /// <param name="activateExisting">
+    /// false（如 --silent）时不唤醒已有窗口，仅尝试接管 mutex（用于静默重启）。
+    /// </param>
+    public static bool TryAcquire(bool activateExisting = true)
     {
         try
         {
@@ -27,7 +35,11 @@ internal static class SingleInstanceCoordinator
                 return true;
             }
 
-            _activationEvent.Set();
+            // 普通二次启动：点图标唤起前台；静默重启：不要把窗口弹到最前
+            if (activateExisting)
+            {
+                _activationEvent.Set();
+            }
 
             try
             {

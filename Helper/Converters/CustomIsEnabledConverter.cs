@@ -7,13 +7,8 @@ public class CustomIsEnabledConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
-        if (values is [bool isChecked, bool idle])
-        {
-            bool isCheckedValue = isChecked;
-            return (isCheckedValue && idle) || !isCheckedValue;
-        }
-
-        return false;
+        // 始终允许修改/取消选项（不再因运行中锁定）
+        return true;
     }
 
     public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)

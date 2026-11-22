@@ -15,7 +15,9 @@
         "action": "Click",
         "target": [
             427,
-            46
+            46,
+            0,
+            0
         ],
         "next": [
             "体力恢复"
@@ -30,7 +32,9 @@
         "action": "Click",
         "target": [
             636,
-            226
+            226,
+            0,
+            0
         ],
         "post_delay": 1000,
         "next": [
@@ -48,7 +52,9 @@
         "action": "Click",
         "target": [
             798,
-            640
+            640,
+            0,
+            0
         ],
         "next": [
             "确定购买体力2"
@@ -74,7 +80,9 @@
         "action": "Click",
         "target": [
             657,
-            493
+            493,
+            0,
+            0
         ],
         "post_delay": 1000
     }

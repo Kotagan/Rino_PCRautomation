@@ -429,16 +429,9 @@ public class VersionChecker
 
             if (!IsNewVersionAvailable(latestVersion, currentVersion))
             {
-                ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
+                // 已是最新：静默返回，不弹窗、不播提示音
                 Instances.RootViewModel.SetUpdating(false);
-                DispatcherHelper.RunOnMainThread(() =>
-                {
-                    dialog?.Close();
-                    if (!noDialog)
-                    {
-                        AnnouncementView.ShowLatestVersion(currentVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization());
-                    }
-                });
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
                 Instances.TaskQueueViewModel.ClearDownloadProgress();
                 action?.Invoke();
                 return;
@@ -626,11 +619,7 @@ public class VersionChecker
             {
                 ToastNotification.ShowDirect("ResourceOption".ToLocalization() + "NewVersionAvailableLatestVersion".ToLocalization() + latestVersion);
             }
-            else
-            {
-                ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
-                AnnouncementView.ShowLatestVersion(currentVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization());
-            }
+            // 已是最新：静默，不弹窗、不播提示音
 
             Instances.RootViewModel.SetUpdating(false);
         }
@@ -692,7 +681,7 @@ public class VersionChecker
 
             if (string.IsNullOrWhiteSpace(latestVersion))
             {
-                ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
+                // 无法解析远端版本时按已最新处理：静默返回
                 Instances.RootViewModel.SetUpdating(false);
                 DispatcherHelper.RunOnMainThread(() => dialog?.Close());
                 Instances.TaskQueueViewModel.ClearDownloadProgress();
@@ -713,16 +702,9 @@ public class VersionChecker
 
             if (!IsNewVersionAvailable(latestVersion, localVersion))
             {
-                ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
+                // 已是最新：静默返回，不弹窗、不播提示音
                 Instances.RootViewModel.SetUpdating(false);
-                DispatcherHelper.RunOnMainThread(() =>
-                {
-                    dialog?.Close();
-                    if (!noDialog)
-                    {
-                        AnnouncementView.ShowLatestVersion(localVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization());
-                    }
-                });
+                DispatcherHelper.RunOnMainThread(() => dialog?.Close());
                 Instances.TaskQueueViewModel.ClearDownloadProgress();
                 action?.Invoke();
                 return;
@@ -1322,11 +1304,7 @@ public class VersionChecker
             {
                 ToastNotification.ShowDirect("ResourceOption".ToLocalization() + "NewVersionAvailableLatestVersion".ToLocalization() + latestVersion);
             }
-            else
-            {
-                ToastNotification.ShowDirect("ResourcesAreLatestVersion".ToLocalization());
-                AnnouncementView.ShowLatestVersion(localVersion, _latestResourceReleaseNote, "UpdateResource".ToLocalization());
-            }
+            // 已是最新：静默，不弹窗、不播提示音
             Instances.RootViewModel.SetUpdating(false);
         }
         catch (Exception ex)

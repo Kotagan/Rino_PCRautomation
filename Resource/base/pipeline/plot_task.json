@@ -11,12 +11,14 @@
         "action": "Click",
         "target": [
             269,
-            680
+            680,
+            0,
+            0
         ],
         "post_delay": 3000,
         "next": [
             "选择角色一键强化",
-            "[JumpBack]选中角色页面"
+            "选中角色页面"
         ]
     },
     "选择角色一键强化": {
@@ -33,7 +35,9 @@
         "action": "Click",
         "target": [
             93,
-            154
+            154,
+            0,
+            0
         ],
         "post_delay": 1000,
         "next": [
@@ -43,7 +47,9 @@
     "一键强化目标": {
         "target": [
             133,
-            518
+            518,
+            0,
+            0
         ],
         "action": "Click",
         "post_delay": 1000,
@@ -69,7 +75,9 @@
     "确定一键强化": {
         "target": [
             794,
-            644
+            644,
+            0,
+            0
         ],
         "action": "Click",
         "next": [
@@ -132,7 +140,9 @@
         "template": "强化确认.png",
         "target": [
             794,
-            637
+            637,
+            0,
+            0
         ],
         "action": "Click",
         "next": [
@@ -145,7 +155,9 @@
         "template": "自动强化完成.png",
         "target": [
             654,
-            644
+            644,
+            0,
+            0
         ],
         "action": "Click",
         "next": [

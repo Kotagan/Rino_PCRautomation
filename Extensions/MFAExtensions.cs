@@ -379,6 +379,11 @@ public static class MFAExtensions
                 h
             },
         }, imageBuffer);
+        if (detail == null)
+        {
+            LoggerService.LogInfo($"TemplateMatch: {template} ,Hit: False (null detail)");
+            return false;
+        }
         LoggerService.LogInfo(detail.Detail);
         LoggerService.LogInfo($"TemplateMatch: {template} ,Hit: {detail.IsHit()}");
         return detail.IsHit();

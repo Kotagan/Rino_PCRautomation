@@ -4,7 +4,7 @@
         "timeout": 60000,
         "next": [
             "进入遗迹",
-            "[JumpBack]选择遗迹冒险界面"
+            "选择遗迹冒险界面"
         ]
     },
     "进入遗迹": {
@@ -25,7 +25,9 @@
         "action": "Click",
         "target": [
             729,
-            684
+            684,
+            0,
+            0
         ],
         "post_delay": 3900
     },
@@ -33,7 +35,9 @@
         "action": "Click",
         "target": [
             787,
-            453
+            453,
+            0,
+            0
         ],
         "post_delay": 2990,
         "next": [
@@ -44,7 +48,9 @@
         "action": "Click",
         "target": [
             963,
-            216
+            216,
+            0,
+            0
         ],
         "post_delay": 2000,
         "next": [
@@ -56,7 +62,9 @@
         "action": "Click",
         "target": [
             1021,
-            450
+            450,
+            0,
+            0
         ],
         "post_delay": 1000,
         "next": [
@@ -72,7 +80,9 @@
         "action": "Click",
         "target": [
             751,
-            493
+            493,
+            0,
+            0
         ],
         "post_delay": 1730,
         "next": [
@@ -89,7 +99,9 @@
         "action": "Click",
         "target": [
             496,
-            493
+            493,
+            0,
+            0
         ],
         "post_delay": 1000,
         "next": [
@@ -100,7 +112,9 @@
         "action": "Click",
         "target": [
             884,
-            604
+            604,
+            0,
+            0
         ],
         "post_delay": 1000,
         "next": [
@@ -115,7 +129,9 @@
         ],
         "target": [
             672,
-            633
+            633,
+            0,
+            0
         ],
         "pre_delay": 300,
         "post_delay": 300,
@@ -133,7 +149,9 @@
         "pre_delay": 500,
         "target": [
             672,
-            633
+            633,
+            0,
+            0
         ],
         "post_delay": 3000,
         "action": "Click",
@@ -146,7 +164,7 @@
         "next": [
             "选择遗迹5",
             "遗迹限定商店",
-            "[JumpBack]等级提升"
+            "等级提升"
         ]
     },
     "遗迹限定商店": {
@@ -159,7 +177,9 @@
         "post_delay": 1000,
         "target": [
             819,
-            640
+            640,
+            0,
+            0
         ],
         "next": [
             "选择遗迹5"
@@ -183,7 +203,9 @@
         "action": "Click",
         "target": [
             129,
-            680
+            680,
+            0,
+            0
         ],
         "post_delay": 1910
     }

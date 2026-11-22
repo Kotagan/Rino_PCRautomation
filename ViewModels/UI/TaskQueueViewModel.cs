@@ -21,6 +21,113 @@ public partial class TaskQueueViewModel : ViewModel
         ConfigurationHelper.SetValue(ConfigurationKeys.TaskItems, newValue.ToList().Select(model => model.InterfaceItem));
     }
 
+    private bool _reorderingCheckedTasks;
+
+    /// <summary>
+    /// 已勾选任务按 interface.json 原顺序加入执行列表。
+    /// </summary>
+    public List<DragItemViewModel> GetCheckedTasksInOriginalOrder()
+    {
+        var orderMap = BuildOriginalOrderMap();
+        return TaskItemViewModels
+            .Where(task => task.IsChecked || task.IsCheckedWithNull == null)
+            .OrderBy(item => RankByOriginalOrder(item, orderMap))
+            .ToList();
+    }
+
+    /// <summary>
+    /// 界面：已勾选置顶，关闭/未勾选沉底；组内按 interface 原顺序。
+    /// </summary>
+    public void ReorderCheckedTasksToTop()
+    {
+        if (_reorderingCheckedTasks || _suppressCheckedReorder || IsPresetMode)
+            return;
+
+        DispatcherHelper.RunOnMainThread(() =>
+        {
+            if (_reorderingCheckedTasks || _suppressCheckedReorder || IsPresetMode || TaskItemViewModels.Count == 0)
+                return;
+
+            var orderMap = BuildOriginalOrderMap();
+            var ordered = TaskItemViewModels
+                .OrderBy(item => CheckSortRank(item.IsCheckedWithNull))
+                .ThenBy(item => RankByOriginalOrder(item, orderMap))
+                .ToList();
+
+            var unchanged = ordered.Count == TaskItemViewModels.Count
+                            && ordered.Zip(TaskItemViewModels, (a, b) => ReferenceEquals(a, b)).All(eq => eq);
+            if (unchanged)
+                return;
+
+            _reorderingCheckedTasks = true;
+            try
+            {
+                TaskItemViewModels = new ObservableCollection<DragItemViewModel>(ordered);
+            }
+            finally
+            {
+                _reorderingCheckedTasks = false;
+            }
+        });
+    }
+
+    /// <summary>批量改勾选时暂停自动重排，结束后再统一沉底。</summary>
+    public void RunWithSuppressedReorder(Action action)
+    {
+        _suppressCheckedReorder = true;
+        try
+        {
+            action();
+        }
+        finally
+        {
+            _suppressCheckedReorder = false;
+            ReorderCheckedTasksToTop();
+        }
+    }
+
+    /// <summary>true 置顶，null 其次，false（关闭）最后。</summary>
+    private static int CheckSortRank(bool? check) => check switch
+    {
+        true => 0,
+        null => 1,
+        false => 2
+    };
+
+    private bool _suppressCheckedReorder;
+
+    private static int RankByOriginalOrder(DragItemViewModel item, Dictionary<string, int> orderMap)
+    {
+        var key = item.InterfaceItem?.Entry ?? item.Name ?? string.Empty;
+        return orderMap.TryGetValue(key, out var index) ? index : int.MaxValue;
+    }
+
+    private Dictionary<string, int> BuildOriginalOrderMap()
+    {
+        var orderMap = new Dictionary<string, int>(StringComparer.Ordinal);
+        var interfaceTasks = MaaInterface.Instance?.Task;
+        if (interfaceTasks is { Count: > 0 })
+        {
+            for (var i = 0; i < interfaceTasks.Count; i++)
+            {
+                var key = interfaceTasks[i].Entry ?? interfaceTasks[i].Name;
+                if (!string.IsNullOrEmpty(key) && !orderMap.ContainsKey(key))
+                    orderMap[key] = i;
+            }
+
+            return orderMap;
+        }
+
+        for (var i = 0; i < TasksSource.Count; i++)
+        {
+            var key = TasksSource[i].InterfaceItem?.Entry ?? TasksSource[i].Name;
+            if (!string.IsNullOrEmpty(key) && !orderMap.ContainsKey(key))
+                orderMap[key!] = i;
+        }
+
+        return orderMap;
+    }
+
     [ObservableProperty] private bool _connectSettingChecked = true;
     [ObservableProperty] private bool _isPresetMode;
     [ObservableProperty] private string? _activePresetName;
@@ -130,6 +237,7 @@ public partial class TaskQueueViewModel : ViewModel
         }
 
         ConfigurationHelper.SetValue(ConfigurationKeys.TaskItems, TaskItemViewModels.ToList().Select(model => model.InterfaceItem));
+        ReorderCheckedTasksToTop();
     }
 
 

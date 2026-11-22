@@ -5,6 +5,7 @@ using MFAWPF.Extensions;
 using MFAWPF.Extensions.Maa;
 using MFAWPF.Helper;
 using MFAWPF.ViewModels.Tool;
+using MFAWPF.Views.UI;
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -250,18 +251,13 @@ public partial class TaskOptionSettingsUserControl
                 Text = defaultValue
             };
 
-            var binding = new Binding("Idle")
-            {
-                Source = Instances.RootViewModel
-            };
-
             combo.TextChanged += (_, _) =>
             {
                 option.Data[field] = combo.Text;
                 option.PipelineOverride = interfaceOption.GenerateProcessedPipeline(option.Data);
                 SaveConfiguration();
             };
-            combo.SetBinding(IsEnabledProperty, binding);
+            combo.IsEnabled = true;
 
             combo.SetValue(TitleElement.TitleProperty, LanguageHelper.GetLocalizedString(field));
             combo.SetValue(TitleElement.TitlePlacementProperty, TitlePlacementType.Top);
@@ -275,11 +271,119 @@ public partial class TaskOptionSettingsUserControl
 
         var converter = FindResource("CustomIsEnabledConverter") as IMultiValueConverter;
 
-        FrameworkElement control = interfaceOption.Cases.ShouldSwitchButton(out var yes, out var no)
-            ? CreateToggleControl(option, yes, no, source, converter)
-            : CreateComboControl(option, interfaceOption, source, converter);
+        FrameworkElement control;
+        if (interfaceOption.Multi)
+            control = CreateMultiCheckControl(option, interfaceOption);
+        else if (interfaceOption.Cases.ShouldSwitchButton(out var yes, out var no))
+            control = CreateToggleControl(option, yes, no, source, converter);
+        else
+            control = CreateComboControl(option, interfaceOption, source, converter);
 
         panel.Children.Add(control);
+    }
+
+    private FrameworkElement CreateMultiCheckControl(
+        MaaInterface.MaaInterfaceSelectOption option,
+        MaaInterface.MaaInterfaceOption interfaceOption)
+    {
+        var selected = new HashSet<int>(option.GetSelectedIndexes());
+        var cases = interfaceOption.Cases ?? [];
+        // 窄侧栏自适应：两列网格，避免 WrapPanel 横向撑破选项区
+        var grid = new UniformGrid
+        {
+            Columns = 2,
+            Margin = new Thickness(0, 2, 0, 0)
+        };
+
+        for (var i = 0; i < cases.Count; i++)
+        {
+            var index = i;
+            var check = new CheckBox
+            {
+                Content = LanguageHelper.GetLocalizedString(cases[i].Name),
+                IsChecked = selected.Contains(index),
+                Margin = new Thickness(0, 2, 6, 2),
+                Padding = new Thickness(0),
+                VerticalContentAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
+            check.Checked += (_, _) =>
+            {
+                selected.Add(index);
+                option.SetSelectedIndexes(selected);
+                SaveConfiguration();
+            };
+            check.Unchecked += (_, _) =>
+            {
+                selected.Remove(index);
+                option.SetSelectedIndexes(selected);
+                SaveConfiguration();
+            };
+            grid.Children.Add(check);
+        }
+
+        var tip = new TextBlock
+        {
+            Text = LanguageHelper.GetLocalizedString("MultiSelectEmptyTip"),
+            Margin = new Thickness(0, 4, 0, 0),
+            FontSize = 11,
+            Opacity = 0.7,
+            TextWrapping = TextWrapping.Wrap,
+            Visibility = selected.Count == 0 ? Visibility.Visible : Visibility.Collapsed
+        };
+
+        void RefreshTip()
+        {
+            tip.Visibility = selected.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+        foreach (CheckBox check in grid.Children)
+        {
+            check.Checked += (_, _) => RefreshTip();
+            check.Unchecked += (_, _) => RefreshTip();
+        }
+
+        var stack = new StackPanel
+        {
+            Margin = new Thickness(5),
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
+        stack.Children.Add(new TextBlock
+        {
+            Text = LanguageHelper.GetLocalizedString(option.Name),
+            Margin = new Thickness(0, 0, 0, 2),
+            FontWeight = FontWeights.SemiBold,
+            TextWrapping = TextWrapping.Wrap
+        });
+        stack.Children.Add(grid);
+        stack.Children.Add(tip);
+
+        // 测量后若仍超出可视宽度，提示用户（不静默裁切）
+        stack.Loaded += (_, _) =>
+        {
+            stack.UpdateLayout();
+            var host = FindVisualParent<FrameworkElement>(stack);
+            var hostWidth = host?.ActualWidth ?? 0;
+            if (hostWidth > 40 && stack.DesiredSize.Width > hostWidth + 8)
+            {
+                Growl.Warning(LanguageHelper.GetLocalizedString("OptionPanelOverflowTip"));
+                RootView.AddLogByKey("OptionPanelOverflowTip");
+            }
+        };
+
+        return stack;
+    }
+
+    private static T? FindVisualParent<T>(DependencyObject child) where T : DependencyObject
+    {
+        var parent = VisualTreeHelper.GetParent(child);
+        while (parent != null)
+        {
+            if (parent is T match)
+                return match;
+            parent = VisualTreeHelper.GetParent(parent);
+        }
+        return null;
     }
 
     private Grid CreateToggleControl(
@@ -300,21 +404,7 @@ public partial class TaskOptionSettingsUserControl
             VerticalAlignment = VerticalAlignment.Center
         };
 
-        var multiBinding = new MultiBinding
-        {
-            Converter = customConverter,
-            Mode = BindingMode.OneWay
-        };
-        multiBinding.Bindings.Add(new Binding("IsCheckedWithNull")
-        {
-            Source = source
-        });
-        multiBinding.Bindings.Add(new Binding("Idle")
-        {
-            Source = Instances.RootViewModel
-        });
-        button.SetBinding(IsEnabledProperty, multiBinding);
-
+        button.IsEnabled = true;
 
         button.Checked += (_, _) =>
         {
@@ -373,35 +463,25 @@ public partial class TaskOptionSettingsUserControl
     {
         var combo = new ComboBox
         {
-            SelectedIndex = option.Index ?? 0,
+            // Index 为空表示未选择；不再强制落到第 0 项
+            SelectedIndex = option.Index ?? -1,
             Style = FindResource("ComboBoxExtend") as Style,
             DisplayMemberPath = "Name",
             Margin = new Thickness(5),
             HorizontalContentAlignment = HorizontalAlignment.Center,
+            IsEnabled = true,
             ItemsSource = interfaceOption.Cases?.Select(c => new
             {
                 Name = LanguageHelper.GetLocalizedString(c.Name)
             })
         };
 
-        var multiBinding = new MultiBinding
-        {
-            Converter = customConverter,
-            Mode = BindingMode.OneWay
-        };
-        multiBinding.Bindings.Add(new Binding("IsCheckedWithNull")
-        {
-            Source = source
-        });
-        multiBinding.Bindings.Add(new Binding("Idle")
-        {
-            Source = Instances.RootViewModel
-        });
-        combo.SetBinding(IsEnabledProperty, multiBinding);
+        // 允许取消选择（清空下拉）
+        InfoElement.SetShowClearButton(combo, true);
 
         combo.SelectionChanged += (_, _) =>
         {
-            option.Index = combo.SelectedIndex;
+            option.Index = combo.SelectedIndex >= 0 ? combo.SelectedIndex : null;
             SaveConfiguration();
         };
 

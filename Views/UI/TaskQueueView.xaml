@@ -20,6 +20,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <UserControl.Resources>
         <ContextMenu x:Key="TaskMenu">
+            <MenuItem Click="RunSingleFromMenu" Header="{lex:Loc RunSingleTask}" />
             <MenuItem Click="Delete" Header="{lex:Loc Delete}" />
         </ContextMenu>
 
@@ -260,7 +261,8 @@
                             <Grid x:Name="ListGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="45" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="36" />
                                 </Grid.ColumnDefinitions>
                                 <CheckBox
                                     Click="OnTaskCheckBoxClick"
@@ -283,20 +285,36 @@
                                                 TextTrimming="CharacterEllipsis"
                                                 TextWrapping="NoWrap"
                                                 VerticalAlignment="Center"
-                                                Width="{calcBinding:Binding 'ActualWidth - 78',
+                                                Width="{calcBinding:Binding 'ActualWidth - 110',
                                                                             RelativeSource={RelativeSource Mode=FindAncestor,
                                                                                                            AncestorType={x:Type ListBoxItem}}}">
                                                 <TextBlock.ContextMenu>
                                                     <ContextMenu>
-                                                        <MenuItem Header="删除" Click="Delete" />
+                                                        <MenuItem Header="{lex:Loc RunSingleTask}" Click="RunSingleFromMenu" />
+                                                        <MenuItem Header="{lex:Loc Delete}" Click="Delete" />
                                                     </ContextMenu>
                                                 </TextBlock.ContextMenu>
                                             </TextBlock>
                                         </DataTemplate>
                                     </CheckBox.ContentTemplate>
                                 </CheckBox>
-                                <hc:ButtonGroup
+                                <Button
+                                    Click="RunSingle"
                                     Grid.Column="1"
+                                    Height="28"
+                                    IsEnabled="{Binding Idle, Source={x:Static helper:Instances.RootViewModel}}"
+                                    Margin="2,0,0,0"
+                                    Padding="0"
+                                    Style="{StaticResource textBoxButton}"
+                                    ToolTip="{lex:Loc RunSingleTask}"
+                                    VerticalAlignment="Center"
+                                    Width="28"
+                                    hc:IconElement.Geometry="{StaticResource PlayGeometry}"
+                                    hc:IconElement.Height="14"
+                                    hc:IconElement.Width="14"
+                                    Foreground="{DynamicResource PrimaryBrush}" />
+                                <hc:ButtonGroup
+                                    Grid.Column="2"
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Center"
                                     ToolTip="{Binding Name}"

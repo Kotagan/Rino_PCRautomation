@@ -1311,6 +1311,15 @@ namespace MFAWPF.Res.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to 单独执行此任务.
+        /// </summary>
+        internal static string RunSingleTask {
+            get {
+                return ResourceManager.GetString("RunSingleTask", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to 启动任务.
         /// </summary>
         internal static string StartTask {
@@ -1427,6 +1436,15 @@ namespace MFAWPF.Res.Localization {
             }
         }
         
+        /// <summary>
+        ///   Looks up a localized string similar to 已有任务在运行，请先停止.
+        /// </summary>
+        internal static string TaskAlreadyRunning {
+            get {
+                return ResourceManager.GetString("TaskAlreadyRunning", resourceCulture);
+            }
+        }
+
         /// <summary>
         ///   Looks up a localized string similar to 任务已全部完成！\n(用时 {0}h {1}m {2}s).
         /// </summary>

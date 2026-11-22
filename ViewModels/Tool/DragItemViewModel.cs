@@ -53,6 +53,7 @@ public partial class DragItemViewModel : ViewModel
                     InterfaceItem.Check = _isCheckedWithNull;
                 ConfigurationHelper.SetValue(ConfigurationKeys.TaskItems,
                     Instances.TaskQueueViewModel.TaskItemViewModels.ToList().Select(model => model.InterfaceItem));
+                Instances.TaskQueueViewModel.ReorderCheckedTasksToTop();
             }
         }
     }

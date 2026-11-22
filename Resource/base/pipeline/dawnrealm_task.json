@@ -1,6 +1,5 @@
 {
     "黎明界肉鸽": {
-        "desc": "台服黎明界迷宮完整肉鸽（横屏1280x720）",
         "timeout": 120000,
         "next": [
             "黎明界应用配置"
@@ -10,31 +9,39 @@
         "recognition": "DirectHit",
         "action": "Custom",
         "custom_action": "DawnRealmApplyConfigAction",
-        "custom_action_param": {
-            "strategy": "stable",
-            "guild": "美食殿堂",
-            "difficulty": 5,
-            "max_runs": 0
-        },
+        "custom_action_param": "{\"strategy\":\"stable\",\"guild\":\"美食殿堂\",\"difficulty\":5,\"max_runs\":1}",
         "next": [
+            "黎明界启动探测"
+        ]
+    },
+    "黎明界启动探测": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "DawnRealmBootAction",
+        "next": [
+            "黎明界选择公会",
+            "黎明界滑动找公会",
+            "黎明界默认选公会",
             "黎明界进入冒险"
         ]
     },
     "黎明界进入冒险": {
-        "timeout": 60000,
+        "timeout": 8000,
         "action": "Click",
         "target": [
             729,
-            684
+            684,
+            0,
+            0
         ],
-        "post_delay": 2200,
+        "post_delay": 1500,
         "next": [
-            "黎明界点击入口",
-            "黎明界进入冒险"
+            "黎明界启动探测",
+            "黎明界点击入口"
         ]
     },
     "黎明界点击入口": {
-        "timeout": 60000,
+        "timeout": 10000,
         "recognition": "OCR",
         "expected": [
             "黎明界迷宮",
@@ -48,8 +55,9 @@
             220
         ],
         "action": "Click",
-        "post_delay": 2500,
+        "post_delay": 2000,
         "next": [
+            "黎明界启动探测",
             "黎明界页首",
             "黎明界点击入口模板"
         ]
@@ -114,17 +122,22 @@
         "recognition": "OCR",
         "expected": [
             "出發",
-            "出发"
+            "出发",
+            "挑戰中",
+            "挑战中"
         ],
         "roi": [
-            420,
-            120,
             400,
-            460
+            200,
+            480,
+            420
         ],
         "action": "Click",
-        "post_delay": 2200,
+        "post_delay": 2500,
         "next": [
+            "黎明界启动探测",
+            "黎明界地图循环",
+            "黎明界变更难度",
             "黎明界选择公会页",
             "黎明界点击出发坐标"
         ]
@@ -132,29 +145,35 @@
     "黎明界点击出发坐标": {
         "action": "Click",
         "target": [
-            600,
-            480
+            620,
+            520,
+            0,
+            0
         ],
-        "post_delay": 2200,
+        "post_delay": 2500,
         "next": [
+            "黎明界启动探测",
+            "黎明界地图循环",
+            "黎明界变更难度",
             "黎明界选择公会页"
         ]
     },
     "黎明界选择公会页": {
-        "timeout": 60000,
+        "timeout": 5000,
         "recognition": "OCR",
         "expected": [
-            "請選擇要同行的公會",
-            "请选择要同行的公会",
             "進行選擇",
             "进行选择",
-            "變更難易度",
-            "变更难易度"
+            "同行的公會",
+            "同行的公会",
+            "請選擇",
+            "请选择"
         ],
-        "post_delay": 600,
+        "post_delay": 400,
         "next": [
-            "黎明界变更难度",
-            "黎明界选择公会"
+            "黎明界选择公会",
+            "黎明界滑动找公会",
+            "黎明界点选公会按钮"
         ]
     },
     "黎明界变更难度": {
@@ -180,10 +199,13 @@
         ]
     },
     "黎明界点目标难度": {
-        "timeout": 20000,
+        "timeout": 8000,
         "recognition": "OCR",
         "expected": [
-            "5"
+            "難度 5",
+            "难度 5",
+            "難度5",
+            "难度5"
         ],
         "roi": [
             200,
@@ -195,13 +217,36 @@
         "post_delay": 800,
         "next": [
             "黎明界确认难度",
-            "黎明界选择公会"
+            "黎明界难度滑动"
+        ]
+    },
+    "黎明界难度滑动": {
+        "action": "Swipe",
+        "begin": [
+            640,
+            280,
+            0,
+            0
+        ],
+        "end": [
+            640,
+            520,
+            0,
+            0
+        ],
+        "duration": 300,
+        "post_delay": 700,
+        "next": [
+            "黎明界点目标难度",
+            "黎明界确认难度"
         ]
     },
     "黎明界确认难度": {
         "timeout": 10000,
         "recognition": "OCR",
         "expected": [
+            "變更",
+            "变更",
             "確定",
             "确定",
             "關閉",
@@ -221,7 +266,7 @@
         ]
     },
     "黎明界选择公会": {
-        "timeout": 60000,
+        "timeout": 6000,
         "recognition": "OCR",
         "expected": [
             "美食殿堂"
@@ -234,54 +279,91 @@
         ]
     },
     "黎明界滑动找公会": {
+        "duration": 350,
         "action": "Swipe",
         "begin": [
-            300,
-            400
+            980,
+            400,
+            0,
+            0
         ],
         "end": [
-            1000,
-            400
+            320,
+            400,
+            0,
+            0
         ],
-        "post_delay": 900,
+        "post_delay": 800,
         "next": [
             "黎明界选择公会",
-            "黎明界默认选公会"
+            "黎明界滑动找公会反",
+            "黎明界点选公会按钮"
+        ]
+    },
+    "黎明界滑动找公会反": {
+        "duration": 350,
+        "action": "Swipe",
+        "begin": [
+            320,
+            400,
+            0,
+            0
+        ],
+        "end": [
+            980,
+            400,
+            0,
+            0
+        ],
+        "post_delay": 800,
+        "next": [
+            "黎明界选择公会",
+            "黎明界点选公会按钮"
         ]
     },
     "黎明界默认选公会": {
-        "timeout": 20000,
+        "timeout": 5000,
         "recognition": "OCR",
         "expected": [
             "進行選擇",
             "进行选择"
-        ],
-        "roi": [
-            200,
-            540,
-            900,
-            120
         ],
         "action": "Click",
         "post_delay": 2000,
         "next": [
-            "黎明界地图循环",
+            "黎明界点选公会按钮",
+            "黎明界公会确认弹窗",
             "黎明界开始挑战确认"
         ]
     },
-    "黎明界确认公会": {
-        "timeout": 20000,
-        "recognition": "OCR",
-        "expected": [
-            "進行選擇",
-            "进行选择"
-        ],
+    "黎明界点选公会按钮": {
         "action": "Click",
+        "target": [
+            640,
+            600,
+            0,
+            0
+        ],
         "post_delay": 2000,
         "next": [
             "黎明界公会确认弹窗",
             "黎明界开始挑战确认",
-            "黎明界地图循环"
+            "黎明界启动探测"
+        ]
+    },
+    "黎明界确认公会": {
+        "action": "Click",
+        "target": [
+            640,
+            600,
+            0,
+            0
+        ],
+        "post_delay": 2000,
+        "next": [
+            "黎明界公会确认弹窗",
+            "黎明界开始挑战确认",
+            "黎明界启动探测"
         ]
     },
     "黎明界公会确认弹窗": {
@@ -381,13 +463,15 @@
         ]
     },
     "黎明界战斗中": {
+        "recognition": "DirectHit",
+        "action": "Custom",
+        "custom_action": "DawnRealmDecideAction",
+        "rate_limit": 800,
         "timeout": 300000,
-        "rate_limit": 1500,
         "next": [
-            "黎明界点AUTO",
+            "黎明界地图循环",
             "黎明界战斗点击继续",
-            "黎明界结算",
-            "黎明界地图循环"
+            "黎明界结算"
         ]
     },
     "黎明界点AUTO": {
@@ -411,33 +495,39 @@
         ]
     },
     "黎明界战斗点击继续": {
-        "timeout": 8000,
+        "timeout": 5000,
         "recognition": "OCR",
         "expected": [
             "下一步",
+            "WIN",
+            "獲得道具",
+            "获得道具",
             "關閉",
             "关闭",
             "確定",
             "确定",
-            "菜單",
-            "菜单"
+            "傷害報告",
+            "OK"
         ],
         "roi": [
             0,
-            500,
+            0,
             1280,
-            220
+            720
         ],
         "action": "Click",
         "post_delay": 1000,
         "next": [
             "黎明界地图循环",
             "黎明界结算",
-            "黎明界战斗中"
+            "黎明界战斗点击继续"
         ]
     },
     "黎明界结算": {
-        "timeout": 120000,
+        "recognition": "DirectHit",
+        "action": "DoNothing",
+        "rate_limit": 600,
+        "timeout": 180000,
         "next": [
             "黎明界结算点击",
             "黎明界带回奖励",
@@ -446,7 +536,7 @@
         ]
     },
     "黎明界结算点击": {
-        "timeout": 20000,
+        "timeout": 8000,
         "recognition": "OCR",
         "expected": [
             "下一步",
@@ -504,6 +594,10 @@
         "timeout": 15000,
         "recognition": "OCR",
         "expected": [
+            "撤隊",
+            "撤队",
+            "無獎勵",
+            "无奖励",
             "撤退",
             "返回",
             "放棄",
@@ -513,21 +607,28 @@
         "post_delay": 1000,
         "next": [
             "黎明界确认撤退",
-            "黎明界页首"
+            "黎明界页首",
+            "黎明界地图循环"
         ]
     },
     "黎明界确认撤退": {
         "timeout": 10000,
         "recognition": "OCR",
         "expected": [
+            "撤隊",
+            "撤队",
+            "無獎勵",
+            "无奖励",
             "確定",
-            "确定"
+            "确定",
+            "OK"
         ],
         "action": "Click",
         "post_delay": 1500,
         "next": [
             "黎明界页首",
-            "黎明界回主页"
+            "黎明界回主页",
+            "黎明界地图循环"
         ]
     },
     "黎明界回主页": {
@@ -535,7 +636,9 @@
         "action": "Click",
         "target": [
             130,
-            685
+            685,
+            0,
+            0
         ],
         "post_delay": 2000,
         "next": [

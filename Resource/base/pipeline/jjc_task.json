@@ -4,7 +4,7 @@
         "timeout": 60000,
         "next": [
             "开始竞技场",
-            "[JumpBack]进入冒险页面"
+            "进入冒险页面"
         ]
     },
     "开始竞技场": {
@@ -18,8 +18,8 @@
         "next": [
             "jjc冷却中返回主页面",
             "已完成竞技场",
-            "[JumpBack]jjc战斗开始",
-            "[JumpBack]进入战斗jjc页面"
+            "jjc战斗开始",
+            "进入战斗jjc页面"
         ]
     },
     "已完成竞技场": {
@@ -32,7 +32,9 @@
         "action": "Click",
         "target": [
             729,
-            684
+            684,
+            0,
+            0
         ],
         "post_delay": 2000
     },
@@ -46,8 +48,8 @@
         "post_delay": 1000,
         "action": "Click",
         "next": [
-            "[JumpBack]jjc防御完成or",
-            "[JumpBack]jjc防御完成",
+            "jjc防御完成or",
+            "jjc防御完成",
             "jjc战斗"
         ]
     },
@@ -62,7 +64,9 @@
         "action": "Click",
         "target": [
             661,
-            514
+            514,
+            0,
+            0
         ]
     },
     "jjc防御完成": {
@@ -180,7 +184,9 @@
         "action": "Click",
         "target": [
             686,
-            698
+            698,
+            0,
+            0
         ],
         "post_delay": 1000,
         "next": [
@@ -197,8 +203,8 @@
         "action": "Click",
         "post_delay": 3000,
         "next": [
-            "[JumpBack]jjc防御完成or",
-            "[JumpBack]jjc防御完成",
+            "jjc防御完成or",
+            "jjc防御完成",
             "开始公主jjc战斗"
         ]
     },
@@ -206,7 +212,9 @@
         "action": "Click",
         "target": [
             661,
-            514
+            514,
+            0,
+            0
         ],
         "post_delay": 1000,
         "next": [
@@ -218,7 +226,9 @@
         "action": "Click",
         "target": [
             1146,
-            594
+            594,
+            0,
+            0
         ],
         "next": [
             "公主jjc选择队伍3"
@@ -230,7 +240,9 @@
         "action": "Click",
         "target": [
             1103,
-            586
+            586,
+            0,
+            0
         ],
         "next": [
             "公主jjc开始战斗"

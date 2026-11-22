@@ -34,7 +34,9 @@
         "timeout": 60000,
         "target": [
             798,
-            640
+            640,
+            0,
+            0
         ],
         "action": "Click",
         "post_delay": 2000,
@@ -52,7 +54,9 @@
         "action": "Click",
         "target": [
             675,
-            493
+            493,
+            0,
+            0
         ],
         "post_delay": 2000,
         "next": [
@@ -62,7 +66,9 @@
     "礼物再次确认2": {
         "target": [
             668,
-            637
+            637,
+            0,
+            0
         ],
         "action": "Click",
         "post_delay": 2000,

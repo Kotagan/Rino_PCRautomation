@@ -36,10 +36,12 @@ public static class ConfigurationHelper
         LoggerService.LogInfo("Loading configuration file...");
         ConfigName = GlobalConfiguration.GetValue(ConfigurationKeys.DefaultConfig, ConfigName);
 
-        var configPath = Path.Combine(AppContext.BaseDirectory, "config");
+        var configPath = GetConfigDirectory();
         var defaultConfigPath = Path.Combine(configPath, "config.json");
         if (!Directory.Exists(configPath))
             Directory.CreateDirectory(configPath);
+        // 多开实例：首次从默认 config 复制，避免两套抢同一 AdbSerial
+        SeedInstanceConfigIfNeeded(configPath);
         if (!File.Exists(defaultConfigPath))
             File.WriteAllText(defaultConfigPath, "{}");
         foreach (var file in Directory.GetFiles(configPath))
@@ -76,10 +78,104 @@ public static class ConfigurationHelper
         GlobalConfiguration.SetValue(ConfigurationKeys.DefaultConfig, name);
     }
 
+    /// <summary>
+    /// 默认 config；带 --instance N 时用 config_instN，避免双开抢同一 AdbSerial。
+    /// </summary>
+    public static string GetConfigDirectory()
+    {
+        if (string.IsNullOrEmpty(AppLaunchOptions.InstanceId))
+            return Path.Combine(AppContext.BaseDirectory, "config");
+        return Path.Combine(AppContext.BaseDirectory, $"config_inst{AppLaunchOptions.InstanceId}");
+    }
+
+    private static void SeedInstanceConfigIfNeeded(string configPath)
+    {
+        if (string.IsNullOrEmpty(AppLaunchOptions.InstanceId))
+            return;
+        var shared = Path.Combine(AppContext.BaseDirectory, "config");
+        if (!Directory.Exists(shared))
+            return;
+        var seeded = false;
+        if (!Directory.Exists(configPath) || !Directory.EnumerateFileSystemEntries(configPath).Any())
+        {
+            Directory.CreateDirectory(configPath);
+            foreach (var file in Directory.GetFiles(shared, "*", SearchOption.AllDirectories))
+            {
+                var rel = Path.GetRelativePath(shared, file);
+                var dest = Path.Combine(configPath, rel);
+                Directory.CreateDirectory(Path.GetDirectoryName(dest)!);
+                File.Copy(file, dest, overwrite: false);
+            }
+            seeded = true;
+            LoggerService.LogInfo($"Seeded instance config -> {configPath}");
+        }
+
+        // 多开时强制写入本实例 MuMu Adb，避免从共享 config 复制后仍指向错误设备
+        if (TryGetKnownMuMuEndpoint(AppLaunchOptions.InstanceId, out var serial, out var index))
+        {
+            ApplyKnownMuMuAdbToConfigDir(configPath, serial, index);
+            if (seeded)
+                LoggerService.LogInfo($"Applied instance ADB {serial} (MuMu-{index}) -> {configPath}");
+        }
+    }
+
+    /// <summary>台服双开约定：实例 1 → 16416，实例 3 → 16480。</summary>
+    private static bool TryGetKnownMuMuEndpoint(string instanceId, out string serial, out int index)
+    {
+        serial = "";
+        index = 0;
+        if (instanceId == "1")
+        {
+            serial = "127.0.0.1:16416";
+            index = 1;
+            return true;
+        }
+        if (instanceId == "3")
+        {
+            serial = "127.0.0.1:16480";
+            index = 3;
+            return true;
+        }
+        return false;
+    }
+
+    private static void ApplyKnownMuMuAdbToConfigDir(string configPath, string serial, int index)
+    {
+        const string adbPath = @"C:/Program Files/Netease/MuMu/nx_main/adb.exe";
+        var mumuCfg = $"{{\"extras\":{{\"mumu\":{{\"enable\":true,\"index\":{index},\"path\":\"C:/Program Files/Netease/MuMu\"}}}}}}";
+        var name = $"MuMuPlayer12-{index}";
+        foreach (var file in Directory.GetFiles(configPath, "*.json"))
+        {
+            var fileName = Path.GetFileName(file);
+            if (fileName.Contains("maa", StringComparison.OrdinalIgnoreCase)
+                || fileName.Contains("task_presets", StringComparison.OrdinalIgnoreCase))
+                continue;
+            try
+            {
+                var text = File.ReadAllText(file);
+                var obj = JsonConvert.DeserializeObject<JObject>(text) ?? new JObject();
+                obj["AdbSerial"] = serial;
+                obj["AdbPath"] = adbPath;
+                obj["EmulatorConfig"] = index.ToString();
+                var device = obj["AdbDevice"] as JObject ?? new JObject();
+                device["AdbSerial"] = serial;
+                device["AdbPath"] = adbPath;
+                device["Name"] = name;
+                device["Config"] = mumuCfg;
+                device.Remove("InfoHandle");
+                obj["AdbDevice"] = device;
+                File.WriteAllText(file, obj.ToString(Formatting.Indented));
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError($"Failed to apply instance ADB to {fileName}: {ex.Message}");
+            }
+        }
+    }
+
     public static MFAConfiguration AddNewConfig(string name)
     {
-        var configPath = Path.Combine(AppContext.BaseDirectory, "config");
-        var newConfigPath = Path.Combine(configPath, $"{name}.json");
+        var configPath = GetConfigDirectory();
         var newConfig = new MFAConfiguration
         {
             Name = name.Equals("config", StringComparison.OrdinalIgnoreCase) ? "Default" : name,
@@ -92,7 +188,7 @@ public static class ConfigurationHelper
 
     public static void DeleteConfig(string name)
     {
-        var configPath = Path.Combine(AppContext.BaseDirectory, "config");
+        var configPath = GetConfigDirectory();
         var deleteConfig = Path.Combine(configPath, $"{name}.json");
         if (File.Exists(deleteConfig))
         {

@@ -85,9 +85,12 @@ public class MaaInterfaceSelectOptionConverter : JsonConverter
                 {
                     JObject obj = new JObject
                     {
-                        ["name"] = option.Name,
-                        ["index"] = option.Index
+                        ["name"] = option.Name
                     };
+                    if (option.Indexes is { Count: > 0 })
+                        obj["indexes"] = JArray.FromObject(option.Indexes);
+                    if (option.Index != null)
+                        obj["index"] = option.Index;
                     array.Add(obj);
                 }
             }

@@ -15,7 +15,9 @@
         "action": "Click",
         "target": [
             927,
-            39
+            39,
+            0,
+            0
         ],
         "next": [
             "选择EX装备2"
@@ -26,7 +28,9 @@
         "action": "Click",
         "target": [
             690,
-            410
+            410,
+            0,
+            0
         ],
         "next": [
             "选择EX装备3"
@@ -37,7 +41,9 @@
         "action": "Click",
         "target": [
             791,
-            630
+            630,
+            0,
+            0
         ],
         "post_delay": 1500,
         "next": [
@@ -50,7 +56,9 @@
         "action": "Click",
         "target": [
             1060,
-            43
+            43,
+            0,
+            0
         ],
         "post_delay": 1500,
         "next": [
@@ -71,7 +79,9 @@
         "post_delay": 1500,
         "target": [
             262,
-            219
+            219,
+            0,
+            0
         ],
         "next": [
             "选择装备"
@@ -82,7 +92,9 @@
         "action": "Click",
         "target": [
             1186,
-            104
+            104,
+            0,
+            0
         ],
         "post_delay": 1000,
         "next": [
@@ -119,7 +131,9 @@
         "action": "Click",
         "target": [
             787,
-            637
+            637,
+            0,
+            0
         ],
         "next": [
             "确定自动装备2"
@@ -173,7 +187,9 @@
         "action": "Click",
         "target": [
             931,
-            576
+            576,
+            0,
+            0
         ],
         "post_delay": 600,
         "next": [
@@ -191,7 +207,9 @@
         "action": "Click",
         "target": [
             503,
-            637
+            637,
+            0,
+            0
         ],
         "next": [
             "开始强化"
@@ -212,7 +230,9 @@
         "action": "Click",
         "target": [
             122,
-            241
+            241,
+            0,
+            0
         ],
         "post_delay": 600,
         "next": [
@@ -224,7 +244,9 @@
         "action": "Click",
         "target": [
             276,
-            244
+            244,
+            0,
+            0
         ],
         "post_delay": 600,
         "next": [
@@ -252,7 +274,9 @@
         "action": "Click",
         "target": [
             503,
-            630
+            630,
+            0,
+            0
         ],
         "post_delay": 1500,
         "next": [
@@ -268,7 +292,9 @@
         "pre_delay": 500,
         "target": [
             758,
-            583
+            583,
+            0,
+            0
         ],
         "post_delay": 600,
         "next": [
@@ -292,7 +318,9 @@
         "action": "Click",
         "target": [
             783,
-            633
+            633,
+            0,
+            0
         ],
         "next": [
             "检查装备2"
@@ -312,7 +340,9 @@
         "action": "Click",
         "target": [
             1229,
-            356
+            356,
+            0,
+            0
         ],
         "next": [
             "检查装备2"
@@ -355,7 +385,9 @@
         "action": "Click",
         "target": [
             931,
-            576
+            576,
+            0,
+            0
         ],
         "post_delay": 600,
         "next": [
@@ -373,7 +405,9 @@
         "action": "Click",
         "target": [
             503,
-            637
+            637,
+            0,
+            0
         ],
         "next": [
             "开始强化2"
@@ -394,7 +428,9 @@
         "action": "Click",
         "target": [
             122,
-            241
+            241,
+            0,
+            0
         ],
         "post_delay": 600,
         "next": [
@@ -406,7 +442,9 @@
         "action": "Click",
         "target": [
             276,
-            244
+            244,
+            0,
+            0
         ],
         "post_delay": 600,
         "next": [
@@ -434,7 +472,9 @@
         "action": "Click",
         "target": [
             503,
-            630
+            630,
+            0,
+            0
         ],
         "post_delay": 1500,
         "next": [
@@ -450,7 +490,9 @@
         "pre_delay": 500,
         "target": [
             758,
-            583
+            583,
+            0,
+            0
         ],
         "post_delay": 600,
         "next": [
@@ -474,7 +516,9 @@
         "action": "Click",
         "target": [
             783,
-            633
+            633,
+            0,
+            0
         ],
         "next": [
             "检查装备3"
@@ -494,7 +538,9 @@
         "action": "Click",
         "target": [
             1229,
-            356
+            356,
+            0,
+            0
         ],
         "next": [
             "检查装备3"
@@ -537,7 +583,9 @@
         "action": "Click",
         "target": [
             931,
-            576
+            576,
+            0,
+            0
         ],
         "post_delay": 600,
         "next": [
@@ -555,7 +603,9 @@
         "action": "Click",
         "target": [
             503,
-            637
+            637,
+            0,
+            0
         ],
         "next": [
             "开始强化3"
@@ -577,7 +627,9 @@
         "post_delay": 600,
         "target": [
             122,
-            241
+            241,
+            0,
+            0
         ],
         "next": [
             "无法选择装备3",
@@ -589,7 +641,9 @@
         "post_delay": 600,
         "target": [
             276,
-            244
+            244,
+            0,
+            0
         ],
         "next": [
             "无法选择装备3",
@@ -616,7 +670,9 @@
         "action": "Click",
         "target": [
             503,
-            630
+            630,
+            0,
+            0
         ],
         "post_delay": 1500,
         "next": [
@@ -632,7 +688,9 @@
         "action": "Click",
         "target": [
             758,
-            583
+            583,
+            0,
+            0
         ],
         "post_delay": 600,
         "next": [
@@ -656,7 +714,9 @@
         "action": "Click",
         "target": [
             783,
-            633
+            633,
+            0,
+            0
         ],
         "next": [
             "选择下一个角色进行装备"
@@ -676,7 +736,9 @@
         "action": "Click",
         "target": [
             1229,
-            356
+            356,
+            0,
+            0
         ],
         "next": [
             "选择下一个角色进行装备"
@@ -690,7 +752,9 @@
         "action": "Click",
         "target": [
             1247,
-            370
+            370,
+            0,
+            0
         ],
         "next": [
             "自动装备"

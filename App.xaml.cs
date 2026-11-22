@@ -134,15 +134,22 @@ public partial class App
     /// </summary>
     async private void OnStartup(object sender, StartupEventArgs e)
     {
-        if (!SingleInstanceCoordinator.TryAcquire())
+        AppLaunchOptions.Parse(e.Args);
+        // 先按 --instance / 配置解析设备身份，再抢该设备的单实例锁与任务栏分组
+        DeviceIdentity.Resolve();
+        // 静默启动：不抢已有窗口焦点（避免反复重启时窗口一直弹出）
+        // 同设备：唤起已有窗口；不同设备：可并行
+        if (!TryAcquireInstanceSlot())
         {
             Shutdown();
             return;
         }
 
+        // Resolve 可能在自动换号后变化，重新解析并设置任务栏 AUMID（同设备同图标）
+        DeviceIdentity.Resolve();
         try
         {
-            SetCurrentProcessExplicitAppUserModelID("Rino");
+            SetCurrentProcessExplicitAppUserModelID(DeviceIdentity.AppUserModelId);
         }
         catch
         {
@@ -163,6 +170,17 @@ public partial class App
             }
         }
         ConfigurationHelper.LoadConfig();
+        // 配置落地后再按 EmulatorConfig/AdbSerial 校正一次（窗口创建前）
+        DeviceIdentity.Resolve();
+        try
+        {
+            SetCurrentProcessExplicitAppUserModelID(DeviceIdentity.AppUserModelId);
+        }
+        catch
+        {
+            // ignored
+        }
+
         Helper.Animations.ApplePopupAnimationBehavior.Initialize();
         Helper.Animations.TabControlAnimationBehavior.Initialize();
         //Task线程内未捕获异常处理事件
@@ -258,5 +276,38 @@ public partial class App
         }
 
         e.SetObserved(); //设置该异常已察觉（这样处理后就不会引起程序崩溃）
+    }
+
+    /// <summary>
+    /// 按设备占 mutex。同设备已运行则唤起；显式 --instance 占不到则退出；
+    /// 未指定时自动换下一台空闲设备再开。
+    /// </summary>
+    private static bool TryAcquireInstanceSlot()
+    {
+        // 显式实例：同设备已开则唤起；占不到（异常）才失败
+        if (AppLaunchOptions.InstanceIdFromArgs)
+        {
+            DeviceIdentity.Resolve();
+            return SingleInstanceCoordinator.TryAcquire(activateExisting: !AppLaunchOptions.Silent);
+        }
+
+        // 当前设备（默认 config / 已解析）
+        DeviceIdentity.Resolve();
+        if (SingleInstanceCoordinator.TryAcquire(activateExisting: !AppLaunchOptions.Silent))
+            return true;
+
+        // 默认设备已被占用：按 MuMu1 → MuMu3 → 其它 找空闲设备新开
+        foreach (var id in DeviceIdentity.PreferredAutoInstanceIds())
+        {
+            AppLaunchOptions.AssignInstanceId(id);
+            DeviceIdentity.Resolve();
+            if (SingleInstanceCoordinator.TryAcquire(activateExisting: false))
+            {
+                LoggerService.LogInfo($"Auto multi-device -> --instance {id} device={DeviceIdentity.DeviceKey}");
+                return true;
+            }
+        }
+
+        return false;
     }
 }

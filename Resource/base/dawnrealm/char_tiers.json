@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "note": "本地强度梯队（社区参考，可手改）。选人顺序：属性光>火>其他，同属性 tier S>A>B>C，再 6星优先。美食开局额外抬高 bootPrefer。",
+  "tierScore": { "S": 100, "A": 80, "B": 60, "C": 40, "D": 20 },
+  "attrScore": { "光": 3000, "火": 2000, "暗": 500, "風": 400, "风": 400, "水": 300, "": 0 },
+  "bootPreferByGuild": {
+    "美食殿堂": [1002, 1003, 1001]
+  },
+  "units": [
+    { "unitId": 1002, "name": "优衣", "aliases": ["UE", "優衣", "种田"], "attr": "光", "tier": "S", "note": "美食开局UE" },
+    { "unitId": 1003, "name": "怜", "aliases": ["剑圣", "劍聖", "普怜"], "attr": "火", "tier": "S", "note": "美食开局剑圣" },
+    { "unitId": 1001, "name": "日和", "aliases": ["猫拳", "日和莉"], "attr": "火", "tier": "S", "note": "美食开局猫拳" },
+
+    { "unitId": 1802, "name": "优衣(公主)", "aliases": ["公主优衣", "飞翼"], "attr": "光", "tier": "S" },
+    { "unitId": 1059, "name": "可可萝", "aliases": ["妈", "kkr"], "attr": "光", "tier": "A" },
+    { "unitId": 1058, "name": "佩可莉姆", "aliases": ["佩可", "吃货"], "attr": "光", "tier": "A" },
+    { "unitId": 1804, "name": "佩可莉姆(公主)", "aliases": ["公主佩可", "命吃"], "attr": "光", "tier": "S" },
+    { "unitId": 1060, "name": "凯露", "aliases": ["凯留", "黑猫"], "attr": "暗", "tier": "A" },
+    { "unitId": 1036, "name": "镜华", "aliases": ["xcw", "小仓唯"], "attr": "風", "tier": "A" },
+
+    { "unitId": 1012, "name": "初音", "aliases": ["星法"], "attr": "風", "tier": "B" },
+    { "unitId": 1034, "name": "由加莉", "aliases": ["黄骑", "优花梨"], "attr": "光", "tier": "B" },
+    { "unitId": 1047, "name": "纯", "aliases": ["黑骑"], "attr": "光", "tier": "A" },
+    { "unitId": 1049, "name": "静流", "aliases": ["姐姐"], "attr": "光", "tier": "A" },
+    { "unitId": 1028, "name": "咲恋", "aliases": ["充电宝"], "attr": "光", "tier": "B" },
+    { "unitId": 1037, "name": "智", "aliases": ["tomo"], "attr": "火", "tier": "B" },
+    { "unitId": 1043, "name": "真琴", "aliases": ["狼"], "attr": "火", "tier": "B" },
+    { "unitId": 1032, "name": "秋乃", "aliases": ["哈哈剑"], "attr": "火", "tier": "B" },
+    { "unitId": 1017, "name": "香织", "aliases": ["狗拳"], "attr": "火", "tier": "B" },
+    { "unitId": 1011, "name": "璃乃", "aliases": ["妹弓"], "attr": "火", "tier": "B" },
+    { "unitId": 1016, "name": "铃奈", "aliases": ["暴击弓"], "attr": "火", "tier": "B" },
+    { "unitId": 1042, "name": "千歌", "aliases": ["绿毛奶"], "attr": "光", "tier": "C" },
+    { "unitId": 1029, "name": "望", "aliases": ["偶像"], "attr": "光", "tier": "B" },
+    { "unitId": 1053, "name": "莫妮卡", "aliases": ["毛二力"], "attr": "風", "tier": "B" },
+    { "unitId": 1010, "name": "真步", "aliases": ["狐狸", "真布"], "attr": "風", "tier": "B" },
+    { "unitId": 1044, "name": "伊莉亚", "aliases": ["yly", "吸血鬼"], "attr": "暗", "tier": "A" },
+    { "unitId": 1046, "name": "珠希", "aliases": ["猫剑"], "attr": "火", "tier": "C" },
+    { "unitId": 1007, "name": "宫子", "aliases": ["布丁"], "attr": "暗", "tier": "C" },
+    { "unitId": 1004, "name": "未奏希", "aliases": ["炸弹"], "attr": "火", "tier": "C" },
+    { "unitId": 1005, "name": "茉莉", "aliases": ["跳跳虎"], "attr": "火", "tier": "C" },
+    { "unitId": 1013, "name": "七七香", "aliases": ["77k"], "attr": "風", "tier": "C" },
+    { "unitId": 1020, "name": "美美", "aliases": ["兔剑"], "attr": "風", "tier": "C" },
+    { "unitId": 1056, "name": "流夏", "aliases": ["大姐"], "attr": "水", "tier": "B" },
+    { "unitId": 1057, "name": "姬塔", "aliases": ["团长"], "attr": "風", "tier": "B" }
+  ]
+}

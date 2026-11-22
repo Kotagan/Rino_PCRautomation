@@ -48,6 +48,12 @@
     <data name="StopTask" xml:space="preserve">
     <value>Stop Task</value>
   </data>
+  <data name="RunSingleTask" xml:space="preserve">
+    <value>Run this task only</value>
+  </data>
+  <data name="TaskAlreadyRunning" xml:space="preserve">
+    <value>A task is already running. Stop it first.</value>
+  </data>
     <data name="TooltipDragLabel" xml:space="preserve">
     <value>Drag label to reorder</value>
   </data>
@@ -1350,4 +1356,7 @@
   <data name="GitHubMirrorUrlTitle" xml:space="preserve"><value>GitHub Mirror URL</value></data>
   <data name="GitHubMirrorUrlWatermark" xml:space="preserve"><value>Default: https://gh-proxy.com/</value></data>
   <data name="UsingMirrorFallback" xml:space="preserve"><value>Direct GitHub failed. Switched to domestic mirror retry...</value></data>
+  <data name="MultiSelectEmptyTip" xml:space="preserve"><value>Select at least one option; otherwise the default flow will run.</value></data>
+  <data name="MultiSelectRequiredTip" xml:space="preserve"><value>"{0}" has no selection; preset override skipped. Multi-select options and start again.</value></data>
+  <data name="OptionPanelOverflowTip" xml:space="preserve"><value>Task options exceed the panel width. Layout was adapted; widen the window if needed.</value></data>
 </root>

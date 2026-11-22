@@ -37,6 +37,9 @@ public class MaaInterface
         public List<MaaInterfaceOptionCase>? Cases { get; set; }
         [JsonProperty("default_case")]
         public string? DefaultCase { get; set; }
+        /// <summary>为 true 时该选项可多选，执行时按所选依次展开。</summary>
+        [JsonProperty("multi")]
+        public bool Multi { get; set; }
     }
 
     public class MaaInterfaceSelectOption
@@ -45,6 +48,25 @@ public class MaaInterface
         public string? Name { get; set; }
         [JsonProperty("index")]
         public int? Index { get; set; }
+        /// <summary>多选时的下标列表；单选仍用 Index。</summary>
+        [JsonProperty("indexes")]
+        public List<int>? Indexes { get; set; }
+
+        public List<int> GetSelectedIndexes()
+        {
+            if (Indexes is { Count: > 0 })
+                return Indexes.Distinct().OrderBy(i => i).ToList();
+            if (Index is >= 0)
+                return [Index.Value];
+            return [];
+        }
+
+        public void SetSelectedIndexes(IEnumerable<int> indexes)
+        {
+            var list = indexes.Distinct().OrderBy(i => i).ToList();
+            Indexes = list.Count > 0 ? list : null;
+            Index = list.Count == 1 ? list[0] : list.Count > 1 ? list[0] : null;
+        }
 
         public override string? ToString()
         {

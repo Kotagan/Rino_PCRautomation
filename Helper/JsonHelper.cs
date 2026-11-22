@@ -1,11 +1,14 @@
 ﻿using System.IO;
 using HandyControl.Tools.Extension;
+using MFAWPF.Configuration;
 using Newtonsoft.Json;
 
 namespace MFAWPF.Helper;
 
 public static class JsonHelper
 {
+    private static string ConfigDir => ConfigurationHelper.GetConfigDirectory();
+
     /// <summary>
     /// 将对象序列化为指定的文件名
     /// </summary>
@@ -18,13 +21,14 @@ public static class JsonHelper
     public static T ReadFromConfigJsonFile<T>(string file, T defaultS = default, bool show = false, params JsonConverter[] converters)
     {
         // 从文件中读取 JSON 字符串
-        string directory = $"{AppContext.BaseDirectory}/config/{file}.json";
+        var dir = ConfigDir;
+        string path = Path.Combine(dir, $"{file}.json");
         // 将 JSON 字符串转换为对象
         try
         {
-            if (!Directory.Exists($"{AppContext.BaseDirectory}/config"))
-                Directory.CreateDirectory($"{AppContext.BaseDirectory}/config");
-            string jsonString = File.ReadAllText(directory);
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            string jsonString = File.ReadAllText(path);
             var settings = new JsonSerializerSettings();
             if (converters is { Length: > 0 })
             {
@@ -56,14 +60,12 @@ public static class JsonHelper
         {
             settings.Converters.AddRange(converters);
         }
-        // var dir = Directory.GetCurrentDirectory();
         string jsonString = JsonConvert.SerializeObject(content, settings);
-        string directory = $"{AppContext.BaseDirectory}/config/{file}.json";
-        if (!Directory.Exists($"{AppContext.BaseDirectory}/config"))
-            Directory.CreateDirectory($"{AppContext.BaseDirectory}/config");
-        directory = Path.GetFullPath(directory);
-        // 将 JSON 字符串写入文件
-        File.WriteAllText(directory, jsonString);
+        var dir = ConfigDir;
+        if (!Directory.Exists(dir))
+            Directory.CreateDirectory(dir);
+        string path = Path.GetFullPath(Path.Combine(dir, $"{file}.json"));
+        File.WriteAllText(path, jsonString);
     }
 
     public static T ReadFromJsonFile<T>(string file, T defaultS = default)

@@ -10,7 +10,9 @@
         "timeout": 60000,
         "target": [
             424,
-            687
+            687,
+            0,
+            0
         ],
         "action": "Click",
         "next": [
@@ -40,7 +42,9 @@
     "公主骑士全部强化2": {
         "target": [
             801,
-            640
+            640,
+            0,
+            0
         ],
         "action": "Click",
         "post_delay": 4000,

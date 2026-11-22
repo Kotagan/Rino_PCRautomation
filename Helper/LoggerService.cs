@@ -4,10 +4,19 @@ namespace MFAWPF.Helper;
 
 public static class LoggerService
 {
-    private static readonly ILogger Logger = new LoggerConfiguration()
-        .WriteTo.File(
-            $"logs/log-{DateTime.Now.ToString("yyyy-MM-dd")}.txt",
-            outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}][{Level:u3}] {Message:lj}{NewLine}{Exception}").CreateLogger();
+    private static readonly ILogger Logger = CreateLogger();
+
+    private static ILogger CreateLogger()
+    {
+        var suffix = string.IsNullOrEmpty(AppLaunchOptions.InstanceId)
+            ? ""
+            : $"-inst{AppLaunchOptions.InstanceId}";
+        return new LoggerConfiguration()
+            .WriteTo.File(
+                $"logs/log-{DateTime.Now:yyyy-MM-dd}{suffix}.txt",
+                outputTemplate: "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff}][{Level:u3}] {Message:lj}{NewLine}{Exception}")
+            .CreateLogger();
+    }
 
     public static void LogInfo(string message)
     {

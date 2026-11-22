@@ -20,7 +20,7 @@ public class DawnRealmApplyConfigAction : MaaCustomAction
         LoggerService.LogInfo(
             $"[DawnRealm] config strategy={DawnRealmConfig.Strategy} guild={DawnRealmConfig.Guild} " +
             $"diff={DawnRealmConfig.Difficulty} maxRuns={DawnRealmConfig.MaxRuns}");
-        context.OverrideNext(args.NodeName, ["黎明界进入冒险"]);
+        context.OverrideNext(args.NodeName, ["黎明界启动探测"]);
         return true;
     }
 }

@@ -279,41 +279,44 @@ public partial class TaskQueueView
         IList<DragItemViewModel> drags,
         List<TaskInterfaceItem> tasks)
     {
-        var newDict = tasks
-            .GroupBy(t => (t.Name, t.Entry)) // 按键分组
-            .ToDictionary(
-                group => group.Key, // 键为 (Name, Entry)
-                group => group.Last() // 值取分组中的最后一个元素
-            ); // 使用 (Name, Entry) 作为键
-        var removeList = new List<DragItemViewModel>();
-        var updateList = new List<DragItemViewModel>();
-        
-        if (drags.Count == 0)
-            return (updateList, removeList);
-     
+        // 可选任务集以 interface.json 为准（各实例一致）；
+        // 勾选状态 / 选项取值从本机配置合并回来（各实例可不同）。
+        var savedByKey = new Dictionary<(string? Name, string? Entry), DragItemViewModel>();
+        var savedByEntry = new Dictionary<string?, DragItemViewModel>();
         foreach (var oldItem in drags)
         {
-            if (newDict.TryGetValue((oldItem.Name, oldItem.InterfaceItem?.Entry), out var newItem))
+            var key = (oldItem.Name, oldItem.InterfaceItem?.Entry);
+            savedByKey[key] = oldItem;
+            if (!string.IsNullOrEmpty(oldItem.InterfaceItem?.Entry))
+                savedByEntry[oldItem.InterfaceItem.Entry] = oldItem;
+        }
+
+        var updateList = new List<DragItemViewModel>();
+        var used = new HashSet<DragItemViewModel>();
+        foreach (var task in tasks)
+        {
+            DragItemViewModel? saved = null;
+            if (savedByKey.TryGetValue((task.Name, task.Entry), out var byKey))
+                saved = byKey;
+            else if (!string.IsNullOrEmpty(task.Entry) && savedByEntry.TryGetValue(task.Entry, out var byEntry))
+                saved = byEntry;
+
+            if (saved != null)
             {
-                UpdateExistingItem(oldItem, newItem);
-                updateList.Add(oldItem);
+                UpdateExistingItem(saved, task, updateName: saved.Name != task.Name);
+                updateList.Add(saved);
+                used.Add(saved);
             }
             else
             {
-                var sameNameTasks = tasks.Where(t => t.Entry == oldItem.InterfaceItem?.Entry).ToList();
-                if (sameNameTasks.Any())
-                {
-                    var firstTask = sameNameTasks.First();
-                    UpdateExistingItem(oldItem, firstTask, tasks.Any(t => t.Name == firstTask.Name));
-                    updateList.Add(oldItem);
-                }
-                else
-                {
-                    removeList.Add(oldItem);
-                }
+                var clone = JsonConvert.DeserializeObject<TaskInterfaceItem>(JsonConvert.SerializeObject(task)) ?? task;
+                clone.Check ??= false;
+                clone.Option?.ForEach(SetDefaultOptionValue);
+                updateList.Add(new DragItemViewModel(clone));
             }
         }
-        
+
+        var removeList = drags.Where(d => !used.Contains(d)).ToList();
         return (updateList, removeList);
     }
 
@@ -359,6 +362,7 @@ public partial class TaskQueueView
                 if (tempDict.TryGetValue(opt.Name ?? string.Empty, out var existing))
                 {
                     opt.Index = existing.Index;
+                    opt.Indexes = existing.Indexes != null ? [..existing.Indexes] : null;
                 }
                 else
                 {
@@ -397,11 +401,29 @@ public partial class TaskQueueView
 
         ViewModel.TasksSource.AddRange(newItems);
 
-
+        // 列表成员以 interface 同步结果为准；本机只保留勾选/选项差异。
+        var display = drags.Any() ? drags : newItems;
         if (!ViewModel.TaskItemViewModels.Any())
         {
-            ViewModel.TaskItemViewModels = new ObservableCollection<DragItemViewModel>(drags.Any() ? drags : newItems);
+            ViewModel.TaskItemViewModels = new ObservableCollection<DragItemViewModel>(display);
+            ViewModel.ReorderCheckedTasksToTop();
+            return;
         }
+
+        var currentEntries = ViewModel.TaskItemViewModels
+            .Select(d => d.InterfaceItem?.Entry)
+            .Where(e => !string.IsNullOrEmpty(e))
+            .ToHashSet();
+        var displayEntries = display
+            .Select(d => d.InterfaceItem?.Entry)
+            .Where(e => !string.IsNullOrEmpty(e))
+            .ToHashSet();
+        if (!currentEntries.SetEquals(displayEntries) || ViewModel.TaskItemViewModels.Count != display.Count)
+        {
+            ViewModel.TaskItemViewModels = new ObservableCollection<DragItemViewModel>(display);
+        }
+
+        ViewModel.ReorderCheckedTasksToTop();
     }
 
     public void Toggle()
@@ -431,13 +453,31 @@ public partial class TaskQueueView
             }
             else
             {
-                tasks = ViewModel.TaskItemViewModels
-                    .Where(task => task.IsChecked || task.IsCheckedWithNull == null)
-                    .ToList();
+                // 已勾选任务按 interface.json 原顺序加入执行队列
+                tasks = ViewModel.GetCheckedTasksInOriginalOrder();
             }
 
             ConnectToMAA();
             MaaProcessor.Instance.Start(tasks, onlyStart, checkUpdate);
+        }
+    }
+
+    public void StartSingle(DragItemViewModel task, bool onlyStart = false, bool checkUpdate = false)
+    {
+        if (task == null)
+            return;
+
+        if (Instances.RootViewModel.IsRunning || !Instances.RootViewModel.Idle)
+        {
+            GrowlHelper.Warning(LocExtension.GetLocalizedValue<string>("TaskAlreadyRunning"));
+            return;
+        }
+
+        if (InitializeData())
+        {
+            MaaProcessor.Money = 0;
+            ConnectToMAA();
+            MaaProcessor.Instance.Start(new List<DragItemViewModel> { task }, onlyStart, checkUpdate);
         }
     }
 
@@ -449,6 +489,31 @@ public partial class TaskQueueView
     private void Start(object sender, RoutedEventArgs e) => Start();
 
     private void Stop(object sender, RoutedEventArgs e) => Stop();
+
+    private void RunSingle(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement { DataContext: DragItemViewModel task })
+            StartSingle(task);
+    }
+
+    private void RunSingleFromMenu(object sender, RoutedEventArgs e)
+    {
+        var menuItem = sender as MenuItem;
+        var contextMenu = menuItem?.Parent as ContextMenu;
+        DragItemViewModel? task = null;
+
+        if (contextMenu?.PlacementTarget is FrameworkElement target)
+        {
+            task = target.DataContext as DragItemViewModel
+                   ?? (target as ListBoxItem)?.Content as DragItemViewModel;
+        }
+
+        if (task == null && menuItem?.DataContext is DragItemViewModel fromMenu)
+            task = fromMenu;
+
+        if (task != null)
+            StartSingle(task);
+    }
 
 
     private void Edit(object sender, RoutedEventArgs e)
@@ -487,15 +552,21 @@ public partial class TaskQueueView
     private void SelectAll(object sender, RoutedEventArgs e)
     {
         ViewModel.ExitPresetMode();
-        foreach (var task in ViewModel.TaskItemViewModels)
-            task.IsChecked = true;
+        ViewModel.RunWithSuppressedReorder(() =>
+        {
+            foreach (var task in ViewModel.TaskItemViewModels)
+                task.IsChecked = true;
+        });
     }
 
     private void SelectNone(object sender, RoutedEventArgs e)
     {
         ViewModel.ExitPresetMode();
-        foreach (var task in ViewModel.TaskItemViewModels)
-            task.IsChecked = false;
+        ViewModel.RunWithSuppressedReorder(() =>
+        {
+            foreach (var task in ViewModel.TaskItemViewModels)
+                task.IsChecked = false;
+        });
     }
 
     private void Add(object sender, RoutedEventArgs e)

@@ -104,8 +104,8 @@ public static class DawnRealmConfig
     {
         if (Strategy == StrategyScore)
         {
-            return ["EX", "遗物", "寶箱", "宝箱", "招募", "公主", "商店", "事件", "小怪", "戰鬥", "战斗"];
+            return ["EX", "NORMAL", "EVENT", "遗物", "寶箱", "宝箱", "招募", "公主", "商店", "事件", "小怪", "戰鬥", "战斗"];
         }
-        return ["EX", "遗物", "招募", "公主", "商店", "事件", "小怪", "戰鬥", "战斗"];
+        return ["EX", "NORMAL", "EVENT", "遗物", "招募", "公主", "商店", "事件", "小怪", "戰鬥", "战斗"];
     }
 }
