@@ -200,13 +200,25 @@ public class MaaProcessor
 
                 var elapsed = stopwatch.Elapsed.TotalSeconds;
 
-                // 尝试启动模拟器（如果启用且尚未触发）
-                if (!retrySoftwareTriggered && Instances.ConnectSettingsUserControlModel.RetryOnDisconnected)
+                // 启动任务连不上时自动拉起模拟器（MuMu 优先；兼容旧 SoftPath 配置）
+                if (!retrySoftwareTriggered)
                 {
                     retrySoftwareTriggered = true;
                     LoggerService.LogInfo("TryToStartEmulator".ToLocalization());
+                    RootView.AddLogByKey("TryToStartEmulator");
                     await StartSoftware();
+                    // 拉起后延长连接窗口，避免 WaitSoftware 耗尽 ConnectWaitTime
+                    var extraWait = ConfigurationHelper.GetValue(ConfigurationKeys.WaitSoftwareTime, 60.0);
+                    timeout = TimeSpan.FromSeconds(Math.Max(waitTime, stopwatch.Elapsed.TotalSeconds + Math.Max(extraWait, 30.0)));
                     Instances.ConnectingViewModel.TryReadAdbDeviceFromConfig(true, true);
+                    try
+                    {
+                        Instances.ConnectingViewModel.AutoDetectDevice(silent: true);
+                    }
+                    catch (Exception ex)
+                    {
+                        LoggerService.LogWarning($"AutoDetectDevice after emulator launch failed: {ex.Message}");
+                    }
                 }
                 // 持续失败 3 秒后，尝试重连 ADB (重置连接状态)
                 else if (!reconnectAdbTriggered && elapsed >= 3.0)
@@ -349,7 +361,10 @@ public class MaaProcessor
 
     async private Task TryRunTasksAsync(MaaTasker? maa, string? task, string? param, CancellationToken token)
     {
-        if (maa == null || task == null) return;
+        if (maa == null)
+            throw new InvalidOperationException("InitInstanceFailed".ToLocalization());
+        if (task == null)
+            throw new InvalidOperationException("Task entry is null");
 
         var job = maa.AppendTask(task, param ?? "{}");
         await TaskManager.RunTaskAsync(
@@ -501,9 +516,118 @@ public class MaaProcessor
 
     public async Task StartSoftware()
     {
+        _emulatorCancellationTokenSource?.SafeCancel();
         _emulatorCancellationTokenSource = new CancellationTokenSource();
+        var token = _emulatorCancellationTokenSource.Token;
+        var waitTime = ConfigurationHelper.GetValue(ConfigurationKeys.WaitSoftwareTime, 60.0);
+
+        if (DeviceIdentity.TryResolveMuMuIndex(out var mumuIndex))
+        {
+            await LaunchMuMuInstanceAsync(mumuIndex, waitTime, token);
+            return;
+        }
+
         await StartRunnableFile(ConfigurationHelper.GetValue(ConfigurationKeys.SoftwarePath, string.Empty),
-            ConfigurationHelper.GetValue(ConfigurationKeys.WaitSoftwareTime, 60.0), _emulatorCancellationTokenSource.Token);
+            waitTime, token);
+    }
+
+    /// <summary>通过 MuMuManager 拉起指定多开实例，并等待 ADB 可连。</summary>
+    async private Task LaunchMuMuInstanceAsync(int index, double waitTimeInSeconds, CancellationToken token)
+    {
+        const string managerPath = @"C:\Program Files\Netease\MuMu\nx_main\MuMuManager.exe";
+        const string adbPath = @"C:\Program Files\Netease\MuMu\nx_main\adb.exe";
+        if (!File.Exists(managerPath))
+        {
+            LoggerService.LogWarning($"MuMuManager not found: {managerPath}, fallback SoftwarePath");
+            await StartRunnableFile(ConfigurationHelper.GetValue(ConfigurationKeys.SoftwarePath, string.Empty),
+                waitTimeInSeconds, token);
+            return;
+        }
+
+        try
+        {
+            LoggerService.LogInfo($"Launch MuMu instance {index} via MuMuManager");
+            _softwareProcess = Process.Start(new ProcessStartInfo
+            {
+                FileName = managerPath,
+                Arguments = $"control -v {index} launch",
+                UseShellExecute = true,
+                WorkingDirectory = Path.GetDirectoryName(managerPath)!,
+                CreateNoWindow = false
+            });
+        }
+        catch (Exception ex)
+        {
+            LoggerService.LogError($"Launch MuMu-{index} failed: {ex.Message}");
+        }
+
+        var serial = DeviceIdentity.GetMuMuAdbSerial(index);
+        for (double remainingTime = waitTimeInSeconds + 1; remainingTime > 0; remainingTime -= 1)
+        {
+            token.ThrowIfCancellationRequested();
+
+            if (remainingTime % 10 == 0)
+            {
+                RootView.AddLogByKey("WaitSoftwareTime", null, true, "Emulator", remainingTime.ToString());
+            }
+
+            if (!string.IsNullOrEmpty(serial) && File.Exists(adbPath))
+            {
+                try
+                {
+                    var connect = Process.Start(new ProcessStartInfo
+                    {
+                        FileName = adbPath,
+                        Arguments = $"connect {serial}",
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true
+                    });
+                    connect?.WaitForExit(3000);
+                }
+                catch
+                {
+                    // ignore adb connect noise while booting
+                }
+            }
+
+            // MuMu 已就绪则提前结束等待
+            try
+            {
+                var info = Process.Start(new ProcessStartInfo
+                {
+                    FileName = managerPath,
+                    Arguments = $"info -v {index}",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true
+                });
+                if (info != null)
+                {
+                    var output = await info.StandardOutput.ReadToEndAsync(token);
+                    await info.WaitForExitAsync(token);
+                    if (output.Contains("\"player_state\": \"start_finished\"", StringComparison.OrdinalIgnoreCase)
+                        || output.Contains("\"player_state\":\"start_finished\"", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (output.Contains("\"is_android_started\": true", StringComparison.OrdinalIgnoreCase)
+                            || output.Contains("\"is_android_started\":true", StringComparison.OrdinalIgnoreCase))
+                        {
+                            LoggerService.LogInfo($"MuMu-{index} android started");
+                            await Task.Delay(2000, token);
+                            return;
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // keep waiting
+            }
+
+            await Task.Delay(1000, token);
+        }
     }
 
     async private Task StartRunnableFile(string exePath, double waitTimeInSeconds, CancellationToken token)
@@ -898,6 +1022,7 @@ public class MaaProcessor
 
     async private Task<bool> ExecuteTasks(CancellationToken token)
     {
+        var coreTaskFailed = false;
         while (TaskQueue.Count > 0 && !token.IsCancellationRequested)
         {
             var task = TaskQueue.Dequeue();
@@ -911,14 +1036,31 @@ public class MaaProcessor
 
             if (!await task.Run(token))
             {
-                if (task.ReportsCharacterState && !token.IsCancellationRequested)
+                if (token.IsCancellationRequested)
+                    return false;
+
+                if (task.ReportsCharacterState)
                 {
                     Instances.CharacterTaskStateService.Notify(
                         CharacterTaskState.TaskFailed,
                         task.Key ?? task.Name ?? string.Empty,
                         task.Name ?? string.Empty);
+                    // 流水线任务失败不中断队列，继续执行后续任务
+                    coreTaskFailed = true;
+                    RootView.AddLogByKey(
+                        "TaskFailedContinue",
+                        BrushConverterHelper.ConvertToBrush("DarkOrange"),
+                        true,
+                        task.Name ?? string.Empty);
+                    continue;
                 }
 
+                // 连接/脚本等基础步骤失败则停止
+                RootView.AddLogByKey(
+                    "TaskStepFailedStop",
+                    BrushConverterHelper.ConvertToBrush("OrangeRed"),
+                    true,
+                    task.Name ?? string.Empty);
                 return false;
             }
 
@@ -930,7 +1072,13 @@ public class MaaProcessor
                     task.Name ?? string.Empty);
             }
         }
-        return !token.IsCancellationRequested; // 根据取消状态返回正确结果
+
+        if (coreTaskFailed && !token.IsCancellationRequested)
+        {
+            RootView.AddLogByKey("QueueCompletedWithFailures", BrushConverterHelper.ConvertToBrush("DarkOrange"));
+        }
+
+        return !token.IsCancellationRequested;
     }
 
     private void DisplayTaskCompletionMessage(bool finished, bool onlyStart = false)
@@ -1148,8 +1296,9 @@ public class MaaProcessor
 
         AutoInitDictionary.Clear();
         LoggerService.LogInfo("LoadingResources".ToLocalization());
+        RootView.AddLogByKey("LoadingResources");
 
-        MaaResource maaResource = null;
+        MaaResource? maaResource = null;
         try
         {
             var resources = Instances.GameSettingsUserControlModel.CurrentResources
@@ -1157,6 +1306,13 @@ public class MaaProcessor
                 ?? [];
             LoggerService.LogInfo($"Resource: {string.Join(",", resources)}");
 
+            if (resources.Count == 0 || resources.All(string.IsNullOrWhiteSpace))
+            {
+                HandleInitializationError(
+                    new InvalidOperationException("Resource path list is empty"),
+                    "LoadResourcesFailed".ToLocalization());
+                return null;
+            }
 
             maaResource = await TaskManager.RunTaskAsync(() =>
             {
@@ -1164,23 +1320,31 @@ public class MaaProcessor
                 return new MaaResource(resources);
             }, token, catchException: true, shouldLog: false, handleError: exception => HandleInitializationError(exception, "LoadResourcesFailed".ToLocalization()));
 
+            // TaskManager 吞异常后返回 default；禁止继续对 null 调 API（否则会被外层空 catch 静默吃掉）
+            if (maaResource == null)
+                return null;
+
             maaResource.SetOption_InferenceDevice(Instances.PerformanceUserControlModel.GpuOption);
             LoggerService.LogInfo($"GPU acceleration: {Instances.PerformanceUserControlModel.GpuOption}");
+            RootView.AddLogByKey("InitResourcesSuccess", BrushConverterHelper.ConvertToBrush("ForestGreen"));
         }
         catch (OperationCanceledException)
         {
             LoggerService.LogWarning("Resource loading was canceled");
+            RootView.AddLog("Resource loading was canceled", BrushConverterHelper.ConvertToBrush("DarkOrange"));
             return null;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            HandleInitializationError(ex, "LoadResourcesFailed".ToLocalization());
             return null;
         }
 
         // 初始化控制器部分同理
-        MaaController controller = null;
+        MaaController? controller = null;
         try
         {
+            RootView.AddLogByKey("LoadingController");
             controller = await TaskManager.RunTaskAsync(() =>
             {
                 token.ThrowIfCancellationRequested();
@@ -1191,26 +1355,27 @@ public class MaaProcessor
                         ? "Emulator".ToLocalization()
                         : "Window".ToLocalization()), true,
                 "InitControllerFailed".ToLocalization(),
-                showGrowl: false));
+                showGrowl: true));
+
+            if (controller == null)
+                return null;
+
+            RootView.AddLogByKey("InitControllerSuccess", BrushConverterHelper.ConvertToBrush("ForestGreen"));
         }
         catch (OperationCanceledException)
         {
             LoggerService.LogWarning("Controller initialization was canceled");
+            RootView.AddLog("Controller initialization was canceled", BrushConverterHelper.ConvertToBrush("DarkOrange"));
             return null;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            HandleInitializationError(ex, "InitControllerFailed".ToLocalization());
             return null;
         }
         try
         {
             token.ThrowIfCancellationRequested();
-
-            if (controller == null)
-            {
-                LoggerService.LogWarning("Controller is null, cannot proceed with MaaTasker initialization.");
-                return null;
-            }
 
             var tasker = new MaaTasker
             {
@@ -1332,10 +1497,12 @@ public class MaaProcessor
         catch (OperationCanceledException)
         {
             LoggerService.LogWarning("Tasker initialization was canceled");
+            RootView.AddLog("Tasker initialization was canceled", BrushConverterHelper.ConvertToBrush("DarkOrange"));
             return null;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            HandleInitializationError(ex, "InitInstanceFailed".ToLocalization());
             return null;
         }
     }
@@ -1588,14 +1755,59 @@ public class MaaProcessor
         }
         instance.Callback += (_, args) =>
         {
-            var jObject = JObject.Parse(args.Details);
-
-            var name = jObject["name"]?.ToString() ?? string.Empty;
-
-            if (args.Message.StartsWith(MaaMsg.Node.Action.Prefix) && jObject.ContainsKey("focus"))
+            try
             {
-                var maaNode = jObject.ToObject<TaskModel>();
-                DisplayFocus(maaNode, args.Message);
+                var jObject = JObject.Parse(string.IsNullOrWhiteSpace(args.Details) ? "{}" : args.Details);
+                var name = jObject["name"]?.ToString()
+                           ?? jObject["task"]?.ToString()
+                           ?? string.Empty;
+                var entry = jObject["entry"]?.ToString() ?? name;
+
+                if (args.Message.StartsWith(MaaMsg.Node.Action.Prefix))
+                {
+                    if (jObject.ContainsKey("focus"))
+                    {
+                        var maaNode = jObject.ToObject<TaskModel>();
+                        if (maaNode != null)
+                            DisplayFocus(maaNode, args.Message);
+                    }
+
+                    if (string.IsNullOrWhiteSpace(name))
+                        return;
+
+                    if (args.Message == MaaMsg.Node.Action.Starting)
+                    {
+                        RootView.AddLogByKey("NodeActionStarting", null, false, name);
+                    }
+                    else if (args.Message == MaaMsg.Node.Action.Succeeded)
+                    {
+                        // 成功节点较多，仅写文件日志，避免刷屏
+                        LoggerService.LogInfo($"节点成功: {name}");
+                    }
+                    else if (args.Message == MaaMsg.Node.Action.Failed)
+                    {
+                        RootView.AddLogByKey("NodeActionFailed", BrushConverterHelper.ConvertToBrush("OrangeRed"), false, name);
+                    }
+                }
+                else if (args.Message.Contains("Tasker.Task.Starting", StringComparison.Ordinal))
+                {
+                    RootView.AddLogByKey("PipelineTaskStarting", null, false, entry);
+                    LoggerService.LogInfo($"Pipeline starting: {entry}");
+                }
+                else if (args.Message.Contains("Tasker.Task.Succeeded", StringComparison.Ordinal))
+                {
+                    RootView.AddLogByKey("PipelineTaskSucceeded", BrushConverterHelper.ConvertToBrush("ForestGreen"), false, entry);
+                    LoggerService.LogInfo($"Pipeline succeeded: {entry}");
+                }
+                else if (args.Message.Contains("Tasker.Task.Failed", StringComparison.Ordinal))
+                {
+                    RootView.AddLogByKey("PipelineTaskFailed", BrushConverterHelper.ConvertToBrush("OrangeRed"), false, entry);
+                    LoggerService.LogWarning($"Pipeline failed: {entry} | {args.Details}");
+                }
+            }
+            catch (Exception ex)
+            {
+                LoggerService.LogError($"Maa callback log error: {ex.Message}");
             }
         };
     }
@@ -1754,6 +1966,9 @@ public class MaaProcessor
     //
     // }
 
+    /// <summary>
+    /// 初始化失败统一出口：文件日志 + UI 日志 +（可选）Growl，禁止静默吞掉。
+    /// </summary>
     private void HandleInitializationError(Exception e,
         string message,
         bool hasWarning = false,
@@ -1761,13 +1976,18 @@ public class MaaProcessor
         bool showGrowl = true)
     {
         Console.WriteLine(e);
-        if (showGrowl)
-        {
-            GrowlHelper.Error(message);
-        }
-        if (hasWarning)
-            LoggerService.LogWarning(waringMessage);
         LoggerService.LogError(e.ToString());
+        if (hasWarning && !string.IsNullOrWhiteSpace(waringMessage))
+            LoggerService.LogWarning(waringMessage);
+
+        var detail = string.IsNullOrWhiteSpace(e.Message) ? e.GetType().Name : e.Message;
+        var uiLine = string.IsNullOrWhiteSpace(message) ? detail : $"{message} ({detail})";
+        RootView.AddLog(uiLine, BrushConverterHelper.ConvertToBrush("OrangeRed"));
+        if (hasWarning && !string.IsNullOrWhiteSpace(waringMessage))
+            RootView.AddLog(waringMessage, BrushConverterHelper.ConvertToBrush("DarkOrange"));
+
+        if (showGrowl)
+            GrowlHelper.Error(message);
     }
 
     public BitmapImage? GetBitmapImage()
@@ -1931,10 +2151,28 @@ public class MaaProcessor
 
     public async Task TestConnecting()
     {
-        await GetCurrentTaskerAsync();
-        var task = _currentTasker?.Controller?.LinkStart();
-        task?.Wait();
-        Instances.ConnectingViewModel.SetConnected(task?.Status == MaaJobStatus.Succeeded);
-        Console.WriteLine("测试连接");
+        var tasker = await GetCurrentTaskerAsync();
+        if (tasker?.Controller == null)
+        {
+            Instances.ConnectingViewModel.SetConnected(false);
+            // 初始化阶段若已写过失败日志，这里仍要抛出，避免 MFATask 把“连接检测”记成成功
+            throw new InvalidOperationException("InitInstanceFailed".ToLocalization());
+        }
+
+        var job = tasker.Controller.LinkStart();
+        job.Wait();
+        var ok = job.Status == MaaJobStatus.Succeeded;
+        Instances.ConnectingViewModel.SetConnected(ok);
+        Console.WriteLine($"测试连接: {job.Status}");
+
+        if (!ok)
+        {
+            RootView.AddLogByKey("ConnectFailed", BrushConverterHelper.ConvertToBrush("OrangeRed"));
+            throw new InvalidOperationException("ConnectFailed".ToLocalization());
+        }
+
+        var isAdb = Instances.ConnectingViewModel.CurrentController == MaaControllerTypes.Adb;
+        RootView.AddLogByKey("ConnectingSuccess", BrushConverterHelper.ConvertToBrush("ForestGreen"), true,
+            isAdb ? "Emulator" : "Window");
     }
 }

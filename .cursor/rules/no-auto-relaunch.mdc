@@ -1,0 +1,10 @@
+---
+description: 修改后不要自动重启/拉起客户端
+alwaysApply: true
+---
+
+# 不要自动 relaunch
+
+- 改完代码、资源或配置后，**不要**自动 `Stop-Process` / `Start-Process` / relaunch `Rino_PCRautomation.exe`。
+- 除非用户明确说「重启」「重新启动」「relaunch」等，否则只构建/部署，由用户自己启动。
+- 可为编译而短暂结束占用文件的进程前，先征得同意；若用户未要求重启，结束后也不要再拉起。

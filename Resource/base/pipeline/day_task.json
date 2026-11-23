@@ -1,54 +1,121 @@
 {
     "行程表": {
-        "post_delay": 3000,
-        "timeout": 60000,
+        "post_delay": 1500,
+        "timeout": 120000,
         "next": [
             "全部一键执行",
+            "全部一键执行OCR",
+            "行程表无需执行",
+            "进入行程表",
+            "进入行程表OCR",
+            "行程表回主页"
+        ]
+    },
+    "行程表回主页": {
+        "timeout": 12000,
+        "recognition": "OCR",
+        "expected": [
+            "主頁",
+            "主页"
+        ],
+        "roi": [
+            0,
+            640,
+            200,
+            80
+        ],
+        "action": "Click",
+        "post_delay": 2000,
+        "next": [
+            "全部一键执行",
+            "全部一键执行OCR",
+            "行程表无需执行",
             "进入行程表"
         ]
     },
     "进入行程表": {
+        "timeout": 45000,
         "recognition": "TemplateMatch",
         "template": "行程表.png",
+        "roi": [
+            900,
+            480,
+            220,
+            200
+        ],
         "action": "Click",
-        "post_delay": 3000
+        "post_delay": 2500,
+        "next": [
+            "全部一键执行",
+            "全部一键执行OCR",
+            "行程表无需执行"
+        ]
     },
     "全部一键执行": {
-        "timeout": 60000,
+        "timeout": 12000,
         "recognition": "TemplateMatch",
         "template": [
             "一键执行.png"
         ],
         "action": "Click",
+        "post_delay": 2000,
         "next": [
-            "行程表完成判断",
-            "行程表事件"
+            "行程表执行后"
         ]
     },
-    "行程表完成判断": {
-        "timeout": 60000,
+    "全部一键执行OCR": {
+        "timeout": 12000,
+        "recognition": "OCR",
+        "expected": [
+            "全部一鍵",
+            "全部一键",
+            "一鍵執行",
+            "一键执行"
+        ],
+        "action": "Click",
+        "post_delay": 2000,
+        "next": [
+            "行程表执行后"
+        ]
+    },
+    "行程表无需执行": {
+        "timeout": 8000,
         "recognition": "TemplateMatch",
         "template": [
-            "没有要扫荡的项目.png"
+            "没有要扫荡的项目.png",
+            "已完成全部行程表.png",
+            "行程表已完成.png",
+            "全部一键执行已完成.png"
         ],
-        "post_delay": 1000,
+        "post_delay": 800,
         "next": [
             "离开行程表"
         ]
     },
-    "行程表事件": {
-        "timeout": 60000,
-        "rate_limit": 100,
+    "行程表执行后": {
+        "timeout": 300000,
+        "rate_limit": 200,
+        "interrupt": [
+            "行程表点OK",
+            "行程表点确认"
+        ],
         "next": [
+            "行程表无需执行",
             "购买mana",
             "扫荡地下城",
             "地下城跳过失败",
             "mana冒险",
-            "行程表事件"
+            "经验值冒险",
+            "公会点赞",
+            "行程表领取奖励",
+            "行程表领取奖励OCR"
+        ],
+        "on_error": [
+            "离开行程表"
         ]
     },
     "地下城跳过失败": {
-        "timeout": 60000,
+        "timeout": 8000,
         "recognition": "TemplateMatch",
         "template": [
             "地下城失败.png"
@@ -62,198 +129,124 @@
         "post_delay": 2000,
         "action": "Click",
         "next": [
-            "mana冒险"
+            "行程表执行后"
         ]
     },
     "购买mana": {
-        "timeout": 60000,
+        "timeout": 8000,
         "recognition": "TemplateMatch",
         "template": [
             "购买mana.png"
         ],
-        "post_delay": 1000,
+        "threshold": 0.7,
+        "action": "DoNothing",
+        "post_delay": 300,
         "next": [
+            "行程表点OK",
+            "行程表点确认",
             "购买mana是否花费钻石"
         ]
     },
     "购买mana是否花费钻石": {
-        "post_delay": 1000,
+        "timeout": 3000,
         "action": "Click",
         "target": [
-            539,
-            500,
+            780,
+            480,
             0,
             0
         ],
+        "post_delay": 1500,
         "next": [
-            "购买mana2"
-        ]
-    },
-    "购买mana2": {
-        "timeout": 60000,
-        "rate_limit": 100,
-        "next": [
-            "地下城跳过失败",
-            "扫荡地下城",
-            "mana冒险",
-            "购买mana2"
+            "行程表执行后"
         ]
     },
     "扫荡地下城": {
-        "timeout": 60000,
+        "timeout": 8000,
         "recognition": "TemplateMatch",
         "template": [
             "地下城扫荡.png"
         ],
-        "post_delay": 2000,
-        "target": [
-            808,
-            496,
-            0,
-            0
-        ],
-        "action": "Click",
+        "threshold": 0.7,
+        "action": "DoNothing",
+        "post_delay": 300,
         "next": [
-            "扫荡地下城下一步"
+            "行程表点OK",
+            "行程表点确认"
         ]
     },
     "扫荡地下城下一步": {
-        "target": [
-            665,
-            648,
-            0,
-            0
-        ],
-        "action": "Click",
+        "timeout": 1000,
+        "action": "DoNothing",
         "next": [
-            "扫荡地下城下一步2"
+            "行程表执行后"
         ]
     },
     "扫荡地下城下一步2": {
-        "recognition": "OCR",
-        "expected": [
-            "OK",
-            "确认"
-        ],
-        "timeout": 60000,
-        "target": [
-            665,
-            648,
-            0,
-            0
-        ],
-        "action": "Click",
+        "timeout": 1000,
+        "action": "DoNothing",
         "next": [
-            "mana冒险"
+            "行程表执行后"
         ]
     },
     "mana冒险": {
-        "timeout": 60000,
+        "timeout": 8000,
         "recognition": "TemplateMatch",
         "template": [
             "mana冒险.png"
         ],
-        "post_delay": 2000,
-        "target": [
-            826,
-            482,
-            0,
-            0
-        ],
-        "action": "Click",
+        "threshold": 0.7,
+        "action": "DoNothing",
+        "post_delay": 300,
         "next": [
-            "mana冒险下一步"
+            "行程表点OK",
+            "行程表点确认"
         ]
     },
     "mana冒险下一步": {
-        "target": [
-            636,
-            640,
-            0,
-            0
-        ],
-        "action": "Click",
+        "timeout": 1000,
+        "action": "DoNothing",
         "next": [
-            "mana冒险下一步2"
+            "行程表执行后"
         ]
     },
     "mana冒险下一步2": {
-        "recognition": "OCR",
-        "expected": [
-            "OK",
-            "确认"
-        ],
-        "timeout": 60000,
-        "target": [
-            636,
-            640,
-            0,
-            0
-        ],
-        "action": "Click",
+        "timeout": 1000,
+        "action": "DoNothing",
         "next": [
-            "经验值冒险"
+            "行程表执行后"
         ]
     },
     "经验值冒险": {
-        "timeout": 60000,
+        "timeout": 8000,
         "recognition": "TemplateMatch",
         "template": [
             "经验值冒险.png"
         ],
-        "post_delay": 2000,
-        "target": [
-            834,
-            489,
-            0,
-            0
-        ],
-        "action": "Click",
+        "threshold": 0.7,
+        "action": "DoNothing",
+        "post_delay": 300,
         "next": [
-            "经验值冒险下一步"
+            "行程表点OK",
+            "行程表点确认"
         ]
     },
     "经验值冒险下一步": {
-        "target": [
-            661,
-            648,
-            0,
-            0
-        ],
-        "action": "Click",
+        "timeout": 1000,
+        "action": "DoNothing",
         "next": [
-            "经验值冒险下一步2"
+            "行程表执行后"
         ]
     },
     "经验值冒险下一步2": {
-        "timeout": 60000,
-        "recognition": "OCR",
-        "expected": [
-            "OK",
-            "确认"
-        ],
-        "target": [
-            661,
-            648,
-            0,
-            0
-        ],
-        "action": "Click",
+        "timeout": 1000,
+        "action": "DoNothing",
         "next": [
-            "经验值冒险下一步3"
-        ]
-    },
-    "经验值冒险下一步3": {
-        "timeout": 60000,
-        "rate_limit": 100,
-        "next": [
-            "公会点赞",
-            "行程表领取奖励",
-            "经验值冒险下一步3"
+            "行程表执行后"
         ]
     },
     "公会点赞": {
-        "timeout": 60000,
+        "timeout": 8000,
         "recognition": "TemplateMatch",
         "template": [
             "公会点赞.png"
@@ -267,11 +260,11 @@
         "action": "Click",
         "post_delay": 1000,
         "next": [
-            "行程表领取奖励"
+            "行程表执行后"
         ]
     },
     "行程表领取奖励": {
-        "timeout": 60000,
+        "timeout": 8000,
         "recognition": "TemplateMatch",
         "template": [
             "行程表_领取奖励.png"
@@ -282,19 +275,181 @@
             0,
             0
         ],
-        "post_delay": 3000,
+        "post_delay": 2500,
         "action": "Click",
         "next": [
             "离开行程表"
         ]
     },
+    "行程表领取奖励OCR": {
+        "timeout": 8000,
+        "recognition": "OCR",
+        "expected": [
+            "領取獎勵",
+            "领取奖励",
+            "領取奖",
+            "领取奖"
+        ],
+        "action": "Click",
+        "post_delay": 2500,
+        "next": [
+            "离开行程表"
+        ]
+    },
     "离开行程表": {
+        "timeout": 25000,
+        "interrupt": [
+            "行程表点OK",
+            "行程表点确认"
+        ],
+        "next": [
+            "离开行程表OCR",
+            "离开行程表按钮",
+            "离开遮罩取消按钮",
+            "离开行程表点击"
+        ]
+    },
+    "离开遮罩取消按钮": {
+        "timeout": 4000,
+        "recognition": "OCR",
+        "expected": [
+            "取消"
+        ],
+        "roi": [
+            200,
+            560,
+            900,
+            140
+        ],
+        "action": "Click",
+        "post_delay": 1500,
+        "next": [
+            "确认已离开行程表"
+        ]
+    },
+    "离开行程表按钮": {
+        "timeout": 4000,
+        "recognition": "TemplateMatch",
+        "template": [
+            "行程表离开.png"
+        ],
+        "threshold": 0.6,
+        "action": "Click",
+        "post_delay": 1500,
+        "next": [
+            "确认已离开行程表"
+        ]
+    },
+    "离开行程表OCR": {
+        "timeout": 4000,
+        "recognition": "OCR",
+        "expected": [
+            "關閉",
+            "关闭",
+            "關開",
+            "関閉",
+            "關"
+        ],
+        "roi": [
+            200,
+            560,
+            900,
+            140
+        ],
+        "action": "Click",
+        "post_delay": 1500,
+        "next": [
+            "确认已离开行程表"
+        ]
+    },
+    "离开行程表点击": {
+        "action": "Click",
         "target": [
-            391,
-            648,
+            760,
+            640,
             0,
             0
         ],
-        "action": "Click"
+        "post_delay": 1500,
+        "next": [
+            "确认已离开行程表"
+        ]
+    },
+    "确认已离开行程表": {
+        "timeout": 8000,
+        "recognition": "OCR",
+        "expected": [
+            "主頁",
+            "主页",
+            "選單",
+            "选单",
+            "冒險",
+            "冒险"
+        ],
+        "roi": [
+            0,
+            620,
+            1280,
+            100
+        ],
+        "post_delay": 500
+    },
+    "进入行程表OCR": {
+        "timeout": 12000,
+        "recognition": "OCR",
+        "expected": [
+            "行程表"
+        ],
+        "roi": [
+            700,
+            480,
+            400,
+            200
+        ],
+        "action": "Click",
+        "post_delay": 2500,
+        "next": [
+            "全部一键执行",
+            "全部一键执行OCR",
+            "行程表无需执行"
+        ]
+    },
+    "行程表点OK": {
+        "timeout": 8000,
+        "recognition": "OCR",
+        "expected": [
+            "OK"
+        ],
+        "roi": [
+            400,
+            380,
+            500,
+            300
+        ],
+        "action": "Click",
+        "post_delay": 2000,
+        "next": [
+            "行程表执行后"
+        ]
+    },
+    "行程表点确认": {
+        "timeout": 8000,
+        "recognition": "OCR",
+        "expected": [
+            "確認",
+            "确定",
+            "確定"
+        ],
+        "roi": [
+            400,
+            380,
+            500,
+            300
+        ],
+        "action": "Click",
+        "post_delay": 2000,
+        "next": [
+            "行程表执行后"
+        ]
     }
 }

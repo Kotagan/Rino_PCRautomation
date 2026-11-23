@@ -47,18 +47,15 @@ public partial class PresetNameDialog : CustomWindow
     {
         PresetName = PresetNameTextBox.Text.Trim();
         DialogResult = true;
-        Close();
     }
 
     private void CancelButton_Click(object sender, RoutedEventArgs e)
     {
         DialogResult = false;
-        Close();
     }
 
     private void CloseButton_Click(object sender, RoutedEventArgs e)
     {
         DialogResult = false;
-        Close();
     }
 }

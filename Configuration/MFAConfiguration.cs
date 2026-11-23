@@ -1,3 +1,4 @@
+using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using MFAWPF.Helper;
@@ -28,7 +29,11 @@ public partial class MFAConfiguration : ObservableObject
             return;
         }
         Instances.SettingsViewModel.ConfigurationList.Remove(configuration);
-        ConfigurationHelper.DeleteConfig(configName);
+        // 文件名可能是 config.json（显示名 Default），优先按 FileName 删除
+        var fileKey = string.IsNullOrWhiteSpace(configuration.FileName)
+            ? configName
+            : Path.GetFileNameWithoutExtension(configuration.FileName);
+        ConfigurationHelper.DeleteConfig(fileKey);
     }
 
     public string DisplayName => Name;

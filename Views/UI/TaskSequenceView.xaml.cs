@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using MFAWPF.Extensions;
 using MFAWPF.Helper;
 using MFAWPF.Models;
@@ -27,15 +28,25 @@ public partial class TaskSequenceView
 
     private void ApplyPresetButton_Click(object sender, RoutedEventArgs e)
     {
-        var focusedElement = System.Windows.Input.FocusManager.GetFocusedElement(this) as UIElement;
+        var focusedElement = FocusManager.GetFocusedElement(this) as UIElement;
         if (focusedElement is TextBox textBox)
         {
             var binding = System.Windows.Data.BindingOperations.GetBindingExpression(textBox, TextBox.TextProperty);
             binding?.UpdateSource();
         }
-        System.Windows.Input.Keyboard.ClearFocus();
+        Keyboard.ClearFocus();
 
         ViewModel.ApplyPreset();
+    }
+
+    private void DeletePresetButton_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        // ComboBox 会吞掉内部按钮 Click，需在 Preview 阶段处理并 Handled
+        if (sender is Button { DataContext: TaskPreset preset })
+        {
+            e.Handled = true;
+            ViewModel.DeletePreset(preset);
+        }
     }
 
     private void DeletePresetButton_Click(object sender, RoutedEventArgs e)

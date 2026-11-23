@@ -223,6 +223,8 @@
     <ItemGroup>
         <Compile Remove="tests\**\*.cs" />
         <Compile Remove="tools\**\*.cs" />
+        <Compile Remove="script\**\*.cs" />
+        <None Remove="script\**\*" />
         <None Remove="docs\contracts\rino-catalog-v1.schema.json" />
         <None Remove="docs\contracts\rino-package-v1.schema.json" />
         <EmbeddedResource Include="docs\contracts\rino-catalog-v1.schema.json"

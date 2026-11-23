@@ -269,6 +269,13 @@ public class CustomWindow : Window
 
     protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
     {
+        // ShowDialog 模态窗若在 OnClosing 里 Cancel，会清掉 DialogResult，导致调用方永远拿不到 true
+        if (ComponentDispatcher.IsThreadModal)
+        {
+            base.OnClosing(e);
+            return;
+        }
+
         if (!_isClosing && Content is FrameworkElement rootElement && IsLoaded)
         {
             e.Cancel = true;

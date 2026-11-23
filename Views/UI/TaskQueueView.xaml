@@ -421,53 +421,92 @@
         </Grid>
 
 
-        <hc:ScrollViewer
-            BorderBrush="{DynamicResource BorderBrush}"
-            BorderThickness="1"
-            ClipToBounds="False"
+        <Grid
             Grid.Column="2"
             Height="{calcBinding:Binding RelativeSource={RelativeSource AncestorType=Grid},
                                          Path='ActualHeight - 20'}"
-            HorizontalScrollBarVisibility="Disabled"
-            IsInertiaEnabled="True"
             Margin="15,8,10,5"
-            PanningMode="VerticalOnly"
-            VerticalAlignment="Top"
-            VerticalContentAlignment="Top"
-            properties:AutoScroll.AutoScroll="True">
+            VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-            <ItemsControl ItemsSource="{Binding Path=ViewModel.LogItemViewModels}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto" />
-                                <ColumnDefinition Width="*" />
-                            </Grid.ColumnDefinitions>
+            <DockPanel LastChildFill="False" Margin="0,0,0,6">
+                <TextBlock
+                    FontSize="14.5"
+                    FontWeight="SemiBold"
+                    Foreground="{DynamicResource PrimaryTextBrush}"
+                    Text="{lex:Loc RunningLog}"
+                    VerticalAlignment="Center" />
+                <Button
+                    Click="CopyLogs_Click"
+                    Content="{lex:Loc CopyLog}"
+                    DockPanel.Dock="Right"
+                    Height="28"
+                    MinWidth="72"
+                    Padding="10,0"
+                    ToolTip="{lex:Loc CopyLogTip}" />
+            </DockPanel>
 
-                            <controls:CustomTextBlock
-                                FontSize="14.5"
-                                Foreground="{DynamicResource GrayColor1}"
-                                Grid.Column="0"
-                                HorizontalAlignment="Left"
-                                Margin="0,5,12,0"
-                                Text="{Binding Time}"
-                                TextWrapping="Wrap"
-                                VerticalAlignment="Stretch" />
-                            <controls:CustomTextBlock
-                                FontSize="15.5"
-                                FontWeight="{Binding Weight}"
-                                Foreground="{Binding Color}"
-                                Grid.Column="1"
-                                HorizontalAlignment="Left"
-                                Margin="0,5"
-                                Text="{Binding Content}"
-                                TextWrapping="Wrap"
-                                VerticalAlignment="Stretch" />
-                        </Grid>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </hc:ScrollViewer>
+            <hc:ScrollViewer
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                ClipToBounds="False"
+                Grid.Row="1"
+                HorizontalScrollBarVisibility="Disabled"
+                IsInertiaEnabled="True"
+                PanningMode="VerticalOnly"
+                VerticalAlignment="Stretch"
+                VerticalContentAlignment="Top"
+                properties:AutoScroll.AutoScroll="True">
+                <hc:ScrollViewer.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Click="CopyLogs_Click" Header="{lex:Loc CopyLog}" />
+                    </ContextMenu>
+                </hc:ScrollViewer.ContextMenu>
+
+                <ItemsControl ItemsSource="{Binding Path=ViewModel.LogItemViewModels}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    FontSize="14.5"
+                                    Foreground="{DynamicResource GrayColor1}"
+                                    Grid.Column="0"
+                                    IsReadOnly="True"
+                                    IsUndoEnabled="False"
+                                    Margin="4,5,12,0"
+                                    Padding="0"
+                                    Text="{Binding Time, Mode=OneWay}"
+                                    TextWrapping="NoWrap"
+                                    VerticalAlignment="Top" />
+                                <TextBox
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    FontSize="15.5"
+                                    FontWeight="{Binding Weight}"
+                                    Foreground="{Binding Color}"
+                                    Grid.Column="1"
+                                    IsReadOnly="True"
+                                    IsUndoEnabled="False"
+                                    Margin="0,5,4,5"
+                                    Padding="0"
+                                    Text="{Binding Content, Mode=OneWay}"
+                                    TextWrapping="Wrap"
+                                    VerticalAlignment="Top" />
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </hc:ScrollViewer>
+        </Grid>
     </Grid>
 </UserControl>

@@ -62,6 +62,68 @@ public static class DeviceIdentity
         return false;
     }
 
+    /// <summary>
+    /// 解析当前应对应的 MuMu 多开序号（用于自动拉起模拟器）。
+    /// </summary>
+    public static bool TryResolveMuMuIndex(out int index)
+    {
+        index = 0;
+        if (AppLaunchOptions.InstanceId == "1")
+        {
+            index = 1;
+            return true;
+        }
+        if (AppLaunchOptions.InstanceId == "3")
+        {
+            index = 3;
+            return true;
+        }
+
+        if (!string.IsNullOrEmpty(DeviceKey)
+            && DeviceKey.StartsWith("MuMu", StringComparison.OrdinalIgnoreCase)
+            && int.TryParse(DeviceKey.AsSpan(4), out var fromKey)
+            && fromKey >= 0)
+        {
+            index = fromKey;
+            return true;
+        }
+
+        var emu = ConfigurationHelper.GetValue(ConfigurationKeys.EmulatorConfig, string.Empty);
+        if (!string.IsNullOrWhiteSpace(emu))
+        {
+            if (int.TryParse(emu.Trim(), out var fromEmu) && fromEmu >= 0)
+            {
+                index = fromEmu;
+                return true;
+            }
+
+            var m = Regex.Match(emu, "\"index\"\\s*:\\s*(\\d+)");
+            if (m.Success && int.TryParse(m.Groups[1].Value, out var fromJson))
+            {
+                index = fromJson;
+                return true;
+            }
+        }
+
+        // 从当前 config 目录再扫一遍 AdbSerial / mumu index
+        if (TryReadFromConfigDir(ConfigurationHelper.GetConfigDirectory(), out var keyFromConfig)
+            && keyFromConfig.StartsWith("MuMu", StringComparison.OrdinalIgnoreCase)
+            && int.TryParse(keyFromConfig.AsSpan(4), out var fromConfigDir))
+        {
+            index = fromConfigDir;
+            return true;
+        }
+
+        return false;
+    }
+
+    public static string? GetMuMuAdbSerial(int index) => index switch
+    {
+        1 => "127.0.0.1:16416",
+        3 => "127.0.0.1:16480",
+        _ => null
+    };
+
     /// <summary>自动多开时优先占用的设备实例号。</summary>
     public static IEnumerable<string> PreferredAutoInstanceIds()
     {

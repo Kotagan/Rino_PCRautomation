@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -545,6 +546,42 @@ public partial class TaskQueueView
             if (clickedTask != null)
             {
                 clickedTask.IsCheckedWithNull = true;
+            }
+        }
+    }
+
+    private void CopyLogs_Click(object sender, RoutedEventArgs e)
+    {
+        var sb = new StringBuilder();
+        foreach (var item in ViewModel.LogItemViewModels)
+        {
+            if (item.ShowTime && !string.IsNullOrWhiteSpace(item.Time))
+                sb.Append('[').Append(item.Time).Append("] ");
+            sb.AppendLine(item.Content ?? string.Empty);
+        }
+
+        var text = sb.ToString().TrimEnd();
+        if (string.IsNullOrWhiteSpace(text))
+            return;
+
+        try
+        {
+            // WPF Clipboard 易遇 CLIPBRD_E_CANT_OPEN；用 WinForms 带重试更稳
+            System.Windows.Forms.Clipboard.SetDataObject(text, true, 10, 100);
+            GrowlHelper.Success("LogCopied".ToLocalization());
+        }
+        catch (Exception ex)
+        {
+            LoggerService.LogError($"Copy logs failed: {ex.Message}");
+            try
+            {
+                Clipboard.SetText(text);
+                GrowlHelper.Success("LogCopied".ToLocalization());
+            }
+            catch (Exception ex2)
+            {
+                LoggerService.LogError($"Copy logs fallback failed: {ex2.Message}");
+                GrowlHelper.Warning(ex2.Message);
             }
         }
     }

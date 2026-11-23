@@ -138,8 +138,10 @@
         "timeout": 60000,
         "recognition": "TemplateMatch",
         "template": [
-            "剧情跳过快进.png",
-            "剧情跳过2.png"
+            "跳过剧情.png",
+            "确定跳过剧情.png",
+            "支线活动剧情跳过.png",
+            "跳过.png"
         ],
         "action": "Click"
     },

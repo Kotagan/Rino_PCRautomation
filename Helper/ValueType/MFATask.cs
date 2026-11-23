@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using MaaFramework.Binding;
 using MFAWPF.Extensions.Maa;
+using MFAWPF.Helper;
 using MFAWPF.Views.UI;
 
 namespace MFAWPF.Helper.ValueType;
@@ -38,9 +39,12 @@ public partial class MFATask : ObservableObject
             {
                 token.ThrowIfCancellationRequested();
                 if (Type == MFATaskType.MAAFW)
-                    RootView.AddLogByKey("TaskStart", null,true, Name ?? string.Empty);
+                    RootView.AddLogByKey("TaskStart", null, true, Name ?? string.Empty);
                 await Action();
             }
+
+            if (Type == MFATaskType.MAAFW)
+                RootView.AddLogByKey("TaskRunSucceeded", BrushConverterHelper.ConvertToBrush("ForestGreen"), true, Name ?? string.Empty);
             return true;
         }
         catch (OperationCanceledException)
@@ -49,7 +53,11 @@ public partial class MFATask : ObservableObject
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"捕获异常: {ex.Message}");
+            LoggerService.LogError($"任务异常 [{Name}]: {ex}");
+            if (Type == MFATaskType.MAAFW)
+                RootView.AddLogByKey("TaskRunFailed", BrushConverterHelper.ConvertToBrush("OrangeRed"), false, Name ?? string.Empty, ex.Message);
+            else
+                RootView.AddLog($"err:{Name}: {ex.Message}", BrushConverterHelper.ConvertToBrush("OrangeRed"));
             return false;
         }
     }

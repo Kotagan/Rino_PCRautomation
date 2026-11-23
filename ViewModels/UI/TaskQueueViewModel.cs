@@ -31,12 +31,14 @@ public partial class TaskQueueViewModel : ViewModel
         var orderMap = BuildOriginalOrderMap();
         return TaskItemViewModels
             .Where(task => task.IsChecked || task.IsCheckedWithNull == null)
-            .OrderBy(item => RankByOriginalOrder(item, orderMap))
+            .OrderBy(item => IsTailTask(item) ? 1 : 0)
+            .ThenBy(item => RankByOriginalOrder(item, orderMap))
             .ToList();
     }
 
     /// <summary>
     /// 界面：已勾选置顶，关闭/未勾选沉底；组内按 interface 原顺序。
+    /// 「关闭游戏/主页挂机」在已勾选组内始终沉底。
     /// </summary>
     public void ReorderCheckedTasksToTop()
     {
@@ -51,6 +53,7 @@ public partial class TaskQueueViewModel : ViewModel
             var orderMap = BuildOriginalOrderMap();
             var ordered = TaskItemViewModels
                 .OrderBy(item => CheckSortRank(item.IsCheckedWithNull))
+                .ThenBy(item => IsTailTask(item) ? 1 : 0)
                 .ThenBy(item => RankByOriginalOrder(item, orderMap))
                 .ToList();
 
@@ -93,6 +96,14 @@ public partial class TaskQueueViewModel : ViewModel
         null => 1,
         false => 2
     };
+
+    /// <summary>收尾任务（关闭游戏等）在同组内始终排最后。</summary>
+    private static bool IsTailTask(DragItemViewModel item)
+    {
+        var entry = item.InterfaceItem?.Entry ?? string.Empty;
+        var name = item.InterfaceItem?.Name ?? item.Name ?? string.Empty;
+        return entry is "游戏状态" || name.Contains("关闭游戏", StringComparison.Ordinal);
+    }
 
     private bool _suppressCheckedReorder;
 

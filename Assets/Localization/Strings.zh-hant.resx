@@ -140,6 +140,18 @@
     <data name="Copy" xml:space="preserve">
     <value>複製</value>
   </data>
+    <data name="CopyLog" xml:space="preserve">
+    <value>複製日誌</value>
+  </data>
+    <data name="CopyLogTip" xml:space="preserve">
+    <value>複製全部日誌到剪貼簿；也可直接框選單行文字</value>
+  </data>
+    <data name="RunningLog" xml:space="preserve">
+    <value>運行日誌</value>
+  </data>
+    <data name="LogCopied" xml:space="preserve">
+    <value>日誌已複製</value>
+  </data>
     <data name="PasteAbove" xml:space="preserve">
     <value>貼到上方</value>
   </data>
@@ -257,6 +269,39 @@
     <data name="ConnectFailed" xml:space="preserve">
     <value>連線失敗</value>
   </data>
+    <data name="TaskRunSucceeded" xml:space="preserve">
+      <value>任務成功: {0}</value>
+    </data>
+    <data name="TaskRunFailed" xml:space="preserve">
+      <value>任務失敗: {0} ({1})</value>
+    </data>
+    <data name="TaskFailedContinue" xml:space="preserve">
+      <value>任務失敗，繼續執行後續: {0}</value>
+    </data>
+    <data name="TaskStepFailedStop" xml:space="preserve">
+      <value>關鍵步驟失敗，停止佇列: {0}</value>
+    </data>
+    <data name="QueueCompletedWithFailures" xml:space="preserve">
+      <value>佇列執行完畢（部分任務失敗）</value>
+    </data>
+    <data name="NodeActionStarting" xml:space="preserve">
+      <value>節點開始: {0}</value>
+    </data>
+    <data name="NodeActionSucceeded" xml:space="preserve">
+      <value>節點成功: {0}</value>
+    </data>
+    <data name="NodeActionFailed" xml:space="preserve">
+      <value>節點失敗: {0}</value>
+    </data>
+    <data name="PipelineTaskStarting" xml:space="preserve">
+      <value>流水線開始: {0}</value>
+    </data>
+    <data name="PipelineTaskSucceeded" xml:space="preserve">
+      <value>流水線成功: {0}</value>
+    </data>
+    <data name="PipelineTaskFailed" xml:space="preserve">
+      <value>流水線失敗: {0}</value>
+    </data>
     <data name="TaskStart" xml:space="preserve">
     <value>開始任務: {0}</value>
   </data>

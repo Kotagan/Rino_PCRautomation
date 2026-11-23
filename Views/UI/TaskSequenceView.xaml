@@ -227,6 +227,7 @@
                                         Height="20"
                                         Margin="8,0,0,0"
                                         Padding="0"
+                                        PreviewMouseLeftButtonDown="DeletePresetButton_PreviewMouseLeftButtonDown"
                                         Style="{StaticResource textBoxButton}"
                                         ToolTip="{lex:Loc DeletePreset}"
                                         Visibility="{Binding RelativeSource={RelativeSource AncestorType=ComboBoxItem}, Converter={StaticResource NotNullToVisibilityConverter}}"

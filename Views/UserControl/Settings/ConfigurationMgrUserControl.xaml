@@ -59,13 +59,14 @@
                                 VerticalAlignment="Center" />
                             <FrameworkElement Grid.Column="1" />
                             <Button
-                                Command="{Binding DeleteConfigurationCommand}"
-                                CommandParameter="{Binding}"
+                                Click="DeleteConfigurationButton_Click"
                                 Content="×"
                                 FontWeight="Bold"
                                 Grid.Column="2"
                                 HorizontalAlignment="Right"
                                 IsEnabled="{Binding IsDeletable}"
+                                PreviewMouseLeftButtonDown="DeleteConfigurationButton_PreviewMouseLeftButtonDown"
+                                Tag="{Binding}"
                                 VerticalAlignment="Center" />
                         </Grid>
                     </DataTemplate>

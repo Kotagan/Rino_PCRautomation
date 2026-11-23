@@ -22,11 +22,11 @@ public static class LanguageHelper
         }
     }
 
-    // 台服版默认繁體中文（索引 0）
+    // 界面默认简体中文（索引 0）；繁体仅作可选
     public static readonly ObservableCollection<SupportedLanguage> SupportedLanguages =
     [
-        new("zh-hant", "繁體中文"),
         new("zh-hans", "简体中文"),
+        new("zh-hant", "繁體中文"),
         new("en-us", "English"),
     ];
 
@@ -55,11 +55,28 @@ public static class LanguageHelper
 
     // 存储语言的字典
     private static readonly Dictionary<string, Dictionary<string, string>> Langs = new();
-    private static string _currentLanguage = "zh-hant";
+    private static string _currentLanguage = "zh-hans";
     public static void Initialize()
     {
         Console.WriteLine("Initializing LanguageManager...");
         LoadLanguages();
+        EnsureSimplifiedDefault();
+    }
+
+    /// <summary>
+    /// 旧版默认繁体（索引 0=zh-hant）。一次性迁移为简体，英文保留。
+    /// </summary>
+    private static void EnsureSimplifiedDefault()
+    {
+        const string migratedKey = "LangSimplifiedDefault";
+        if (Configuration.ConfigurationHelper.GetValue(migratedKey, false))
+            return;
+
+        var oldIndex = Configuration.ConfigurationHelper.GetValue(Configuration.ConfigurationKeys.LangIndex, 0);
+        // 旧顺序 [hant, hans, en]：中文一律改为简体(0)；英文(2)保持
+        var newIndex = oldIndex == 2 ? 2 : 0;
+        Configuration.ConfigurationHelper.SetValue(Configuration.ConfigurationKeys.LangIndex, newIndex);
+        Configuration.ConfigurationHelper.SetValue(migratedKey, true);
     }
 
     private static void LoadLanguages()

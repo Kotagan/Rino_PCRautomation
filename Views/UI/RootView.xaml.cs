@@ -99,6 +99,7 @@ public partial class RootView
         LanguageHelper.ChangeLanguage(LanguageHelper.SupportedLanguages[ConfigurationHelper.GetValue(ConfigurationKeys.LangIndex, 0)]);
 
         ThemeHelper.UpdateThemeIndexChanged(ConfigurationHelper.GetValue(ConfigurationKeys.ThemeIndex, 0));
+        ApplyDeviceWindowTitle();
         StateChanged += (_, _) =>
         {
             if (ConfigurationHelper.GetValue(ConfigurationKeys.ShouldMinimizeToTray, false))
@@ -106,6 +107,14 @@ public partial class RootView
                 ViewModel.IsVisible = WindowState != WindowState.Minimized;
             }
         };
+    }
+
+    /// <summary>任务栏/托盘区分多开窗口（同 exe 不同 --instance）。</summary>
+    private void ApplyDeviceWindowTitle()
+    {
+        if (string.IsNullOrEmpty(AppLaunchOptions.InstanceId))
+            return;
+        Title = $"Rino 设备{AppLaunchOptions.InstanceId}";
     }
 
     /// <summary>
@@ -388,44 +397,53 @@ public partial class RootView
     {
         DispatcherHelper.RunOnMainThread(async () =>
         {
-            await Task.Delay(300);
-            InitializationSettings();
-            Instances.ConnectingViewModel.CurrentController = (MaaInterface.Instance?.Controller?.FirstOrDefault()?.Type).ToMaaControllerTypes(Instances.ConnectingViewModel.CurrentController);
-            Console.WriteLine((MaaInterface.Instance?.Controller?.FirstOrDefault()?.Type).ToMaaControllerTypes(Instances.ConnectingViewModel.CurrentController));
-            if (!Convert.ToBoolean(GlobalConfiguration.GetValue(ConfigurationKeys.NoAutoStart, bool.FalseString)) && ConfigurationHelper.GetValue(ConfigurationKeys.BeforeTask, "None").Contains("Startup", StringComparison.OrdinalIgnoreCase))
+            try
             {
-                MaaProcessor.Instance.TaskQueue.Enqueue(new MFATask
+                await Task.Delay(300);
+                InitializationSettings();
+                Instances.ConnectingViewModel.CurrentController = (MaaInterface.Instance?.Controller?.FirstOrDefault()?.Type).ToMaaControllerTypes(Instances.ConnectingViewModel.CurrentController);
+                Console.WriteLine((MaaInterface.Instance?.Controller?.FirstOrDefault()?.Type).ToMaaControllerTypes(Instances.ConnectingViewModel.CurrentController));
+                if (!Convert.ToBoolean(GlobalConfiguration.GetValue(ConfigurationKeys.NoAutoStart, bool.FalseString)) && ConfigurationHelper.GetValue(ConfigurationKeys.BeforeTask, "None").Contains("Startup", StringComparison.OrdinalIgnoreCase))
                 {
-                    Name = "启动前",
-                    Type = MFATask.MFATaskType.MFA,
-                    Action = async () => await WaitSoftware(),
-                });
-                Instances.TaskQueueView.Start(!ConfigurationHelper.GetValue(ConfigurationKeys.BeforeTask, "None").Contains("And", StringComparison.OrdinalIgnoreCase), checkUpdate: true);
-            }
-            else
-            {
-                var isAdb = Instances.ConnectingViewModel.CurrentController == MaaControllerTypes.Adb;
-
-                AddLogByKey("ConnectingTo", null, true, isAdb ? "Emulator" : "Window");
-
-                Instances.ConnectingViewModel.TryReadAdbDeviceFromConfig(); 
-                MaaProcessor.Instance.TaskQueue.Enqueue(new MFATask
+                    MaaProcessor.Instance.TaskQueue.Enqueue(new MFATask
+                    {
+                        Name = "启动前",
+                        Type = MFATask.MFATaskType.MFA,
+                        Action = async () => await WaitSoftware(),
+                    });
+                    Instances.TaskQueueView.Start(!ConfigurationHelper.GetValue(ConfigurationKeys.BeforeTask, "None").Contains("And", StringComparison.OrdinalIgnoreCase), checkUpdate: true);
+                }
+                else
                 {
-                    Name = "连接检测",
-                    Type = MFATask.MFATaskType.MFA,
-                    Action = async () => await MaaProcessor.Instance.TestConnecting(),
-                });
-                Instances.TaskQueueView.Start(true, checkUpdate: true);
+                    var isAdb = Instances.ConnectingViewModel.CurrentController == MaaControllerTypes.Adb;
+
+                    AddLogByKey("ConnectingTo", null, true, isAdb ? "Emulator" : "Window");
+
+                    Instances.ConnectingViewModel.TryReadAdbDeviceFromConfig();
+                    MaaProcessor.Instance.TaskQueue.Enqueue(new MFATask
+                    {
+                        Name = "连接检测",
+                        Type = MFATask.MFATaskType.MFA,
+                        Action = async () => await MaaProcessor.Instance.TestConnecting(),
+                    });
+                    Instances.TaskQueueView.Start(true, checkUpdate: true);
+                }
+
+                GlobalConfiguration.SetValue("NoAutoStart", bool.FalseString);
+
+                ViewModel.LockController = (MaaInterface.Instance?.Controller?.Count ?? 0) < 2;
+
+                ConfigurationHelper.SetValue(ConfigurationKeys.EnableEdit, ConfigurationHelper.GetValue(ConfigurationKeys.EnableEdit, false));
+                if (!string.IsNullOrWhiteSpace(MaaInterface.Instance?.Message))
+                {
+                    GrowlHelper.Info(MaaInterface.Instance.Message);
+                }
             }
-
-            GlobalConfiguration.SetValue("NoAutoStart", bool.FalseString);
-
-            ViewModel.LockController = (MaaInterface.Instance?.Controller?.Count ?? 0) < 2;
-
-            ConfigurationHelper.SetValue(ConfigurationKeys.EnableEdit, ConfigurationHelper.GetValue(ConfigurationKeys.EnableEdit, false));
-            if (!string.IsNullOrWhiteSpace(MaaInterface.Instance?.Message))
+            catch (Exception ex)
             {
-                GrowlHelper.Info(MaaInterface.Instance.Message);
+                LoggerService.LogError(ex);
+                AddLog($"UI加载失败: {ex.Message}", BrushConverterHelper.ConvertToBrush("OrangeRed"));
+                GrowlHelper.Error($"UI加载失败: {ex.Message}");
             }
         });
         TaskManager.RunTaskAsync(async () =>

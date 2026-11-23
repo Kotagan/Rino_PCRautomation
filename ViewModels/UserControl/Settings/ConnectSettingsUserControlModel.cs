@@ -81,7 +81,8 @@ public partial class ConnectSettingsUserControlModel : ViewModel
         MaaProcessor.Instance.SetCurrentTasker();
     }
 
-    [ObservableProperty] private bool _retryOnDisconnected = ConfigurationHelper.GetValue(ConfigurationKeys.RetryOnDisconnected, false);
+    // 台服默认开启：启动任务连不上时自动拉起模拟器
+    [ObservableProperty] private bool _retryOnDisconnected = ConfigurationHelper.GetValue(ConfigurationKeys.RetryOnDisconnected, true);
 
     partial void OnRetryOnDisconnectedChanged(bool value)
     {

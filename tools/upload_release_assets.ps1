@@ -9,8 +9,8 @@ if ([string]::IsNullOrWhiteSpace($token)) {
     throw "GitHub token is empty. Please run 'gh auth login' first."
 }
 
-$releaseTag = "V1.9.0"
-$repo = "miaoyu2233/Rino_PCRautomation"
+$releaseTag = "V1.9.1-tw"
+$repo = "Kotagan/Rino_PCRautomation"
 
 Write-Host "Querying release information for $releaseTag..." -ForegroundColor Cyan
 $releaseJson = & curl.exe -s -x $proxy -H "Authorization: Bearer $token" "https://api.github.com/repos/$repo/releases/tags/$releaseTag"
@@ -23,8 +23,8 @@ if (!$releaseId) {
 Write-Host "Found release ID: $releaseId" -ForegroundColor Green
 
 $files = @(
-    "Rino_PCRautomation_V1.9.0.exe",
-    "Rino_PCRautomation_V1.9.0.zip"
+    "Rino_PCRautomation_V1.9.1-tw.exe",
+    "Rino_PCRautomation_V1.9.1-tw.zip"
 )
 
 foreach ($file in $files) {

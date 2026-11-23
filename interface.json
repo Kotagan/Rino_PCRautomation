@@ -2,19 +2,12 @@
     "name": "Rino_PCRautomation_TW",
     "version": "1.9.1-tw",
     "custom_title": "Rino 台服版",
-    "message": "台灣繁中服專用 · 基於已歸檔上游 Rino 的 Fork",
+    "message": "台湾服专用 · 基于已归档上游 Rino 的 Fork",
     "url": "https://github.com/Kotagan/Rino_PCRautomation.git",
         "task": [
             {
                 "name": "启动游戏",
                 "entry": "启动游戏"
-            },
-            {
-                "name": "关闭游戏/主页挂机",
-                "entry": "游戏状态",
-                "option": [
-                    "游戏状态"
-                ]
             },
             {
                 "name": "行程表/日程表",
@@ -134,6 +127,13 @@
                     "黎明界同行公会",
                     "黎明界目标难度",
                     "黎明界通行证用量"
+                ]
+            },
+            {
+                "name": "关闭游戏/主页挂机",
+                "entry": "游戏状态",
+                "option": [
+                    "游戏状态"
                 ]
             }
         ],

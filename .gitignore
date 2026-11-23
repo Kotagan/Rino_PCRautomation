@@ -192,3 +192,6 @@ auth.txt
 # local dawnrealm screenshot dumps
 docs/dawnrealm-captures/
 
+# Local test / debug scripts (do not commit)
+/script/
+

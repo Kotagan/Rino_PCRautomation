@@ -144,6 +144,18 @@
     <data name="Copy" xml:space="preserve">
     <value>Copy</value>
   </data>
+    <data name="CopyLog" xml:space="preserve">
+    <value>Copy Log</value>
+  </data>
+    <data name="CopyLogTip" xml:space="preserve">
+    <value>Copy all logs to clipboard; you can also select a single line</value>
+  </data>
+    <data name="RunningLog" xml:space="preserve">
+    <value>Runtime Log</value>
+  </data>
+    <data name="LogCopied" xml:space="preserve">
+    <value>Log copied</value>
+  </data>
     <data name="PasteAbove" xml:space="preserve">
     <value>Paste Above</value>
   </data>
@@ -261,6 +273,39 @@
     <data name="ConnectFailed" xml:space="preserve">
     <value>Connection failure</value>
   </data>
+    <data name="TaskRunSucceeded" xml:space="preserve">
+      <value>Task succeeded: {0}</value>
+    </data>
+    <data name="TaskRunFailed" xml:space="preserve">
+      <value>Task failed: {0} ({1})</value>
+    </data>
+    <data name="TaskFailedContinue" xml:space="preserve">
+      <value>Task failed, continuing queue: {0}</value>
+    </data>
+    <data name="TaskStepFailedStop" xml:space="preserve">
+      <value>Critical step failed, stopping queue: {0}</value>
+    </data>
+    <data name="QueueCompletedWithFailures" xml:space="preserve">
+      <value>Queue finished with some failures</value>
+    </data>
+    <data name="NodeActionStarting" xml:space="preserve">
+      <value>Node start: {0}</value>
+    </data>
+    <data name="NodeActionSucceeded" xml:space="preserve">
+      <value>Node ok: {0}</value>
+    </data>
+    <data name="NodeActionFailed" xml:space="preserve">
+      <value>Node failed: {0}</value>
+    </data>
+    <data name="PipelineTaskStarting" xml:space="preserve">
+      <value>Pipeline start: {0}</value>
+    </data>
+    <data name="PipelineTaskSucceeded" xml:space="preserve">
+      <value>Pipeline ok: {0}</value>
+    </data>
+    <data name="PipelineTaskFailed" xml:space="preserve">
+      <value>Pipeline failed: {0}</value>
+    </data>
     <data name="TaskStart" xml:space="preserve">
     <value>Starting task: {0}</value>
   </data>

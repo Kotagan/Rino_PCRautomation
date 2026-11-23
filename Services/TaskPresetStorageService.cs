@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using MFAWPF.Configuration;
 using MFAWPF.Helper;
 using MFAWPF.Models;
 using Newtonsoft.Json;
@@ -16,7 +17,7 @@ public class TaskPresetStorageService
     private static readonly object FileLock = new();
 
     private static string PresetsFilePath =>
-        Path.Combine(AppContext.BaseDirectory, "config", "task_presets.json");
+        Path.Combine(ConfigurationHelper.GetConfigDirectory(), "task_presets.json");
 
     /// <summary>
     /// Loads all saved task presets from storage.
@@ -59,7 +60,7 @@ public class TaskPresetStorageService
         {
             try
             {
-                var configDir = Path.Combine(AppContext.BaseDirectory, "config");
+                var configDir = ConfigurationHelper.GetConfigDirectory();
                 if (!Directory.Exists(configDir))
                 {
                     Directory.CreateDirectory(configDir);

@@ -1,6 +1,6 @@
 using MFAWPF.Helper;
 using System.Configuration;
-
+using System.IO;
 
 namespace MFAWPF.Configuration;
 
@@ -8,6 +8,18 @@ public static class GlobalConfiguration
 {
     private static System.Configuration.Configuration GetConfigurationInstance()
     {
+        // 多开时按实例拆开 exe.config，避免两套抢写同一文件 / 热键状态互相覆盖
+        if (!string.IsNullOrEmpty(AppLaunchOptions.InstanceId))
+        {
+            var dir = Path.Combine(AppContext.BaseDirectory, $"config_inst{AppLaunchOptions.InstanceId}");
+            Directory.CreateDirectory(dir);
+            var map = new ExeConfigurationFileMap
+            {
+                ExeConfigFilename = Path.Combine(dir, "global.appSettings.config")
+            };
+            return ConfigurationManager.OpenMappedExeConfiguration(map, ConfigurationUserLevel.None);
+        }
+
         return ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
     }
 

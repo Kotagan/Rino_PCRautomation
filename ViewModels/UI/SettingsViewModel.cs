@@ -153,27 +153,31 @@ public partial class SettingsViewModel : ViewModel
             NewConfigurationName = DateTime.Now.ToString("yyyyMMdd_HHmmss");
         }
 
-        var configDPath = Path.Combine(AppContext.BaseDirectory, "config");
-        var configPath = Path.Combine(configDPath, $"{ConfigurationHelper.GetActualConfiguration()}.json");
+        var configDPath = ConfigurationHelper.GetConfigDirectory();
+        if (!Directory.Exists(configDPath))
+            Directory.CreateDirectory(configDPath);
+
+        var currentFile = ConfigurationHelper.GetActualConfiguration();
+        var configPath = Path.Combine(configDPath, $"{currentFile}.json");
         var newConfigPath = Path.Combine(configDPath, $"{NewConfigurationName}.json");
         bool configExists = Directory.GetFiles(configDPath, "*.json")
             .Select(Path.GetFileNameWithoutExtension)
-            .Any(name => name.Equals(NewConfigurationName, StringComparison.OrdinalIgnoreCase));
+            .Any(name => name.Equals(NewConfigurationName, StringComparison.OrdinalIgnoreCase)
+                         || (NewConfigurationName.Equals("Default", StringComparison.OrdinalIgnoreCase) && name.Equals("config", StringComparison.OrdinalIgnoreCase)));
 
         if (configExists)
         {
-            GrowlHelper.Error("ConfigNameAlreadyExists".ToLocalizationFormatted(false,NewConfigurationName));
+            GrowlHelper.Error("ConfigNameAlreadyExists".ToLocalizationFormatted(false, NewConfigurationName));
             return;
         }
-        if (File.Exists(configPath))
-        {
-            var content = File.ReadAllText(configPath);
-            File.WriteAllText(newConfigPath, content);
 
-            ConfigurationHelper.AddNewConfig(NewConfigurationName);
-            GrowlHelper.Success("ConfigAddedSuccessfully".ToLocalizationFormatted(false,NewConfigurationName));
-        }
+        var content = File.Exists(configPath) ? File.ReadAllText(configPath) : "{}";
+        File.WriteAllText(newConfigPath, content);
 
+        var createdName = NewConfigurationName;
+        ConfigurationHelper.AddNewConfig(createdName);
+        NewConfigurationName = string.Empty;
+        GrowlHelper.Success("ConfigAddedSuccessfully".ToLocalizationFormatted(false, createdName));
     }
 
     #endregion 配置
